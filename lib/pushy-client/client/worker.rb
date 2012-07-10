@@ -1,7 +1,7 @@
 require 'time'
 require 'pp'
 
-module Pushy
+module PushyClient
   class Worker
     attr_reader :app, :monitor, :timer, :command
 
@@ -26,7 +26,7 @@ module Pushy
       @app = _app
       @state = "starting"
 
-      @monitor = Pushy::Monitor.new(options)
+      @monitor = PushyClient::Monitor.new(options)
       @ctx = EM::ZeroMQ::Context.new(1)
       @out_address = options[:out_address]
       @in_address = options[:in_address]
@@ -111,7 +111,7 @@ module Pushy
       end
 
       def get_config_json(app)
-        Pushy::Log.info "Worker: Fetching configuration ..."
+        PushyClient::Log.info "Worker: Fetching configuration ..."
         noauth_rest(app).get_rest("push_jobs/config", false)
       end
     end
@@ -121,19 +121,19 @@ module Pushy
       # TODO: Define hwm behavior for sockets below
 
       # Subscribe to heartbeat from the server
-      Pushy::Log.info "Worker: Listening for server heartbeat at #{out_address}"
+      PushyClient::Log.info "Worker: Listening for server heartbeat at #{out_address}"
       self.subscriber = ctx.socket(ZMQ::SUB, Pushy::Handler::Heartbeat.new(monitor, self))
       self.subscriber.connect(out_address)
       self.subscriber.setsockopt(ZMQ::SUBSCRIBE, "")
 
       # Push heartbeat to server
-      Pushy::Log.info "Worker: Broadcasting heartbeat at #{in_address}"
+      PushyClient::Log.info "Worker: Broadcasting heartbeat at #{in_address}"
       self.push_socket = ctx.socket(ZMQ::PUSH)
       self.push_socket.setsockopt(ZMQ::LINGER, 0)
       self.push_socket.connect(in_address)
 
       # command socket for server
-      Pushy::Log.info "Worker: Connecting to command channel at #{cmd_address}"
+      PushyClient::Log.info "Worker: Connecting to command channel at #{cmd_address}"
       # TODO
       # This needs to be set up to be able to handle bidirectional messages; right now this is Tx only
       # Probably need to set it up with a handler, like the subscriber socket above.
@@ -150,11 +150,11 @@ module Pushy
       # thing right now in the future we will probably want to send some sort of state
       # update to compensate for lost packets and the like.
       monitor.callback :server_restart do
-        Pushy::Log.info "Detected server restart"
+        PushyClient::Log.info "Detected server restart"
         send_command_message(:ready)
       end
 
-      Pushy::Log.debug "Worker: Setting heartbeat at every #{interval} seconds"
+      PushyClient::Log.debug "Worker: Setting heartbeat at every #{interval} seconds"
       @timer = EM::PeriodicTimer.new(interval) do
         send_heartbeat
       end
@@ -178,12 +178,12 @@ module Pushy
     end
 
     def stop
-      Pushy::Log.debug "Worker: Stopping ..."
+      PushyClient::Log.debug "Worker: Stopping ..."
       change_state "restarting"
       monitor.stop
       timer.cancel
       command.cancel
-      Pushy::Log.debug "Worker: Stopped."
+      PushyClient::Log.debug "Worker: Stopped."
     end
 
     private
@@ -203,7 +203,7 @@ module Pushy
       sig = sign_checksum(json)
       auth = "VersionId:0.0.1;SignedChecksum:#{sig}"
 
-      Pushy::Log.debug "Sending Message #{json}"
+      PushyClient::Log.debug "Sending Message #{json}"
       
       socket.send_msg(auth, json)
     end

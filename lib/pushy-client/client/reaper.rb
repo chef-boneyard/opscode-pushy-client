@@ -1,4 +1,4 @@
-module Pushy
+module PushyClient
   class Reaper
     # Kills a client after specified lifetime
 

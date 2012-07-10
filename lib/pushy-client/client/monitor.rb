@@ -1,4 +1,4 @@
-module Pushy
+module PushyClient
   class Monitor
     def initialize(options)
       @on_threshold = options[:online_threshold]
