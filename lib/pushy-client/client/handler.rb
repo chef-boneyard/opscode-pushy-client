@@ -1,6 +1,6 @@
 require 'eventmachine'
 
-module Pushy
+module PushyClient
   module Handler
     class Heartbeat
 

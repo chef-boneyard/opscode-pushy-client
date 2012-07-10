@@ -1,11 +1,11 @@
 require "spec_helper"
-require 'pushy/cli/client'
+require 'pushy-client/cli/client'
 
-describe Pushy::CLI::Client do
+describe PushyClient::CLI::Client do
   describe "#reconfigure" do
 
     subject { given; cli_client.reconfigure }
-    let(:cli_client) { Pushy::CLI::Client.new }
+    let(:cli_client) { PushyClient::CLI::Client.new }
 
     context "with config file" do
       let(:given) { cli_client.config[:config_file] = config_filename }

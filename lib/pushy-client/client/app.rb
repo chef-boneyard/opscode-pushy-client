@@ -1,7 +1,7 @@
 require 'time'
 require 'pp'
 
-module Pushy
+module PushyClient
   class App
     DEFAULT_SERVICE_URL_BASE = "localhost:10003/organization/clownco"
 
@@ -17,13 +17,13 @@ module Pushy
       @client_private_key_path = options[:client_private_key_path]
       @node_name               = options[:node_name]
 
-      Pushy::Log.info "Using configuration endpoint: #{service_url_base}"
-      Pushy::Log.info "Using private key: #{client_private_key_path}"
-      Pushy::Log.info "Using node name: #{node_name}"
+      PushyClient::Log.info "Using configuration endpoint: #{service_url_base}"
+      PushyClient::Log.info "Using private key: #{client_private_key_path}"
+      PushyClient::Log.info "Using node name: #{node_name}"
     end
 
     def start
-      Pushy::Log.info "Booting ..."
+      PushyClient::Log.info "Booting ..."
 
       EM.run do
         start_worker
@@ -32,9 +32,9 @@ module Pushy
     end
 
     def stop
-      Pushy::Log.info "Stopping client ..."
+      PushyClient::Log.info "Stopping client ..."
       worker.stop
-      Pushy::Log.info "Stopped."
+      PushyClient::Log.info "Stopped."
     end
 
     def reload
@@ -43,8 +43,8 @@ module Pushy
     end
 
     def start_worker
-      self.worker = Pushy::Worker.load!(self).tap(&:start)
-      self.reaper = Pushy::Reaper.watch! :app => self, :lifetime => worker.lifetime
+      self.worker = PushyClient::Worker.load!(self).tap(&:start)
+      self.reaper = PushyClient::Reaper.watch! :app => self, :lifetime => worker.lifetime
     end
 
   end
