@@ -4,13 +4,12 @@
 # All rights reserved
 #
 
-require 'rubygems'
 require 'rake'
-require 'bundler'
 require 'bundler/gem_tasks'
 
 require 'rubygems/package_task'
 require 'rubygems/specification'
+
 require 'date'
 
 gemspec = eval(File.read('pushy-client.gemspec'))
