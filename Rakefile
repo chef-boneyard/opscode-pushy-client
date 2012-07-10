@@ -6,21 +6,21 @@
 
 require 'rubygems'
 require 'rake'
+require 'bundler'
 require 'bundler/gem_tasks'
 
-require 'rake/gempackagetask'
+require 'rubygems/package_task'
 require 'rubygems/specification'
 require 'date'
 
-
 gemspec = eval(File.read('pushy-client.gemspec'))
 
-Rake::GemPackageTask.new(gemspec).define
-
-desc "install the gem locally"
-task :install => :package do
-  sh %{gem install pkg/#{gemspec.name}-#{gemspec.version}}
+Gem::PackageTask.new(gemspec) do |pkg|
+  pkg.need_zip = true
+  pkg.need_tar = true
 end
+
+Bundler::GemHelper.install_tasks
 
 begin
   require 'rspec/core/rake_task'
