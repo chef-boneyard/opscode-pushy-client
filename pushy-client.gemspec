@@ -4,9 +4,9 @@ require File.expand_path('../lib/pushy-client/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Mark Anderson"]
   gem.email         = ["mark@opscode.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.description   = %q{Client for opscode chef push jobs server}
+  gem.summary       = %q{Client for opscode chef push jobs server}
+  gem.homepage      = "https://github.com/opscode/opscode-pushy-client"
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.files         = `git ls-files`.split("\n")
