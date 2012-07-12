@@ -1,10 +1,12 @@
 require "spec_helper"
 
-describe Pushy::Client do
+require 'pushy-client'
+
+describe PushyClient::Client do
   include SpecHelpers::Config
 
   describe '.from_json' do
-    let(:pushy_client) { Pushy::Client.from_json(config_json) }
+    let(:pushy_client) { PushyClient::Client.from_json(config_json) }
 
     def self.its(_attribute, &expectation)
       context "with configuration attribute :#{_attribute}" do

@@ -1,4 +1,4 @@
-module Pushy
+module PushyClient
   module CLI
     class Client
 
@@ -107,14 +107,14 @@ module Pushy
         self.parse_options
 
         # set log level
-        Pushy::Log.level = config[:verbose] ? :debug : config[:log_level]
+        PushyClient::Log.level = config[:verbose] ? :debug : config[:log_level]
 
         self
       end
 
       def run
         reconfigure
-        app = Pushy::App.new \
+        app = PushyClient::App.new \
                 :service_url_base        => config[:service_url_base],
                 :client_private_key_path => config[:client_private_key_path],
                 :node_name               => config[:node_name]
@@ -124,7 +124,7 @@ module Pushy
 
       def reconfigure
         unless ::File.exists? config[:config_file]
-          Pushy::Log.warn "No config file. Using command line options."
+          PushyClient::Log.warn "No config file. Using command line options."
           return
         end
 
