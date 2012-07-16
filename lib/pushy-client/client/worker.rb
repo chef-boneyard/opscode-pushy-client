@@ -44,7 +44,7 @@ module PushyClient
       @server_public_key = OpenSSL::PKey::RSA.new(options[:server_public_key]) || load_key(options[:server_public_key_path])
 
       @sequence = 0
-     
+
       # TODO: This should be preserved across clean restarts...
       @incarnation_id = UUIDTools::UUID.random_create
     end
@@ -112,7 +112,7 @@ module PushyClient
 
       def get_config_json(app)
         PushyClient::Log.info "Worker: Fetching configuration ..."
-        noauth_rest(app).get_rest("push_jobs/config", false)
+        noauth_rest(app).get_rest("pushy/config", false)
       end
     end
 
@@ -204,7 +204,7 @@ module PushyClient
       auth = "VersionId:0.0.1;SignedChecksum:#{sig}"
 
       PushyClient::Log.debug "Sending Message #{json}"
-      
+
       socket.send_msg(auth, json)
     end
 
