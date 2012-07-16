@@ -182,7 +182,7 @@ module PushyClient
       change_state "restarting"
       monitor.stop
       timer.cancel
-      command.cancel
+      command.cancel if command
       PushyClient::Log.debug "Worker: Stopped."
     end
 
