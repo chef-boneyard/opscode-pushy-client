@@ -13,5 +13,5 @@ Gem::Specification.new do |gem|
   gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   gem.name          = "pushy-client"
   gem.require_paths = ["lib"]
-  gem.version       = Pushy::Client::VERSION
+  gem.version       = PushyClient::VERSION
 end
