@@ -108,6 +108,7 @@ module PushyClient
 
         # set log level
         PushyClient::Log.level = config[:verbose] ? :debug : config[:log_level]
+        Chef::Log.level = config[:verbose] ? :debug : config[:log_level]
 
         self
       end
