@@ -14,9 +14,9 @@ module PushyClient
     end
 
     def start
-      Pushy::Log.info "Reaper: will reap in #{lifetime} seconds"
+      PushyClient::Log.info "Reaper: will reap in #{lifetime} seconds"
       @timer = EM::Timer.new(lifetime) do
-        Pushy::Log.info "Reaper: Timeout (#{lifetime}) reached, killing and restart client"
+        PushyClient::Log.info "Reaper: Timeout (#{lifetime}) reached, killing and restart client"
         app.reload
       end
     end
