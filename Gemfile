@@ -7,11 +7,11 @@ gem "ffi-rzmq", "~> 0.9.3"
 gem "yajl-ruby", "~> 1.1.0", :require => "yajl"
 #gem "uuid", "~> 2.3.5"
 gem "em-zeromq", "~> 0.3.0"
-gem 'awesome_print'
+#gem 'awesome_print'
 
 group :test do
   gem "rspec"
-  gem "awesome_print"
+#  gem "awesome_print"
   gem 'rack'
   gem 'thin'
 end
