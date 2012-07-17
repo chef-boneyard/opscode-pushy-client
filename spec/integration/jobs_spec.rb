@@ -19,11 +19,9 @@ describe PushyClient::App do
     end
     # Wait until clients are registered with the server
     # TODO check for timeout and failure here
-    while !new_client.worker || new_client.worker.state != "idle"
-      sleep 0.05
+    while !new_client.worker || !new_client.worker.monitor.online?
+      sleep 0.02
     end
-    # TODO MAKE THIS GO AWAY.  Takes this long for the worker to tell the server it is idle
-    sleep 3.2
     @clients = [] if !@clients
     @clients << {
       :client => new_client,
@@ -61,7 +59,7 @@ describe PushyClient::App do
       end
 
       it 'does not barf all over the pavement' do
-        puts "RESPONSE:\n#{@response.inspect}"
+        @response.should == {}
       end
     end
   end
