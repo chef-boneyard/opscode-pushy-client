@@ -36,6 +36,6 @@ RSpec.configure do |config|
 
   PushyClient::Log.level = :debug
 
-  TestConfig.service_url_base = "http://33.33.33.10:10003/organizations/pushy"
+  TestConfig.service_url_base = "http://33.33.33.10:10003/organizations/ponyville"
   TestConfig.client_private_key_path = File.expand_path(File.join(File.dirname(__FILE__), '..', 'keys', 'client_private.pem'))
 end

@@ -22,6 +22,8 @@ describe PushyClient::App do
     while !new_client.worker || new_client.worker.state != "idle"
       sleep 0.05
     end
+    # TODO MAKE THIS GO AWAY.  Takes this long for the worker to tell the server it is idle
+    sleep 3.2
     @clients = [] if !@clients
     @clients << {
       :client => new_client,
@@ -52,14 +54,14 @@ describe PushyClient::App do
 
     context 'when running chef-client' do
       before(:each) do
-#        @response = rest.post_rest("pushy/jobs", {
-#          'command' => 'chef-client',
-#          'clients' => @clients.map { |c| c[:client].node_name }
-#        })
+        @response = rest.post_rest("pushy/jobs", {
+          'command' => 'chef-client',
+          'nodes' => @clients.map { |c| c[:client].node_name }
+        })
       end
 
       it 'does not barf all over the pavement' do
-#        puts "RESPONSE:\n#{@response.inspect}"
+        puts "RESPONSE:\n#{@response.inspect}"
       end
     end
   end
