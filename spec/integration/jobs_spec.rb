@@ -60,7 +60,7 @@ describe PushyClient::App do
     context 'when running chef-client' do
       before(:each) do
         @response = rest.post_rest("pushy/jobs", {
-          'command' => 'chef-client',
+          'command' => 'echo YAHOO',
           'nodes' => @clients.map { |c| c[:client].node_name }
         })
         # Wait until all have run
@@ -69,8 +69,9 @@ describe PushyClient::App do
         end
       end
 
-      it 'does not barf all over the pavement' do
-        @response.should == {}
+      it 'responds with 200' do
+        @response.keys.should == [ "uri" ]
+        @response['uri'].should match /^#{TestConfig.service_url_base}\/pushy\/jobs\/[0-9a-f]{32}$/
       end
     end
   end
