@@ -19,13 +19,20 @@ describe PushyClient::App do
     end
     # Wait until clients are registered with the server
     # TODO check for timeout and failure here
-    while !new_client.worker || !new_client.worker.monitor.online?
+    until new_client.worker
+      sleep 0.02
+    end
+    # Register for state changes
+    new_client_states = [ new_client.worker.state ]
+    new_client.worker.on_state_change = Proc.new { |state| new_client_states << new_client.worker.state }
+    until new_client.worker.monitor.online?
       sleep 0.02
     end
     @clients = [] if !@clients
     @clients << {
       :client => new_client,
-      :client_thread => new_client_thread
+      :thread => new_client_thread,
+      :states => new_client_states
     }
   end
   after :each do
@@ -34,7 +41,7 @@ describe PushyClient::App do
         if client[:client].worker
           client[:client].stop
         end
-        client[:client_thread].kill
+        client[:thread].kill
       end
       @clients = nil
     end
@@ -56,6 +63,10 @@ describe PushyClient::App do
           'command' => 'chef-client',
           'nodes' => @clients.map { |c| c[:client].node_name }
         })
+        # Wait until all have run
+        until @clients.all? { |client| client[:states].include?('running') && client[:client].worker.state == 'idle' }
+          sleep(0.02)
+        end
       end
 
       it 'does not barf all over the pavement' do
