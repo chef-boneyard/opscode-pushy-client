@@ -6,7 +6,6 @@ Bundler.require(:default, :test)
 
 require 'pushy-client'
 
-require 'ap'
 require 'tmpdir'
 require 'tempfile'
 
@@ -35,6 +34,7 @@ RSpec.configure do |config|
   config.formatter = 'documentation'
 
   PushyClient::Log.level = :debug
+  Chef::Log.level = :debug
 
   TestConfig.service_url_base = "http://33.33.33.10:10003/organizations/ponyville"
   TestConfig.client_private_key_path = File.expand_path(File.join(File.dirname(__FILE__), '..', 'keys', 'client_private.pem'))
