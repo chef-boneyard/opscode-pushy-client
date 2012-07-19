@@ -69,9 +69,21 @@ describe PushyClient::App do
         end
       end
 
-      it 'responds with 200' do
-        @response.keys.should == [ "uri" ]
-        @response['uri'].should match /^#{TestConfig.service_url_base}\/pushy\/jobs\/[0-9a-f]{32}$/
+      it 'is marked complete' do
+        job = nil
+        begin
+          sleep(0.02) if job
+          job = rest.get_rest(@response['uri'])
+        end until job['status'] == 'complete'
+        job.delete('id')
+        job.delete('created_at')
+        job.delete('updated_at')
+        job.should == {
+          'command' => 'echo YAHOO',
+          'duration' => 300,
+          'nodes' => { 'complete' => ['DERPY'] },
+          'status' => 'complete'
+        }
       end
     end
   end

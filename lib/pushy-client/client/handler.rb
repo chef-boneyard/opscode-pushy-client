@@ -66,7 +66,6 @@ module PushyClient
         @worker.send_command_message(:started, @worker.command_hash['job_id'])
         command = EM::DeferrableChildProcess.open(command_hash['command'])
         command.callback do |data_from_child|
-          # puts data_from_child
           @worker.change_state "idle"
           @worker.send_command_message(:finished, @worker.command_hash['job_id'])
         end
