@@ -70,8 +70,20 @@ describe PushyClient::App do
       end
 
       it 'is marked complete' do
-        job = rest.get_rest(@response['uri'])
-        job['status'].should == "complete"
+        job = nil
+        begin
+          sleep(0.02) if job
+          job = rest.get_rest(@response['uri'])
+        end until job['status'] == 'complete'
+        job.delete('id')
+        job.delete('created_at')
+        job.delete('updated_at')
+        job.should == {
+          'command' => 'echo YAHOO',
+          'duration' => 300,
+          'nodes' => { 'complete' => ['DERPY'] },
+          'status' => 'complete'
+        }
       end
     end
   end
