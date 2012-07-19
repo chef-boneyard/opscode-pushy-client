@@ -21,6 +21,7 @@ module PushyClient
     attr_accessor :push_socket
     attr_accessor :cmd_socket
     attr_accessor :command_hash
+    attr_accessor :on_state_change
 
     def initialize(_app, options)
       @app = _app
@@ -51,6 +52,7 @@ module PushyClient
 
     def change_state(state)
       self.state = state
+      on_state_change.call(self.state) if on_state_change
       send_heartbeat
     end
 
