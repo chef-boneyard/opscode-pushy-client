@@ -69,9 +69,9 @@ describe PushyClient::App do
         end
       end
 
-      it 'responds with 200' do
-        @response.keys.should == [ "uri" ]
-        @response['uri'].should match /^#{TestConfig.service_url_base}\/pushy\/jobs\/[0-9a-f]{32}$/
+      it 'is marked complete' do
+        job = rest.get_rest(@response['uri'])
+        job['status'].should == "complete"
       end
     end
   end
