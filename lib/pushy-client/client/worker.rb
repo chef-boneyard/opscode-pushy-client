@@ -7,7 +7,6 @@ module PushyClient
 
     attr_accessor :ctx
     attr_accessor :out_address
-    attr_accessor :in_address
     attr_accessor :cmd_address
     attr_accessor :interval
     attr_accessor :offline_threshold
@@ -18,7 +17,6 @@ module PushyClient
     attr_accessor :node_name
     attr_accessor :state
     attr_accessor :subscriber
-    attr_accessor :push_socket
     attr_accessor :cmd_socket
     attr_accessor :command_hash
     attr_accessor :on_state_change
@@ -30,7 +28,6 @@ module PushyClient
       @monitor = PushyClient::Monitor.new(options)
       @ctx = EM::ZeroMQ::Context.new(1)
       @out_address = options[:out_address]
-      @in_address = options[:in_address]
       @cmd_address = options[:cmd_address]
       @interval = options[:interval]
       @client_key_path = options[:client_key]
@@ -96,7 +93,6 @@ module PushyClient
 
       def from_hash(app, config)
         new app,
-          :in_address        => config['push_jobs']['heartbeat']['in_addr'],
           :out_address       => config['push_jobs']['heartbeat']['out_addr'],
           :cmd_address       => config['push_jobs']['heartbeat']['command_addr'],
           :interval          => config['push_jobs']['heartbeat']['interval'],
@@ -129,12 +125,6 @@ module PushyClient
       self.subscriber = ctx.socket(ZMQ::SUB, PushyClient::Handler::Heartbeat.new(monitor, self))
       self.subscriber.connect(out_address)
       self.subscriber.setsockopt(ZMQ::SUBSCRIBE, "")
-
-      # Push heartbeat to server
-      PushyClient::Log.info "Worker: Broadcasting heartbeat at #{in_address}"
-      self.push_socket = ctx.socket(ZMQ::PUSH)
-      self.push_socket.setsockopt(ZMQ::LINGER, 0)
-      self.push_socket.connect(in_address)
 
       # command socket for server
       PushyClient::Log.info "Worker: Connecting to command channel at #{cmd_address}"
