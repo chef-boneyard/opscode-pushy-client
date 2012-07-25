@@ -60,16 +60,18 @@ module PushyClient
       return unless monitor.online?
 
       message = {:node => node_name,
-        :org => "ORG",
+        :client => (`hostname`).chomp,
+        :org => "pushy",
+        :type => 'heartbeat',
         :timestamp => Time.now.httpdate,
-        :type => "heartbeat",
         :sequence => @sequence,
         :incarnation_id => @incarnation_id,
-        :state => state}
+        :state => state
+      }
 
       @sequence+=1
 
-      send_signed_json(self.push_socket, message)
+      send_signed_json(self.cmd_socket, message)
     end
 
     def send_command_message(message_type, job_id=nil)
