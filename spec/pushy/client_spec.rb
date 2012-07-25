@@ -16,7 +16,6 @@ describe PushyClient::Client do
     end
 
     its(:node_name)   { should eql host }
-    its(:in_address)  { should eql in_addr }
     its(:out_address) { should eql out_addr }
     its(:interval)    { should eql interval }
 

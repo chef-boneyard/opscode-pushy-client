@@ -6,7 +6,6 @@ module SpecHelpers
     included do
       let(:host) { 'opc1.opscode.com' }
       let(:out_addr) { 'tcp://10.10.1.5:10000' }
-      let(:in_addr)  { 'tcp://10.10.1.5:10001' }
       let(:interval) { 15 }
       let(:offline_threshold) { 3 }
       let(:online_threshold) { 2 }
@@ -32,7 +31,6 @@ PUB_KEY
       "push_jobs": {
                      "heartbeat": {
                                     "out_addr": "#{out_addr}",
-                                    "in_addr": "#{in_addr}",
                                     "interval": #{interval},
                                     "offline_threshold": #{offline_threshold},
                                     "online_threshold": #{online_threshold}
