@@ -43,11 +43,6 @@ module PushyClient
         :default => "tcp://127.0.0.1:10000",
         :description => "URL pointing to the server's heartbeat broadcast service"
 
-      option :in_address,
-        :long => "--in-address HOST",
-        :default => "tcp://127.0.0.1:10001",
-        :description => "URL pointing to the server's node state tracking service"
-
       option :service_url_base,
         :short => "-s HOST",
         :long => "--service-url-base HOST",
