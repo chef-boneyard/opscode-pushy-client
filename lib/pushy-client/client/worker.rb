@@ -135,11 +135,15 @@ module PushyClient
       self.cmd_socket.setsockopt(ZMQ::LINGER, 0)
       self.cmd_socket.connect(cmd_address)
 
-      monitor.start
+      # Start the offline/online monitor, and report ready whenever we are online.
+      if monitor.online?
+        send_command_message(:ready)
+      end
 
       monitor.callback :after_online do
         send_command_message(:ready)
       end
+
       # This should be logically separate from after online, even though it does the same
       # thing right now in the future we will probably want to send some sort of state
       # update to compensate for lost packets and the like.
@@ -148,6 +152,9 @@ module PushyClient
         send_command_message(:ready)
       end
 
+      monitor.start
+
+      # Set up the client->server heartbeat
       PushyClient::Log.debug "Worker: Setting heartbeat at every #{interval} seconds"
       @timer = EM::PeriodicTimer.new(interval) do
         send_heartbeat

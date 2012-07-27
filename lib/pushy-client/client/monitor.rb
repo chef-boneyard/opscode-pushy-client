@@ -5,7 +5,7 @@ module PushyClient
       @off_threshold = options[:offline_threshold]
       @interval = options[:interval]
       @on_counter = @off_counter = 0
-      @online = false
+      @online = true
       @callbacks = {}
       @server_incarnation_id = nil
     end
@@ -29,8 +29,7 @@ module PushyClient
       @off_counter = 0
 
       if @on_counter > @on_threshold
-        fire_callback(:after_online) if @online == false
-        @online = true
+        set_online(true)
       else
         @on_counter += 1
       end
@@ -40,11 +39,22 @@ module PushyClient
       @online
     end
 
+    def set_online(online)
+      if online
+        if !@online
+          @online = true
+          fire_callback(:after_online)
+        end
+      elsif @online
+        @online = false
+      end
+    end
+
     def start
       @timer = EM::PeriodicTimer.new(@interval) do
         if @off_counter > @off_threshold
           reset!
-          @online = false
+          set_online(false)
         else
           @off_counter += 1
         end
