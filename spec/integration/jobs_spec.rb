@@ -64,8 +64,9 @@ describe PushyClient::App do
     end
 
     Timeout::timeout(5) do
-      until names.all? { |name| @clients[name][:client].worker.monitor.online? }
-        sleep 0.02
+      until names.all? { |name| @clients[name][:client].worker.monitor.online? } &&
+        names.all? { |name| rest.get_rest("pushy/node_states/#{name}")[0]['status'] == 'idle' }
+        sleep 0.1
       end
     end
   end
@@ -165,7 +166,13 @@ describe PushyClient::App do
     before :each do
       start_new_clients('DONKEY')
       stop_client('DONKEY')
-      sleep(5)
+      # wait until the server believes the node is down
+      Timeout::timeout(5) do
+        until rest.get_rest('pushy/node_states/DONKEY')[0]['status'] == 'down'
+          sleep 0.1
+        end
+      end
+      # Start that sucker back up
       start_client('DONKEY')
       puts "=== STARTED =="
     end
