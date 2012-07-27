@@ -65,8 +65,11 @@ describe PushyClient::App do
 
     Timeout::timeout(5) do
       until names.all? { |name| @clients[name][:client].worker.monitor.online? } &&
-        names.all? { |name| rest.get_rest("pushy/node_states/#{name}")[0]['status'] == 'idle' }
-        sleep 0.1
+        names.all? { |name|
+          status = rest.get_rest("pushy/node_states/#{name}")[0]['status']
+          status == 'idle'
+        }
+        sleep 0.2
       end
     end
   end
@@ -94,9 +97,7 @@ describe PushyClient::App do
   after :each do
     if @clients
       @clients.each do |client_name, client|
-        puts "Stopping #{client_name} ..."
         stop_client(client_name)
-        puts "Stopped #{client_name}."
       end
       @clients = nil
     end
@@ -137,7 +138,10 @@ describe PushyClient::App do
     }
   end
 
+  #
   # Begin tests
+  #
+
   let(:rest) do
     # No auth yet
     Chef::REST.new(TestConfig.service_url_base, false, false)
@@ -148,7 +152,6 @@ describe PushyClient::App do
       start_new_clients('DONKEY')
       stop_client('DONKEY')
       start_client('DONKEY')
-      puts "=== STARTED =="
     end
 
     context 'when running a job' do
@@ -168,13 +171,14 @@ describe PushyClient::App do
       stop_client('DONKEY')
       # wait until the server believes the node is down
       Timeout::timeout(5) do
-        until rest.get_rest('pushy/node_states/DONKEY')[0]['status'] == 'down'
-          sleep 0.1
+        while true
+          status = rest.get_rest('pushy/node_states/DONKEY')[0]['status']
+          break if status == 'down'
+          sleep 0.2
         end
       end
       # Start that sucker back up
       start_client('DONKEY')
-      puts "=== STARTED =="
     end
 
     context 'when running a job' do
