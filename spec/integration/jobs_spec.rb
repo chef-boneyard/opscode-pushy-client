@@ -6,6 +6,10 @@ require 'timeout'
 
 describe PushyClient::App do
 
+  def echo_yahoo
+    'sh ' + File.expand_path('../../support/echo_yahoo_to_tmp_pushytest', __FILE__)
+  end
+
   # Method to start up a new client that will be reaped when
   # the test finishes
   def start_new_clients(*names)
@@ -141,8 +145,9 @@ describe PushyClient::App do
   end
 
   def run_job_on_all_clients
+    File.delete('/tmp/pushytest') if File.exist?('/tmp/pushytest')
     @response = rest.post_rest("pushy/jobs", {
-      'command' => 'echo YAHOO',
+      'command' => echo_yahoo,
       'nodes' => @clients.keys
     })
     # Wait until all have run
@@ -156,11 +161,12 @@ describe PushyClient::App do
     job = wait_for_job_complete(@response['uri'])
     job['nodes']['complete'] = job['nodes']['complete'].sort
     job.should == {
-      'command' => 'echo YAHOO',
+      'command' => echo_yahoo,
       'duration' => 300,
       'nodes' => { 'complete' => clients },
       'status' => 'complete'
     }
+    IO.read('/tmp/pushytest').should == "YAHOO\n"*@clients.length
   end
 
   #
