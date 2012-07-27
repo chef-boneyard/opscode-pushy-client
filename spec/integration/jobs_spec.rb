@@ -94,6 +94,31 @@ describe PushyClient::App do
     end
   end
 
+  def kill_client(name)
+    client = @clients[name][:client]
+    @clients[name][:client] = nil
+
+    raise "Client #{name} already stopped" if !client
+
+    # Do everything client.stop would do, without notifying anyone
+    if client.worker
+      client.worker.monitor.stop
+      client.worker.timer.cancel
+      client.worker.command.cancel if client.worker.command
+    end
+
+    # If there are no more clients, kill the EM thread (the first thread
+    # that a client has ever run on)
+    if !@clients.values.any? { |c| c[:client] }
+      EM.run { EM.stop_event_loop }
+      if !@thread.join(1)
+        puts "Timed out stopping client #{name}.  Killing thread."
+        @thread.kill
+        @thread = nil
+      end
+    end
+  end
+
   after :each do
     if @clients
       @clients.each do |client_name, client|
@@ -147,10 +172,26 @@ describe PushyClient::App do
     Chef::REST.new(TestConfig.service_url_base, false, false)
   end
 
-  context 'with a client that goes down and back up quickly before running the job' do
+  context 'with one client' do
     before :each do
       start_new_clients('DONKEY')
-      stop_client('DONKEY')
+    end
+
+    context 'when running a job' do
+      before(:each) do
+        run_job_on_all_clients
+      end
+
+      it 'is marked complete' do
+        job_should_complete_on_all_clients
+      end
+    end
+  end
+
+  context 'with a client that is killed and comes back up quickly' do
+    before :each do
+      start_new_clients('DONKEY')
+      kill_client('DONKEY')
       start_client('DONKEY')
     end
 
@@ -165,10 +206,10 @@ describe PushyClient::App do
     end
   end
 
-  context 'with a client that goes down and back up a while later before running the job' do
+  context 'with a client that is killed and comes back down after a while' do
     before :each do
       start_new_clients('DONKEY')
-      stop_client('DONKEY')
+      kill_client('DONKEY')
       # wait until the server believes the node is down
       Timeout::timeout(5) do
         while true
@@ -192,9 +233,38 @@ describe PushyClient::App do
     end
   end
 
-  context 'with one client' do
+  context 'with a client that goes down and back up quickly' do
     before :each do
       start_new_clients('DONKEY')
+      stop_client('DONKEY')
+      start_client('DONKEY')
+    end
+
+    context 'when running a job' do
+      before(:each) do
+        run_job_on_all_clients
+      end
+
+      it 'is marked complete' do
+        job_should_complete_on_all_clients
+      end
+    end
+  end
+
+  context 'with a client that goes down and back up a while later' do
+    before :each do
+      start_new_clients('DONKEY')
+      stop_client('DONKEY')
+      # wait until the server believes the node is down
+      Timeout::timeout(5) do
+        while true
+          status = rest.get_rest('pushy/node_states/DONKEY')[0]['status']
+          break if status == 'down'
+          sleep 0.2
+        end
+      end
+      # Start that sucker back up
+      start_client('DONKEY')
     end
 
     context 'when running a job' do
