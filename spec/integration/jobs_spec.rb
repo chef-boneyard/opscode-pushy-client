@@ -122,41 +122,35 @@ describe PushyClient::App do
     job
   end
 
+  def run_job_on_all_clients
+    @response = rest.post_rest("pushy/jobs", {
+      'command' => 'echo YAHOO',
+      'nodes' => @clients.keys
+    })
+    # Wait until all have run
+    until @clients.values.all? { |client| client[:states].include?('running') && client[:client].worker.state == 'idle' }
+      sleep(0.02)
+    end
+  end
+
+  def job_should_complete_on_all_clients
+    clients = @clients.keys.sort
+    job = wait_for_job_complete(@response['uri'])
+    job['nodes']['complete'] = job['nodes']['complete'].sort
+    job.should == {
+      'command' => 'echo YAHOO',
+      'duration' => 300,
+      'nodes' => { 'complete' => clients },
+      'status' => 'complete'
+    }
+  end
+
   # Begin tests
   let(:rest) do
     # No auth yet
     Chef::REST.new(TestConfig.service_url_base, false, false)
   end
 
-  context 'with three clients' do
-    before :each do
-      start_new_clients('DONKEY', 'FARQUAD', 'FIONA')
-    end
-
-    context 'when running chef-client' do
-      before(:each) do
-        @response = rest.post_rest("pushy/jobs", {
-          'command' => 'echo YAHOO',
-          'nodes' => @clients.keys
-        })
-        # Wait until all have run
-        until @clients.values.all? { |client| client[:states].include?('running') && client[:client].worker.state == 'idle' }
-          sleep(0.02)
-        end
-      end
-
-      it 'is marked complete' do
-        job = wait_for_job_complete(@response['uri'])
-        job['nodes']['complete'] = job['nodes']['complete'].sort
-        job.should == {
-          'command' => 'echo YAHOO',
-          'duration' => 300,
-          'nodes' => { 'complete' => ['DONKEY', 'FARQUAD', 'FIONA'] },
-          'status' => 'complete'
-        }
-      end
-    end
-  end
   context 'with one client' do
     before :each do
       start_new_clients('DONKEY')
@@ -164,24 +158,27 @@ describe PushyClient::App do
 
     context 'when running a job' do
       before(:each) do
-        @response = rest.post_rest("pushy/jobs", {
-          'command' => 'echo YAHOO',
-          'nodes' => @clients.keys
-        })
-        # Wait until all have run
-        until @clients.values.all? { |client| client[:states].include?('running') && client[:client].worker.state == 'idle' }
-          sleep(0.02)
-        end
+        run_job_on_all_clients
       end
 
       it 'is marked complete' do
-        job = wait_for_job_complete(@response['uri'])
-        job.should == {
-          'command' => 'echo YAHOO',
-          'duration' => 300,
-          'nodes' => { 'complete' => ['DONKEY'] },
-          'status' => 'complete'
-        }
+        job_should_complete_on_all_clients
+      end
+    end
+  end
+
+  context 'with three clients' do
+    before :each do
+      start_new_clients('DONKEY', 'FARQUAD', 'FIONA')
+    end
+
+    context 'when running a job' do
+      before(:each) do
+        run_job_on_all_clients
+      end
+
+      it 'the job and node statuses are marked complete' do
+        job_should_complete_on_all_clients
       end
     end
   end
