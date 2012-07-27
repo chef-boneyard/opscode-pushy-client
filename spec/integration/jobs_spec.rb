@@ -42,6 +42,7 @@ describe PushyClient::App do
       else
         @thread = Thread.new do
           new_client.start
+          @thread = nil
         end
       end
     end
@@ -49,7 +50,7 @@ describe PushyClient::App do
     # Wait until client is registered with the server
     Timeout::timeout(5) do
       until names.all? { |name| @clients[name][:client].worker }
-        sleep 0.2
+        sleep 0.02
       end
     end
 
@@ -86,16 +87,6 @@ describe PushyClient::App do
         @thread.kill
         @thread = nil
       end
-#      begin
-#        Timeout::timeout(1) do
-#          until client.worker.state == 'restarting'
-#            sleep(0.02)
-#          end
-#        end
-#      rescue Timeout::Error
-#        puts "Timed out stopping client #{name}.  Killing thread."
-#        thread.kill
-#      end
     end
   end
 
@@ -149,6 +140,45 @@ describe PushyClient::App do
   let(:rest) do
     # No auth yet
     Chef::REST.new(TestConfig.service_url_base, false, false)
+  end
+
+  context 'with a client that goes down and back up quickly before running the job' do
+    before :each do
+      start_new_clients('DONKEY')
+      stop_client('DONKEY')
+      start_client('DONKEY')
+      puts "=== STARTED =="
+    end
+
+    context 'when running a job' do
+      before(:each) do
+        run_job_on_all_clients
+      end
+
+      it 'is marked complete' do
+        job_should_complete_on_all_clients
+      end
+    end
+  end
+
+  context 'with a client that goes down and back up a while later before running the job' do
+    before :each do
+      start_new_clients('DONKEY')
+      stop_client('DONKEY')
+      sleep(5)
+      start_client('DONKEY')
+      puts "=== STARTED =="
+    end
+
+    context 'when running a job' do
+      before(:each) do
+        run_job_on_all_clients
+      end
+
+      it 'is marked complete' do
+        job_should_complete_on_all_clients
+      end
+    end
   end
 
   context 'with one client' do
