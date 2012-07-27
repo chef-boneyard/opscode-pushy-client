@@ -7,7 +7,7 @@ module PushyClient
       @on_counter = @off_counter = 0
       @online = false
       @callbacks = {}
-      @server_incarnation_id = nil 
+      @server_incarnation_id = nil
     end
 
     def callback(type, &block)
@@ -18,7 +18,7 @@ module PushyClient
     def checkin!(data)
       # check to see if the incarnation has changed; that indicates a server restart.
       incarnation_id = data["incarnation_id"]
-      if (@server_incarnation_id == nil) 
+      if (@server_incarnation_id == nil)
         @server_incarnation_id = data["incarnation_id"]
       elsif (@server_incarnation_id !=  data["incarnation_id"])
         @server_incarnation_id = data["incarnation_id"]
