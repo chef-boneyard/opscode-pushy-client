@@ -65,6 +65,9 @@ module PushyClient
         :state => state
       }
 
+      _command_hash = command_hash
+      message[:job_id] = _command_hash['job_id'] if _command_hash
+
       @sequence+=1
 
       send_signed_json(self.cmd_socket, message)
@@ -153,7 +156,11 @@ module PushyClient
 
       monitor.start
 
-      # Set up the client->server heartbeat
+      # Send the first heartbeat
+      change_state "idle"
+      send_heartbeat
+
+      # Set up the client->server heartbeat on a timer
       PushyClient::Log.debug "Worker: Setting heartbeat at every #{interval} seconds"
       @timer = EM::PeriodicTimer.new(interval) do
         send_heartbeat
@@ -173,8 +180,6 @@ module PushyClient
       #  pp ["Sending message:", message]
       #  send_signed_json(cmd_socket, message)
       #end
-
-      change_state "idle"
     end
 
     def stop
