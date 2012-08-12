@@ -66,6 +66,9 @@ module PushyClient
         @worker.send_command_message(:started, @worker.command_hash['job_id'])
         command = EM::DeferrableChildProcess.open(command_hash['command'])
         command.callback do |data_from_child|
+          # TODO there is a race here: if the heartbeat monitor fires between
+          # the next two statements, we will send heartbeat "idle" before the
+          # "finished" message, which is a confused thing to do.
           @worker.change_state "idle"
           @worker.send_command_message(:finished, @worker.command_hash['job_id'])
         end

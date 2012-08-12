@@ -50,7 +50,6 @@ module PushyClient
     def change_state(state)
       self.state = state
       on_state_change.call(self.state) if on_state_change
-      send_heartbeat
     end
 
     def send_heartbeat
