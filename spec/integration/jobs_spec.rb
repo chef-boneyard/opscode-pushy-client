@@ -70,8 +70,8 @@ describe PushyClient::App do
     Timeout::timeout(5) do
       until names.all? { |name| @clients[name][:client].worker.monitor.online? } &&
         names.all? { |name|
-          status = rest.get_rest("pushy/node_states/#{name}")[0]['status']
-          status == 'idle'
+          status = rest.get_rest("pushy/node_states/#{name}")['status']
+          status == 'up'
         }
         sleep 0.2
       end
@@ -137,7 +137,7 @@ describe PushyClient::App do
     begin
       sleep(0.02) if job
       job = rest.get_rest(uri)
-    end until job['status'] == 'complete'
+    end until job['status'] == 'finished'
     job.delete('id')
     job.delete('created_at')
     job.delete('updated_at')
@@ -159,12 +159,12 @@ describe PushyClient::App do
   def job_should_complete_on_all_clients
     clients = @clients.keys.sort
     job = wait_for_job_complete(@response['uri'])
-    job['nodes']['complete'] = job['nodes']['complete'].sort
+    job['nodes']['finished'] = job['nodes']['finished'].sort
     job.should == {
       'command' => echo_yahoo,
       'duration' => 300,
-      'nodes' => { 'complete' => clients },
-      'status' => 'complete'
+      'nodes' => { 'finished' => clients },
+      'status' => 'finished'
     }
     IO.read('/tmp/pushytest').should == "YAHOO\n"*@clients.length
   end
@@ -219,7 +219,7 @@ describe PushyClient::App do
       # wait until the server believes the node is down
       Timeout::timeout(5) do
         while true
-          status = rest.get_rest('pushy/node_states/DONKEY')[0]['status']
+          status = rest.get_rest('pushy/node_states/DONKEY')['status']
           break if status == 'down'
           sleep 0.2
         end
@@ -264,7 +264,7 @@ describe PushyClient::App do
       # wait until the server believes the node is down
       Timeout::timeout(5) do
         while true
-          status = rest.get_rest('pushy/node_states/DONKEY')[0]['status']
+          status = rest.get_rest('pushy/node_states/DONKEY')['status']
           break if status == 'down'
           sleep 0.2
         end
