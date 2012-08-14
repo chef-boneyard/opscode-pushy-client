@@ -137,7 +137,7 @@ describe PushyClient::App do
     begin
       sleep(0.02) if job
       job = get_job(uri)
-    end until job['status'] == 'finished'
+    end until job['status'] == 'complete'
     job
   end
 
@@ -158,12 +158,17 @@ describe PushyClient::App do
   end
 
   def start_job_on_all_clients(command)
+    start_job(command, @clients.keys)
+  end
+
+  def start_job(command, node_names)
+    nodes = node_names.map { |node_name| @clients[node_name] }
     @response = rest.post_rest("pushy/jobs", {
       'command' => command,
-      'nodes' => @clients.keys
+      'nodes' => node_names
     })
     # Wait until all have started
-    until @clients.values.all? { |client| client[:states].include?('ready') }
+    until nodes.all? { |client| client[:states].include?('ready') }
       sleep(0.02)
     end
   end
@@ -174,13 +179,16 @@ describe PushyClient::App do
   end
 
   def job_should_complete_on_all_clients(command)
-    clients = @clients.keys.sort
+    job_should_complete(command, @clients.keys)
+  end
+
+  def job_should_complete(command, node_names)
     job = wait_for_job_complete(@response['uri'])
     job.should == {
       'command' => command,
       'duration' => 300,
-      'nodes' => { 'complete' => clients },
-      'status' => 'finished'
+      'nodes' => { 'complete' => node_names.sort },
+      'status' => 'complete'
     }
   end
 
@@ -205,33 +213,6 @@ describe PushyClient::App do
 
       it 'is marked complete' do
         echo_job_should_complete_on_all_clients
-      end
-    end
-
-    context 'tied up in a long-running job', :focus do
-      before(:each) do
-        start_job_on_all_clients('sleep 1')
-      end
-
-      context 'and we try to run a new job on the same node' do
-        before(:each) do
-          @nack_job = rest.post_rest("pushy/jobs", {
-            'command' => echo_yahoo,
-            'nodes' => @clients.keys
-          })
-        end
-
-        it 'nacks and fails to run, and old job still completes' do
-          job_should_complete_on_all_clients('sleep 1')
-
-          nack_job = get_job(@nack_job['uri'])
-          nack_job.should == {
-            'command' => echo_yahoo,
-            'duration' => 300,
-            'nodes' => { 'nacked' => @clients.keys.sort },
-            'status' => 'finished'
-          }
-        end
       end
     end
   end
@@ -338,6 +319,36 @@ describe PushyClient::App do
 
       it 'the job and node statuses are marked complete' do
         echo_job_should_complete_on_all_clients
+      end
+    end
+
+    context 'with one tied up in a long-running job', :focus do
+      before(:each) do
+        start_job('sleep 1', [ 'DONKEY' ])
+      end
+
+      context 'and we try to run a new job on all three nodes' do
+        before(:each) do
+          @nack_job = rest.post_rest("pushy/jobs", {
+            'command' => echo_yahoo,
+            'nodes' => [ 'DONKEY', 'FARQUAD', 'FIONA' ]
+          })
+        end
+
+        it 'nacks the one and fails to run, and old job still completes' do
+          job_should_complete('sleep 1', [ 'DONKEY' ])
+
+          nack_job = get_job(@nack_job['uri'])
+          nack_job.should == {
+            'command' => echo_yahoo,
+            'duration' => 300,
+            'nodes' => {
+              'nacked' => [ 'DONKEY' ],
+              'aborted_from_ready' => [ 'FARQUAD', 'FIONA' ]
+            },
+            'status' => 'quorum_failed'
+          }
+        end
       end
     end
   end
