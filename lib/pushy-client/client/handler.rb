@@ -43,6 +43,10 @@ module PushyClient
           ack_nack(command_hash)
         elsif command_hash['type'] == "job_execute"
           run_command(command_hash)
+        elsif command_hash['type'] == "job_abort"
+          abort(command_hash)
+        else
+          PushyClient::Log.error "Received unknown command #{command_hash}"
         end
 
       end
@@ -57,8 +61,8 @@ module PushyClient
           # TODO there is a race condition here where we could acknowledge two
           # different jobs if two jobs ask for us at the same time.
           @worker.change_state "ready"
-          @worker.send_command_message(:ack, command_hash['job_id'])
           @worker.command_hash = command_hash
+          @worker.send_command_message(:ack, command_hash['job_id'])
         else
           @worker.send_command_message(:nack, command_hash['job_id'])
         end
@@ -85,15 +89,26 @@ module PushyClient
           command.callback do |data_from_child|
             # TODO there is a race here: if the heartbeat monitor fires between
             # the next two statements, we will send heartbeat "idle" before the
-            # "finished" message, which is a confused thing to do.
+            # "complete" message, which is a confused thing to do.
             @worker.change_state "idle"
             @worker.command_hash = nil
-            @worker.send_command_message(:finished, command_hash['job_id'])
+            @worker.send_command_message(:complete, command_hash['job_id'])
           end
         else
           # Otherwise, respond with a nack.  TODO: do we need a new message for this,
           # or is nack sufficient?
           @worker.send_command_message(:nack, command_hash['job_id'])
+        end
+      end
+
+      def abort(command_hash)
+        # Only abort if the abort command is for the job WE are running.
+        # TODO support abort while actually running
+        PushyClient::Log.debug "do_abort(#{@worker.state}, #{@worker.command_hash} === #{command_hash})"
+        if @worker.state == 'ready' && @worker.command_hash['job_id'] == command_hash['job_id']
+          @worker.change_state 'idle'
+          @worker.command_hash = nil
+          @worker.send_command_message(:aborted_while_ready, command_hash['job_id'])
         end
       end
 

@@ -344,7 +344,7 @@ describe PushyClient::App do
             'duration' => 300,
             'nodes' => {
               'nacked' => [ 'DONKEY' ],
-              'aborted_from_ready' => [ 'FARQUAD', 'FIONA' ]
+              'aborted_while_ready' => [ 'FARQUAD', 'FIONA' ]
             },
             'status' => 'quorum_failed'
           }
