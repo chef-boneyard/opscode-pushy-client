@@ -374,7 +374,7 @@ describe PushyClient::App do
   end
 
   context 'bad input' do
-    it '404s when retrieving a nonexistent job', :focus do
+    it '404s when retrieving a nonexistent job' do
       begin
         rest.get_rest('pushy/jobs/abcdefabcdef807f32d9572f8aafbd03', {
           'command' => echo_yahoo
