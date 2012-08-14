@@ -136,37 +136,52 @@ describe PushyClient::App do
     job = nil
     begin
       sleep(0.02) if job
-      job = rest.get_rest(uri)
+      job = get_job(uri)
     end until job['status'] == 'finished'
-    job.delete('id')
-    job.delete('created_at')
-    job.delete('updated_at')
     job
   end
 
-  def run_job_on_all_clients
+  def get_job(uri)
+    job = rest.get_rest(uri)
+    job.delete('id')
+    job.delete('created_at')
+    job.delete('updated_at')
+    job['nodes'].keys.each do |status|
+      job['nodes'][status] = job['nodes'][status].sort
+    end
+    job
+  end
+
+  def start_echo_job_on_all_clients
     File.delete('/tmp/pushytest') if File.exist?('/tmp/pushytest')
+    start_job_on_all_clients(echo_yahoo)
+  end
+
+  def start_job_on_all_clients(command)
     @response = rest.post_rest("pushy/jobs", {
-      'command' => echo_yahoo,
+      'command' => command,
       'nodes' => @clients.keys
     })
-    # Wait until all have run
-    until @clients.values.all? { |client| client[:states].include?('running') && client[:client].worker.state == 'idle' }
+    # Wait until all have started
+    until @clients.values.all? { |client| client[:states].include?('ready') }
       sleep(0.02)
     end
   end
 
-  def job_should_complete_on_all_clients
+  def echo_job_should_complete_on_all_clients
+    job_should_complete_on_all_clients(echo_yahoo)
+    IO.read('/tmp/pushytest').should == "YAHOO\n"*@clients.length
+  end
+
+  def job_should_complete_on_all_clients(command)
     clients = @clients.keys.sort
     job = wait_for_job_complete(@response['uri'])
-    job['nodes']['finished'] = job['nodes']['finished'].sort
     job.should == {
-      'command' => echo_yahoo,
+      'command' => command,
       'duration' => 300,
-      'nodes' => { 'finished' => clients },
+      'nodes' => { 'complete' => clients },
       'status' => 'finished'
     }
-    IO.read('/tmp/pushytest').should == "YAHOO\n"*@clients.length
   end
 
   #
@@ -185,11 +200,38 @@ describe PushyClient::App do
 
     context 'when running a job' do
       before(:each) do
-        run_job_on_all_clients
+        start_echo_job_on_all_clients
       end
 
       it 'is marked complete' do
-        job_should_complete_on_all_clients
+        echo_job_should_complete_on_all_clients
+      end
+    end
+
+    context 'tied up in a long-running job', :focus do
+      before(:each) do
+        start_job_on_all_clients('sleep 1')
+      end
+
+      context 'and we try to run a new job on the same node' do
+        before(:each) do
+          @nack_job = rest.post_rest("pushy/jobs", {
+            'command' => echo_yahoo,
+            'nodes' => @clients.keys
+          })
+        end
+
+        it 'nacks and fails to run, and old job still completes' do
+          job_should_complete_on_all_clients('sleep 1')
+
+          nack_job = get_job(@nack_job['uri'])
+          nack_job.should == {
+            'command' => echo_yahoo,
+            'duration' => 300,
+            'nodes' => { 'nacked' => @clients.keys.sort },
+            'status' => 'finished'
+          }
+        end
       end
     end
   end
@@ -203,11 +245,11 @@ describe PushyClient::App do
 
     context 'when running a job' do
       before(:each) do
-        run_job_on_all_clients
+        start_echo_job_on_all_clients
       end
 
       it 'is marked complete' do
-        job_should_complete_on_all_clients
+        echo_job_should_complete_on_all_clients
       end
     end
   end
@@ -230,11 +272,11 @@ describe PushyClient::App do
 
     context 'when running a job' do
       before(:each) do
-        run_job_on_all_clients
+        start_echo_job_on_all_clients
       end
 
       it 'is marked complete' do
-        job_should_complete_on_all_clients
+        echo_job_should_complete_on_all_clients
       end
     end
   end
@@ -248,11 +290,11 @@ describe PushyClient::App do
 
     context 'when running a job' do
       before(:each) do
-        run_job_on_all_clients
+        start_echo_job_on_all_clients
       end
 
       it 'is marked complete' do
-        job_should_complete_on_all_clients
+        echo_job_should_complete_on_all_clients
       end
     end
   end
@@ -275,11 +317,11 @@ describe PushyClient::App do
 
     context 'when running a job' do
       before(:each) do
-        run_job_on_all_clients
+        start_echo_job_on_all_clients
       end
 
       it 'is marked complete' do
-        job_should_complete_on_all_clients
+        echo_job_should_complete_on_all_clients
       end
     end
   end
@@ -291,11 +333,11 @@ describe PushyClient::App do
 
     context 'when running a job' do
       before(:each) do
-        run_job_on_all_clients
+        start_echo_job_on_all_clients
       end
 
       it 'the job and node statuses are marked complete' do
-        job_should_complete_on_all_clients
+        echo_job_should_complete_on_all_clients
       end
     end
   end
