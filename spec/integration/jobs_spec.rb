@@ -307,6 +307,26 @@ describe PushyClient::App do
     end
   end
 
+  context 'with no clients' do
+    before(:each) { @clients = {} }
+
+    context 'when running a job' do
+      before(:each) do
+        start_echo_job_on_all_clients
+      end
+
+      it 'the job and node statuses are marked complete' do
+        job = wait_for_job_complete(@response['uri'])
+        job.should == {
+          'command' => echo_yahoo,
+          'duration' => 300,
+          'nodes' => { },
+          'status' => 'complete'
+        }
+      end
+    end
+  end
+
   context 'with three clients' do
     before :each do
       start_new_clients('DONKEY', 'FARQUAD', 'FIONA')
@@ -322,7 +342,7 @@ describe PushyClient::App do
       end
     end
 
-    context 'with one tied up in a long-running job', :focus do
+    context 'with one tied up in a long-running job' do
       before(:each) do
         start_job('sleep 1', [ 'DONKEY' ])
       end
@@ -349,6 +369,19 @@ describe PushyClient::App do
             'status' => 'quorum_failed'
           }
         end
+      end
+    end
+  end
+
+  context 'bad input' do
+    it '404s when retrieving a nonexistent job', :focus do
+      begin
+        rest.get_rest('pushy/jobs/abcdefabcdef807f32d9572f8aafbd03', {
+          'command' => echo_yahoo
+        })
+        throw "GET should not have succeeded"
+      rescue
+        $!.message.should match(/404/)
       end
     end
   end
