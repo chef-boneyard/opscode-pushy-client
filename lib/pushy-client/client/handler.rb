@@ -38,11 +38,11 @@ module PushyClient
         return unless valid?(parts)
         command_hash = Utils.parse_json(parts[1].copy_out_string)
 
+        PushyClient::Log.debug "Received command #{command_hash}"
         if command_hash['type'] == "job_command"
           ack_nack(command_hash)
-          @worker.command_hash = command_hash
         elsif command_hash['type'] == "job_execute"
-          run_command
+          run_command(command_hash)
         end
 
       end
@@ -50,28 +50,50 @@ module PushyClient
       private
 
       def ack_nack(command_hash)
-        if @worker.state == "idle"
+        # If we are idle, or if we are already ready or executing THIS job,
+        # ack.  Otherwise, nack.  TODO: is :ack really appropriate for executing?
+        if @worker.state == "idle" ||
+           @worker.command_hash['job_id'] == command_hash['job_id']
+          # TODO there is a race condition here where we could acknowledge two
+          # different jobs if two jobs ask for us at the same time.
           @worker.change_state "ready"
-          message = :ack
+          @worker.send_command_message(:ack, command_hash['job_id'])
+          @worker.command_hash = command_hash
         else
-          message = :nack
+          @worker.send_command_message(:nack, command_hash['job_id'])
         end
-
-        @worker.send_command_message(message, command_hash['job_id'])
       end
 
-      def run_command
-        command_hash = @worker.command_hash
-        @worker.change_state "running"
-        @worker.send_command_message(:started, command_hash['job_id'])
-        command = EM::DeferrableChildProcess.open(command_hash['command'])
-        command.callback do |data_from_child|
-          # TODO there is a race here: if the heartbeat monitor fires between
-          # the next two statements, we will send heartbeat "idle" before the
-          # "finished" message, which is a confused thing to do.
-          @worker.change_state "idle"
-          @worker.command_hash = nil
-          @worker.send_command_message(:finished, command_hash['job_id'])
+      def run_command(command_hash)
+        # If we are already running this job, do nothing.  TODO should we send
+        # a started message?  Clearly someone didn't get the memo ...
+        if @worker.state == "running" && @worker.command_hash['job_id'] == command_hash['job_id']
+          PushyClient::Log.info "Received execute request for job #{command_hash['job_id']} twice: doing nothing."
+
+        # If we are idle, or ready to do this job, run the job and say "started."
+        elsif @worker.state == "idle" || @worker.command_hash['job_id'] == command_hash['job_id']
+          PushyClient::Log.info "Starting job #{command_hash['job_id']}: #{command_hash['command']}."
+          # TODO there is a race condition here where we could run the job twice
+          # if we get two execute messages close to each other.  This could actually
+          # happen if we had a server restart and network congestion at the right time.
+          # TODO we might should check whether the "ready" command is the same as the "execute" command
+          @worker.command_hash = command_hash # In case we were idle, this needs to be set
+          @worker.change_state "running"
+          @worker.send_command_message(:started, command_hash['job_id'])
+          command = EM::DeferrableChildProcess.open(command_hash['command'])
+          # TODO what if this fails?
+          command.callback do |data_from_child|
+            # TODO there is a race here: if the heartbeat monitor fires between
+            # the next two statements, we will send heartbeat "idle" before the
+            # "finished" message, which is a confused thing to do.
+            @worker.change_state "idle"
+            @worker.command_hash = nil
+            @worker.send_command_message(:finished, command_hash['job_id'])
+          end
+        else
+          # Otherwise, respond with a nack.  TODO: do we need a new message for this,
+          # or is nack sufficient?
+          @worker.send_command_message(:nack, command_hash['job_id'])
         end
       end
 
