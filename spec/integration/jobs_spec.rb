@@ -174,7 +174,7 @@ describe PushyClient::App do
   end
 
   def echo_job_should_complete_on_all_clients
-    job_should_complete_on_all_clients(echo_yahoo)
+    job_should_complete(echo_yahoo, @clients.keys)
     IO.read('/tmp/pushytest').should == "YAHOO\n"*@clients.length
   end
 
@@ -182,8 +182,8 @@ describe PushyClient::App do
     job_should_complete(command, @clients.keys)
   end
 
-  def job_should_complete(command, node_names)
-    job = wait_for_job_complete(@response['uri'])
+  def job_should_complete(command, node_names, uri=@response['uri'])
+    job = wait_for_job_complete(uri)
     job.should == {
       'command' => command,
       'duration' => 300,
@@ -339,6 +339,31 @@ describe PushyClient::App do
 
       it 'the job and node statuses are marked complete' do
         echo_job_should_complete_on_all_clients
+      end
+    end
+
+    context 'when running one job on DONKEY' do
+      before(:each) do
+        File.delete('/tmp/pushytest') if File.exist?('/tmp/pushytest')
+        @job1 = rest.post_rest("pushy/jobs", {
+          'command' => echo_yahoo,
+          'nodes' => %w{DONKEY}
+        })
+      end
+
+      context 'and simultaneous job on FARQUAD and FIONA' do
+        before(:each) do
+          @job2 = rest.post_rest("pushy/jobs", {
+            'command' => echo_yahoo,
+            'nodes' => %w{FARQUAD FIONA}
+          })
+        end
+
+        it 'both jobs complete successfully' do
+          job_should_complete(echo_yahoo, %w{DONKEY}, @job1['uri'])
+          job_should_complete(echo_yahoo, %w{FARQUAD FIONA}, @job2['uri'])
+          IO.read('/tmp/pushytest').should == "YAHOO\n"*3
+        end
       end
     end
 
