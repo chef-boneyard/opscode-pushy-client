@@ -68,10 +68,18 @@ describe PushyClient::App do
     end
 
     Timeout::timeout(5) do
-      until names.all? { |name| @clients[name][:client].worker.monitor.online? } &&
-        names.all? { |name|
+      until names.all? { |name| @clients[name][:client].worker.monitor.online? }
+        sleep 0.2
+      end
+    end
+    wait_for_node_status('up', *names)
+  end
+
+  def wait_for_node_status(up_down, *names)
+    Timeout::timeout(5) do
+      until names.all? { |name|
           status = rest.get_rest("pushy/node_states/#{name}")['status']
-          status == 'up'
+          status == up_down
         }
         sleep 0.2
       end
@@ -126,18 +134,22 @@ describe PushyClient::App do
   after :each do
     if @clients
       @clients.each do |client_name, client|
-        stop_client(client_name)
+        stop_client(client_name) if @clients[client_name][:client]
       end
       @clients = nil
     end
   end
 
   def wait_for_job_complete(uri)
+    wait_for_job_status(uri, 'complete')
+  end
+
+  def wait_for_job_status(uri, status)
     job = nil
     begin
       sleep(0.02) if job
       job = get_job(uri)
-    end until job['status'] == 'complete'
+    end until job['status'] == status
     job
   end
 
@@ -215,6 +227,39 @@ describe PushyClient::App do
         echo_job_should_complete_on_all_clients
       end
     end
+
+    context 'dead (and detected down) before running a job' do
+      before :each do
+        stop_client('DONKEY')
+        wait_for_node_status('down', 'DONKEY')
+      end
+
+      it 'job immediately fails to start' do
+        response = rest.post_rest("pushy/jobs", {
+          'command' => echo_yahoo,
+          'nodes' => %w{DONKEY}
+        })
+        # TODO check immediacy!  This could erroneously succeed on timing out.
+        wait_for_job_status(response['uri'], 'quorum_failed')
+      end
+    end
+
+    context 'dead but not yet detected down before running a job' do
+      before :each do
+        stop_client('DONKEY')
+        wait_for_node_status('down', 'DONKEY')
+      end
+
+      it 'job fails to start when down is detected' do
+        response = rest.post_rest("pushy/jobs", {
+          'command' => echo_yahoo,
+          'nodes' => %w{DONKEY}
+        })
+        # TODO we should ensure that this happened due to down detection, not
+        # timeout.  Fine for now, because there is no timeout :)
+        wait_for_job_status(response['uri'], 'quorum_failed')
+      end
+    end
   end
 
   context 'with a client that is killed and comes back up quickly' do
@@ -235,18 +280,11 @@ describe PushyClient::App do
     end
   end
 
-  context 'with a client that is killed and comes back down after a while' do
+  context 'with a dead client that comes back down after a while' do
     before :each do
       start_new_clients('DONKEY')
       kill_client('DONKEY')
-      # wait until the server believes the node is down
-      Timeout::timeout(5) do
-        while true
-          status = rest.get_rest('pushy/node_states/DONKEY')['status']
-          break if status == 'down'
-          sleep 0.2
-        end
-      end
+      wait_for_node_status('down', 'DONKEY')
       # Start that sucker back up
       start_client('DONKEY')
     end
@@ -284,15 +322,7 @@ describe PushyClient::App do
     before :each do
       start_new_clients('DONKEY')
       stop_client('DONKEY')
-      # wait until the server believes the node is down
-      Timeout::timeout(5) do
-        while true
-          status = rest.get_rest('pushy/node_states/DONKEY')['status']
-          break if status == 'down'
-          sleep 0.2
-        end
-      end
-      # Start that sucker back up
+      wait_for_node_status('down', 'DONKEY')
       start_client('DONKEY')
     end
 
