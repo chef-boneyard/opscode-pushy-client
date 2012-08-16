@@ -247,7 +247,6 @@ describe PushyClient::App do
     context 'dead but not yet detected down before running a job' do
       before :each do
         stop_client('DONKEY')
-        wait_for_node_status('down', 'DONKEY')
       end
 
       it 'job fails to start when down is detected' do
@@ -255,6 +254,7 @@ describe PushyClient::App do
           'command' => echo_yahoo,
           'nodes' => %w{DONKEY}
         })
+        rest.get_rest("pushy/node_states/DONKEY")['status'].should == 'up'
         # TODO we should ensure that this happened due to down detection, not
         # timeout.  Fine for now, because there is no timeout :)
         wait_for_job_status(response['uri'], 'quorum_failed')
