@@ -43,6 +43,8 @@ module PushyClient
           ack_nack(command_hash)
         elsif command_hash['type'] == "job_execute"
           run_command(command_hash)
+        elsif command_hash['type'] == "job_release"
+          release(command_hash)
         elsif command_hash['type'] == "job_abort"
           abort(command_hash)
         else
@@ -101,14 +103,20 @@ module PushyClient
         end
       end
 
-      def abort(command_hash)
+      def release(command_hash)
         # Only abort if the abort command is for the job WE are running.
-        # TODO support abort while actually running
-        PushyClient::Log.debug "do_abort(#{@worker.state}, #{@worker.command_hash} === #{command_hash})"
+        PushyClient::Log.debug "do_release(#{@worker.state}, #{@worker.command_hash} === #{command_hash})"
         if @worker.state == 'ready' && @worker.command_hash['job_id'] == command_hash['job_id']
           @worker.change_state 'idle'
           @worker.command_hash = nil
-          @worker.send_command_message(:aborted_while_ready, command_hash['job_id'])
+          @worker.send_command_message(:released, command_hash['job_id'])
+        end
+      end
+
+      def abort(command_hash)
+        # Only abort if the abort command is for the job WE are running.
+        if @worker.state == 'running' && @worker.command_hash['job_id'] == command_hash['job_id']
+          # TODO support abort while actually running
         end
       end
 
