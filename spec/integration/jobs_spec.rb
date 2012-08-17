@@ -240,7 +240,8 @@ describe PushyClient::App do
           'nodes' => %w{DONKEY}
         })
         # TODO check immediacy!  This could erroneously succeed on timing out.
-        wait_for_job_status(response['uri'], 'quorum_failed')
+        job = wait_for_job_status(response['uri'], 'quorum_failed')
+        job['nodes'].should == { 'never_ran' => [ 'DONKEY' ] }
       end
     end
 
@@ -257,7 +258,8 @@ describe PushyClient::App do
         rest.get_rest("pushy/node_states/DONKEY")['status'].should == 'up'
         # TODO we should ensure that this happened due to down detection, not
         # timeout.  Fine for now, because there is no timeout :)
-        wait_for_job_status(response['uri'], 'quorum_failed')
+        job = wait_for_job_status(response['uri'], 'quorum_failed')
+        job['nodes'].should == { 'never_ran' => [ 'DONKEY' ] }
       end
     end
   end
@@ -418,8 +420,7 @@ describe PushyClient::App do
             'command' => echo_yahoo,
             'duration' => 300,
             'nodes' => {
-              'nacked' => [ 'DONKEY' ],
-              'aborted_while_ready' => [ 'FARQUAD', 'FIONA' ]
+              'never_ran' => [ 'DONKEY', 'FARQUAD', 'FIONA' ]
             },
             'status' => 'quorum_failed'
           }
