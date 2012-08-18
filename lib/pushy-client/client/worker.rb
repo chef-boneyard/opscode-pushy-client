@@ -1,9 +1,10 @@
 require 'time'
 require 'pp'
+require 'pushy-client/client/job_state'
 
 module PushyClient
   class Worker
-    attr_reader :app, :monitor, :timer, :command
+    attr_reader :app, :monitor, :timer, :job
 
     attr_accessor :ctx
     attr_accessor :out_address
@@ -15,15 +16,13 @@ module PushyClient
     attr_accessor :client_private_key
     attr_accessor :server_public_key
     attr_accessor :node_name
-    attr_accessor :state
     attr_accessor :subscriber
     attr_accessor :cmd_socket
-    attr_accessor :command_hash
     attr_accessor :on_state_change
 
     def initialize(_app, options)
       @app = _app
-      @state = "starting"
+      @job = JobState.new(nil, nil, :no_job)
 
       @monitor = PushyClient::Monitor.new(options)
       @ctx = EM::ZeroMQ::Context.new(1)
@@ -47,40 +46,46 @@ module PushyClient
       @incarnation_id = UUIDTools::UUID.random_create
     end
 
-    def change_state(state)
-      self.state = state
-      on_state_change.call(self.state) if on_state_change
+    def change_job(job)
+      PushyClient::Log.info("Changing to new job: #{job}")
+      @job = job
+      on_state_change.call(self.job) if on_state_change
+      send_state_change
+    end
+
+    def change_job_state(job_state)
+      self.job.state = job_state
+      PushyClient::Log.info("Changing job to new state: #{job}")
+      on_state_change.call(self.job) if on_state_change
+      send_state_change
+    end
+
+    def send_state_change
+      send_state_message(:state_change, self.job)
     end
 
     def send_heartbeat
-      return unless monitor.online?
-
-      message = {:node => node_name,
-        :client => (`hostname`).chomp,
-        :org => "pushy",
-        :type => 'heartbeat',
-        :timestamp => Time.now.httpdate,
-        :sequence => @sequence,
-        :incarnation_id => @incarnation_id,
-        :state => state
-      }
-
-      _command_hash = command_hash
-      message[:job_id] = _command_hash['job_id'] if _command_hash
-
-      @sequence+=1
-
-      send_signed_json(self.cmd_socket, message)
+      send_state_message(:heartbeat, self.job)
     end
 
-    def send_command_message(message_type, job_id=nil)
-      message = {:node => node_name,
+    def send_state_message(message_type, job)
+      message = {
+        :node => node_name,
         :client => (`hostname`).chomp,
         :org => "pushy",
-        :type => message_type.to_s,
-        :timestamp => Time.now.httpdate
+        :type => message_type,
+        :timestamp => Time.now.httpdate,
+        :incarnation_id => @incarnation_id,
+        :job_state => job.state
       }
-      message[:job_id] = job_id if job_id
+
+      message[:job_id] = job.job_id if job.job_id
+
+      if message_type == :heartbeat
+        message[:sequence] = @sequence
+        @sequence+=1
+      end
+
       send_signed_json(self.cmd_socket, message)
     end
 
@@ -138,12 +143,8 @@ module PushyClient
       self.cmd_socket.connect(cmd_address)
 
       # Start the offline/online monitor, and report ready whenever we are online.
-      if monitor.online?
-        send_command_message(:ready)
-      end
-
       monitor.callback :after_online do
-        send_command_message(:ready)
+        send_state_change
       end
 
       # This should be logically separate from after online, even though it does the same
@@ -151,13 +152,11 @@ module PushyClient
       # update to compensate for lost packets and the like.
       monitor.callback :server_restart do
         PushyClient::Log.info "Detected server restart"
-        send_command_message(:ready)
+        send_state_change
       end
 
       monitor.start
 
-      # Send the first heartbeat
-      change_state "idle"
       send_heartbeat
 
       # Set up the client->server heartbeat on a timer
@@ -165,29 +164,16 @@ module PushyClient
       @timer = EM::PeriodicTimer.new(interval) do
         send_heartbeat
       end
-
-      # TODO
-      # This whole section is test code; I just wanted to send a message to the server to verify things work
-      # We want to send a 'ready' message on startup, and whenever we lose the connection to the server or otherwise reconfigure
-      #@command = EM::PeriodicTimer.new(interval*5) do
-      #    message = {:node => node_name,
-      #    :client => (`hostname`).chomp,
-      #    :org => "ORG",
-      #    :type => "echo",
-      #    :command => "ps aux",
-      #    :timestamp => Time.now.httpdate
-      #    }
-      #  pp ["Sending message:", message]
-      #  send_signed_json(cmd_socket, message)
-      #end
     end
 
     def stop
       PushyClient::Log.debug "Worker: Stopping ..."
-      change_state "restarting"
       monitor.stop
       timer.cancel
-      command.cancel if command
+      if job.running?
+        job.process.cancel
+        change_job_state(:aborted)
+      end
       PushyClient::Log.debug "Worker: Stopped."
     end
 

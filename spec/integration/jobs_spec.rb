@@ -63,8 +63,8 @@ describe PushyClient::App do
 
       # Register for state changes
       worker = client[:client].worker
-      client[:states] << worker.state
-      worker.on_state_change = Proc.new { |state| client[:states] << worker.state }
+      client[:states] << worker.job.state
+      worker.on_state_change = Proc.new { |job| client[:states] << job.state }
     end
 
     Timeout::timeout(5) do
@@ -116,7 +116,7 @@ describe PushyClient::App do
     if client.worker
       client.worker.monitor.stop
       client.worker.timer.cancel
-      client.worker.command.cancel if client.worker.command
+      client.worker.job.process.cancel if client.worker.job.running?
     end
 
     # If there are no more clients, kill the EM thread (the first thread
@@ -180,8 +180,11 @@ describe PushyClient::App do
       'nodes' => node_names
     })
     # Wait until all have started
-    until nodes.all? { |client| client[:states].include?('ready') }
-      sleep(0.02)
+    puts "Assuming it's here"
+    Timeout::timeout(5) do
+      until nodes.all? { |client| client[:states].include?(:ready) }
+        sleep(0.02)
+      end
     end
   end
 
@@ -241,7 +244,7 @@ describe PushyClient::App do
         })
         # TODO check immediacy!  This could erroneously succeed on timing out.
         job = wait_for_job_status(response['uri'], 'quorum_failed')
-        job['nodes'].should == { 'never_ran' => [ 'DONKEY' ] }
+        job['nodes'].should == { 'never_run' => [ 'DONKEY' ] }
       end
     end
 
@@ -259,7 +262,7 @@ describe PushyClient::App do
         # TODO we should ensure that this happened due to down detection, not
         # timeout.  Fine for now, because there is no timeout :)
         job = wait_for_job_status(response['uri'], 'quorum_failed')
-        job['nodes'].should == { 'never_ran' => [ 'DONKEY' ] }
+        job['nodes'].should == { 'never_run' => [ 'DONKEY' ] }
       end
     end
   end
@@ -374,6 +377,15 @@ describe PushyClient::App do
       end
     end
 
+    context 'all three nodes are ready, but one is down, during voting' do
+      before(:each) do
+
+      end
+
+      it 'job executes and finishes when up nodes finish' do
+      end
+    end
+
     context 'when running one job on DONKEY' do
       before(:each) do
         File.delete('/tmp/pushytest') if File.exist?('/tmp/pushytest')
@@ -420,7 +432,7 @@ describe PushyClient::App do
             'command' => echo_yahoo,
             'duration' => 300,
             'nodes' => {
-              'never_ran' => [ 'DONKEY', 'FARQUAD', 'FIONA' ]
+              'never_run' => [ 'DONKEY', 'FARQUAD', 'FIONA' ]
             },
             'status' => 'quorum_failed'
           }

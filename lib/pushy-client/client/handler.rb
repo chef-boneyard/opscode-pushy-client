@@ -30,6 +30,8 @@ module PushyClient
 
     class Command
 
+      attr_reader :worker
+
       def initialize(worker)
         @worker = worker
       end
@@ -40,13 +42,13 @@ module PushyClient
 
         PushyClient::Log.debug "Received command #{command_hash}"
         if command_hash['type'] == "job_command"
-          ack_nack(command_hash)
+          ack_nack(command_hash['job_id'], command_hash['command'])
         elsif command_hash['type'] == "job_execute"
-          run_command(command_hash)
+          run_command(command_hash['job_id'], command_hash['command'])
         elsif command_hash['type'] == "job_release"
-          release(command_hash)
+          release(command_hash['job_id'])
         elsif command_hash['type'] == "job_abort"
-          abort(command_hash)
+          abort(command_hash['job_id'])
         else
           PushyClient::Log.error "Received unknown command #{command_hash}"
         end
@@ -55,73 +57,65 @@ module PushyClient
 
       private
 
-      def ack_nack(command_hash)
-        # If we are idle, or if we are already ready or executing THIS job,
+      def ack_nack(job_id, command)
+        # If we are idle, or if we are already ready for THIS job,
         # ack.  Otherwise, nack.  TODO: is :ack really appropriate for executing?
-        if @worker.state == "idle" ||
-           @worker.command_hash['job_id'] == command_hash['job_id']
-          # TODO there is a race condition here where we could acknowledge two
-          # different jobs if two jobs ask for us at the same time.
-          @worker.change_state "ready"
-          @worker.command_hash = command_hash
-          @worker.send_command_message(:ack, command_hash['job_id'])
-        else
-          @worker.send_command_message(:nack, command_hash['job_id'])
+        if worker.job.idle?
+          worker.change_job(JobState.new(job_id, command, :ready))
+
+        # Already running.  Nothing to do.
+        elsif worker.job.running?(job_id)
+          PushyClient::Log.warn "Received command request for job #{job_id} after twice: doing nothing."
+
+        elsif
+          nacked_job = JobState.new(job_id, command, :never_run)
+          worker.send_state_message(:state_change, nacked_job)
         end
       end
 
-      def run_command(command_hash)
+      def run_command(job_id, command)
+        # If we are idle, or ready to do this job, run the job and say "started."
+        if worker.job.idle? || worker.job.ready?(job_id)
+          worker.change_job(JobState.new(job_id, command, :running))
+
+          worker.job.process = EM::DeferrableChildProcess.open(command)
+          # TODO what if this fails?
+          worker.job.process.callback do |data_from_child|
+            worker.change_job_state(:complete)
+          end
+
         # If we are already running this job, do nothing.  TODO should we send
         # a started message?  Clearly someone didn't get the memo ...
-        if @worker.state == "running" && @worker.command_hash['job_id'] == command_hash['job_id']
-          PushyClient::Log.info "Received execute request for job #{command_hash['job_id']} twice: doing nothing."
+        elsif worker.job.running?(job_id)
+          PushyClient::Log.warn "Received execute request for job #{job_id} twice: doing nothing."
 
-        # If we are idle, or ready to do this job, run the job and say "started."
-        elsif @worker.state == "idle" || @worker.command_hash['job_id'] == command_hash['job_id']
-          PushyClient::Log.info "Starting job #{command_hash['job_id']}: #{command_hash['command']}."
-          # TODO there is a race condition here where we could run the job twice
-          # if we get two execute messages close to each other.  This could actually
-          # happen if we had a server restart and network congestion at the right time.
-          # TODO we might should check whether the "ready" command is the same as the "execute" command
-          @worker.command_hash = command_hash # In case we were idle, this needs to be set
-          @worker.change_state "running"
-          @worker.send_command_message(:started, command_hash['job_id'])
-          command = EM::DeferrableChildProcess.open(command_hash['command'])
-          # TODO what if this fails?
-          command.callback do |data_from_child|
-            # TODO there is a race here: if the heartbeat monitor fires between
-            # the next two statements, we will send heartbeat "idle" before the
-            # "complete" message, which is a confused thing to do.
-            @worker.change_state "idle"
-            @worker.command_hash = nil
-            @worker.send_command_message(:complete, command_hash['job_id'])
-          end
         else
-          # Otherwise, respond with a nack.  TODO: do we need a new message for this,
-          # or is nack sufficient?
-          @worker.send_command_message(:nack, command_hash['job_id'])
+          PushyClient::Log.warn "Received execute request for job #{job_id} when we are already #{worker.job}: Doing nothing."
         end
       end
 
-      def release(command_hash)
+      def release(job_id)
         # Only abort if the abort command is for the job WE are running.
-        PushyClient::Log.debug "do_release(#{@worker.state}, #{@worker.command_hash} === #{command_hash})"
-        if @worker.state == 'ready' && @worker.command_hash['job_id'] == command_hash['job_id']
-          @worker.change_state 'idle'
-          @worker.command_hash = nil
-          @worker.send_command_message(:released, command_hash['job_id'])
+        if worker.job.ready?(job_id)
+          PushyClient::Log.info "Releasing job #{worker.job}"
+          worker.change_job_state(:new)
+        else
+          PushyClient::Log.warn "Received release request for job #{job_id}, but currently #{worker.job}."
         end
       end
 
-      def abort(command_hash)
+      def abort(job_id)
         # Only abort if the abort command is for the job WE are running.
-        if @worker.state == 'running' && @worker.command_hash['job_id'] == command_hash['job_id']
-          # TODO support abort while actually running
+        if worker.job.running?(job_id)
+          worker.job.process.cancel
+          worker.change_job_state(:aborted)
+        else
+          PushyClient::Log.warn "Received abort request for job #{job_id}, but currently #{worker.job}."
         end
       end
 
       def valid?(parts)
-        Utils.valid?(parts, @worker.server_public_key)
+        Utils.valid?(parts, worker.server_public_key)
       end
 
     end
