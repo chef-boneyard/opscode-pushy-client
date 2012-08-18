@@ -58,24 +58,30 @@ module PushyClient
       private
 
       def ack_nack(job_id, command)
-        # If we are idle, or if we are already ready for THIS job,
-        # ack.  Otherwise, nack.  TODO: is :ack really appropriate for executing?
-        if worker.job.idle?
-          worker.change_job(JobState.new(job_id, command, :ready))
-
-        # Already running.  Nothing to do.
-        elsif worker.job.running?(job_id)
+        # If we are ready or have started this job, do nothing.
+        # TODO perhaps remind the server of our state with respect to this job.
+        if worker.job.ready?(job_id) || worker.job.ever_started?(job_id)
           PushyClient::Log.warn "Received command request for job #{job_id} after twice: doing nothing."
 
-        elsif
+        # If we are idle, ack.
+        elsif worker.job.idle?
+          worker.change_job(JobState.new(job_id, command, :ready))
+
+        # Otherwise, we're involved with some other job.  ack.
+        else
           nacked_job = JobState.new(job_id, command, :never_run)
           worker.send_state_message(:state_change, nacked_job)
         end
       end
 
       def run_command(job_id, command)
-        # If we are idle, or ready to do this job, run the job and say "started."
-        if worker.job.idle? || worker.job.ready?(job_id)
+        # If we have ever started this job, do nothing.
+        # TODO perhaps remind the server of our state with respect to this job.
+        if worker.job.ever_started?(job_id)
+          PushyClient::Log.warn "Received execute request for job #{job_id} twice: doing nothing."
+
+        # If we are ready for this job, or are idle, start.
+        elsif worker.job.ready?(job_id) || worker.job.idle?
           worker.change_job(JobState.new(job_id, command, :running))
 
           worker.job.process = EM::DeferrableChildProcess.open(command)
@@ -84,11 +90,8 @@ module PushyClient
             worker.change_job_state(:complete)
           end
 
-        # If we are already running this job, do nothing.  TODO should we send
-        # a started message?  Clearly someone didn't get the memo ...
-        elsif worker.job.running?(job_id)
-          PushyClient::Log.warn "Received execute request for job #{job_id} twice: doing nothing."
-
+        # Otherwise, we're clearly working on another job.  Ignore this request.
+        # TODO perhaps remind the server of our state with respect to this job.
         else
           PushyClient::Log.warn "Received execute request for job #{job_id} when we are already #{worker.job}: Doing nothing."
         end
