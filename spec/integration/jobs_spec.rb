@@ -76,7 +76,7 @@ describe PushyClient::App do
   end
 
   def wait_for_node_status(up_down, *names)
-    Timeout::timeout(5) do
+    Timeout::timeout(7) do
       until names.all? { |name|
           status = rest.get_rest("pushy/node_states/#{name}")['status']
           status == up_down
@@ -374,15 +374,6 @@ describe PushyClient::App do
 
       it 'the job and node statuses are marked complete' do
         echo_job_should_complete_on_all_clients
-      end
-    end
-
-    context 'all three nodes are ready, but one is down, during voting' do
-      before(:each) do
-
-      end
-
-      it 'job executes and finishes when up nodes finish' do
       end
     end
 
