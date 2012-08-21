@@ -78,9 +78,9 @@ describe PushyClient::App do
   def wait_for_node_status(up_down, *names)
     Timeout::timeout(7) do
       until names.all? { |name|
-          status = rest.get_rest("pushy/node_states/#{name}")['status']
-          status == up_down
-        }
+              status = rest.get_rest("pushy/node_states/#{name}")['status']
+              status == up_down
+            }
         sleep 0.2
       end
     end
