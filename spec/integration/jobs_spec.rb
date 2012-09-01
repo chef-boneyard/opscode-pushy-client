@@ -244,7 +244,7 @@ describe PushyClient::App do
         })
         # TODO check immediacy!  This could erroneously succeed on timing out.
         job = wait_for_job_status(response['uri'], 'quorum_failed')
-        job['nodes'].should == { 'nacked' => [ 'DONKEY' ] }
+        job['nodes'].should == { 'unavailable' => [ 'DONKEY' ] }
       end
     end
 
@@ -262,7 +262,7 @@ describe PushyClient::App do
         # TODO we should ensure that this happened due to down detection, not
         # timeout.  Fine for now, because there is no timeout :)
         job = wait_for_job_status(response['uri'], 'quorum_failed')
-        job['nodes'].should == { 'nacked' => [ 'DONKEY' ] }
+        job['nodes'].should == { 'unavailable' => [ 'DONKEY' ] }
       end
     end
   end
