@@ -423,7 +423,8 @@ describe PushyClient::App do
             'command' => echo_yahoo,
             'duration' => 300,
             'nodes' => {
-              'nacked' => [ 'DONKEY', 'FARQUAD', 'FIONA' ]
+              'nacked' => [ 'DONKEY' ],
+              'was_ready' => [ 'FARQUAD', 'FIONA' ]
             },
             'status' => 'quorum_failed'
           }
