@@ -41,14 +41,12 @@ module PushyClient
         command_hash = Utils.parse_json(parts[1].copy_out_string)
 
         PushyClient::Log.debug "Received command #{command_hash}"
-        if command_hash['type'] == "job_command"
+        if command_hash['type'] == "commit"
           ack_nack(command_hash['job_id'], command_hash['command'])
-        elsif command_hash['type'] == "job_execute"
+        elsif command_hash['type'] == "run"
           run_command(command_hash['job_id'], command_hash['command'])
-        elsif command_hash['type'] == "job_release"
-          release(command_hash['job_id'])
-        elsif command_hash['type'] == "job_abort"
-          abort(command_hash['job_id'])
+        elsif command_hash['type'] == "abort"
+          abort
         else
           PushyClient::Log.error "Received unknown command #{command_hash}"
         end
@@ -59,62 +57,51 @@ module PushyClient
 
       def ack_nack(job_id, command)
         # If we are ready or have started this job, do nothing.
-        # TODO perhaps remind the server of our state with respect to this job.
-        if worker.job.ready?(job_id) || worker.job.ever_started?(job_id)
+        if worker.job.ready?(job_id) || worker.job.running?(job_id)
           PushyClient::Log.warn "Received command request for job #{job_id} after twice: doing nothing."
+          worker.send_command(:ack_commit, job_id)
 
         # If we are idle, ack.
         elsif worker.job.idle?
           worker.change_job(JobState.new(job_id, command, :ready))
+          worker.send_command(:ack_commit, job_id)
 
         # Otherwise, we're involved with some other job.  ack.
         else
-          nacked_job = JobState.new(job_id, command, :never_run)
-          worker.send_state_message(:state_change, nacked_job)
+          worker.clear_job
+          worker.send_command(:nack_commit, job_id)
         end
       end
 
       def run_command(job_id, command)
-        # If we have ever started this job, do nothing.
-        # TODO perhaps remind the server of our state with respect to this job.
-        if worker.job.ever_started?(job_id)
+        # If we are already running this job, do nothing.
+        if worker.job.running?(job_id)
           PushyClient::Log.warn "Received execute request for job #{job_id} twice: doing nothing."
 
         # If we are ready for this job, or are idle, start.
         elsif worker.job.ready?(job_id) || worker.job.idle?
           worker.change_job(JobState.new(job_id, command, :running))
+          worker.send_command(:ack_run, job_id)
 
           worker.job.process = EM::DeferrableChildProcess.open(command)
           # TODO what if this fails?
           worker.job.process.callback do |data_from_child|
-            worker.change_job_state(:complete)
+            worker.clear_job
+            worker.send_command(:complete, job_id)
           end
 
         # Otherwise, we're clearly working on another job.  Ignore this request.
         # TODO perhaps remind the server of our state with respect to this job.
         else
+          worker.send_command(:nack_run, job_id)
           PushyClient::Log.warn "Received execute request for job #{job_id} when we are already #{worker.job}: Doing nothing."
         end
       end
 
-      def release(job_id)
-        # Only abort if the abort command is for the job WE are running.
-        if worker.job.ready?(job_id)
-          PushyClient::Log.info "Releasing job #{worker.job}"
-          worker.change_job_state(:new)
-        else
-          PushyClient::Log.warn "Received release request for job #{job_id}, but currently #{worker.job}."
-        end
-      end
-
-      def abort(job_id)
-        # Only abort if the abort command is for the job WE are running.
-        if worker.job.running?(job_id)
-          worker.job.process.cancel
-          worker.change_job_state(:aborted)
-        else
-          PushyClient::Log.warn "Received abort request for job #{job_id}, but currently #{worker.job}."
-        end
+      def abort
+        worker.job.process.cancel if worker.job.running?
+        worker.clear_job
+        worker.send_command(:aborted, worker.job.job_id)
       end
 
       def valid?(parts)

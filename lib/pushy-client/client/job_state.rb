@@ -24,11 +24,6 @@ module PushyClient
       @state == :running && (job_id.nil? || @job_id == job_id)
     end
 
-    def ever_started?(job_id=nil)
-      (@state == :running || @state == :complete || @state == :aborted) &&
-        (job_id.nil? || @job_id == job_id)
-    end
-
     def to_s
       "#{state} #{job_id} (#{command})"
     end

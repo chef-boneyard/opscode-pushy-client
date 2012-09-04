@@ -22,7 +22,7 @@ module PushyClient
 
     def initialize(_app, options)
       @app = _app
-      @job = JobState.new(nil, nil, :no_job)
+      @job = JobState.new(nil, nil, :idle)
 
       @monitor = PushyClient::Monitor.new(options)
       @ctx = EM::ZeroMQ::Context.new(1)
@@ -50,25 +50,15 @@ module PushyClient
       PushyClient::Log.info("Changing to new job: #{job}")
       @job = job
       on_state_change.call(self.job) if on_state_change
-      send_state_change
     end
 
-    def change_job_state(job_state)
-      self.job.state = job_state
-      PushyClient::Log.info("Changing job to new state: #{job}")
+    def clear_job
+      PushyClient::Log.info("Clearing current job: #{job}")
+      @job = JobState.new(nil, nil, :idle)
       on_state_change.call(self.job) if on_state_change
-      send_state_change
     end
 
-    def send_state_change
-      send_state_message(:state_change, self.job)
-    end
-
-    def send_heartbeat
-      send_state_message(:heartbeat, self.job)
-    end
-
-    def send_state_message(message_type, job)
+    def send_command(message_type, job_id)
       message = {
         :node => node_name,
         :client => (`hostname`).chomp,
@@ -76,15 +66,26 @@ module PushyClient
         :type => message_type,
         :timestamp => Time.now.httpdate,
         :incarnation_id => @incarnation_id,
-        :job_state => job.state
+        :job_id => job_id
       }
 
-      message[:job_id] = job.job_id if job.job_id
+      send_signed_json(self.cmd_socket, message)
+    end
 
-      if message_type == :heartbeat
-        message[:sequence] = @sequence
-        @sequence+=1
-      end
+    def send_heartbeat
+      message = {
+        :node => node_name,
+        :client => (`hostname`).chomp,
+        :org => "pushy",
+        :type => :heartbeat,
+        :timestamp => Time.now.httpdate,
+        :incarnation_id => @incarnation_id,
+        :job_state => job.state,
+        :job_id => job.job_id,
+        :sequence => @sequence
+      }
+
+      @sequence+=1
 
       send_signed_json(self.cmd_socket, message)
     end
@@ -141,19 +142,6 @@ module PushyClient
       self.cmd_socket = ctx.socket(ZMQ::DEALER, PushyClient::Handler::Command.new(self))
       self.cmd_socket.setsockopt(ZMQ::LINGER, 0)
       self.cmd_socket.connect(cmd_address)
-
-      # Start the offline/online monitor, and report ready whenever we are online.
-      monitor.callback :after_online do
-        send_state_change
-      end
-
-      # This should be logically separate from after online, even though it does the same
-      # thing right now in the future we will probably want to send some sort of state
-      # update to compensate for lost packets and the like.
-      monitor.callback :server_restart do
-        PushyClient::Log.info "Detected server restart"
-        send_state_change
-      end
 
       monitor.start
 
