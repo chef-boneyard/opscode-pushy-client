@@ -265,6 +265,46 @@ describe PushyClient::App do
         job['nodes'].should == { 'unavailable' => [ 'DONKEY' ] }
       end
     end
+
+    context 'node crashes after reporting "ready" but before running the command' do
+      before :each do
+        # Set it up so the client will crash as soon as it changes to "voting"
+        worker = @clients['DONKEY'][:client].worker
+        worker.on_state_change = Proc.new { |job| kill_client('DONKEY') if job.ready? }
+      end
+
+      it 'job marks node as crashed when down is detected' do
+        response = rest.post_rest("pushy/jobs", {
+          'command' => echo_yahoo,
+          'nodes' => %w{DONKEY}
+        })
+        rest.get_rest("pushy/node_states/DONKEY")['status'].should == 'up'
+        # TODO we should ensure that this happened due to down detection, not
+        # timeout.  Fine for now, because there is no timeout :)
+        job = wait_for_job_status(response['uri'], 'complete')
+        job['nodes'].should == { 'crashed' => [ 'DONKEY' ] }
+      end
+    end
+
+    context 'node crashes after running but before completing the command' do
+      before :each do
+        # Set it up so the client will crash as soon as it changes to "voting"
+        worker = @clients['DONKEY'][:client].worker
+        worker.on_state_change = Proc.new { |job| puts job; kill_client('DONKEY') if job.running? }
+      end
+
+      it 'job marks node as crashed when down is detected' do
+        response = rest.post_rest("pushy/jobs", {
+          'command' => echo_yahoo,
+          'nodes' => %w{DONKEY}
+        })
+        rest.get_rest("pushy/node_states/DONKEY")['status'].should == 'up'
+        # TODO we should ensure that this happened due to down detection, not
+        # timeout.  Fine for now, because there is no timeout :)
+        job = wait_for_job_status(response['uri'], 'complete')
+        job['nodes'].should == { 'crashed' => [ 'DONKEY' ] }
+      end
+    end
   end
 
   context 'with a client that is killed and comes back up quickly' do

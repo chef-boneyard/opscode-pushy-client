@@ -63,13 +63,13 @@ module PushyClient
 
         # If we are idle, ack.
         elsif worker.job.idle?
-          worker.change_job(JobState.new(job_id, command, :ready))
           worker.send_command(:ack_commit, job_id)
+          worker.change_job(JobState.new(job_id, command, :ready))
 
         # Otherwise, we're involved with some other job.  ack.
         else
-          worker.clear_job
           worker.send_command(:nack_commit, job_id)
+          worker.clear_job
         end
       end
 
@@ -80,14 +80,14 @@ module PushyClient
 
         # If we are ready for this job, or are idle, start.
         elsif worker.job.ready?(job_id) || worker.job.idle?
-          worker.change_job(JobState.new(job_id, command, :running))
           worker.send_command(:ack_run, job_id)
+          worker.change_job(JobState.new(job_id, command, :running))
 
           worker.job.process = EM::DeferrableChildProcess.open(command)
           # TODO what if this fails?
           worker.job.process.callback do |data_from_child|
-            worker.clear_job
             worker.send_command(:complete, job_id)
+            worker.clear_job
           end
 
         # Otherwise, we're clearly working on another job.  Ignore this request.
@@ -100,8 +100,8 @@ module PushyClient
 
       def abort
         worker.job.process.cancel if worker.job.running?
-        worker.clear_job
         worker.send_command(:aborted, worker.job.job_id)
+        worker.clear_job
       end
 
       def valid?(parts)
