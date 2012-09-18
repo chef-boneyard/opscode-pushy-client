@@ -146,11 +146,13 @@ describe PushyClient::App do
 
   def wait_for_job_status(uri, status)
     job = nil
-    begin
-      sleep(0.02) if job
-      job = get_job(uri)
-    end until job['status'] == status
-    job
+    Timeout::timeout(5) do
+      begin
+        sleep(0.02) if job
+        job = get_job(uri)
+      end until job['status'] == status
+      job
+    end
   end
 
   def get_job(uri)
