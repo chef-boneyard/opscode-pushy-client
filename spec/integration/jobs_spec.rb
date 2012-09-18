@@ -215,6 +215,11 @@ describe PushyClient::App do
 
   let(:rest) do
     # No auth yet
+    url = "#{TestConfig.service_url_base}/organizations/#{TestConfig.organization}"
+    Chef::REST.new(url, false, false)
+  end
+
+  let(:top_level_rest) do
     Chef::REST.new(TestConfig.service_url_base, false, false)
   end
 
@@ -471,6 +476,49 @@ describe PushyClient::App do
             'status' => 'quorum_failed'
           }
         end
+      end
+    end
+
+    context "_status tests" do
+      it 'when no jobs are running, _status reports no jobs' do
+        top_level_rest.get_rest("_status").should == {
+          'status' => "it's alive",
+          'job_processes' => [ ]
+        }
+      end
+
+      it 'when running two simultaneous jobs, _status reports 2 jobs' do
+        # Start 1 "long running" job
+        @job1 = rest.post_rest("pushy/jobs", {
+          'command' => 'sleep 1',
+          'nodes' => %w{DONKEY}
+        })
+        @job1_id = @job1['uri'].split('/')[-1]
+
+        # Verify that _status reports the job as active
+        top_level_rest.get_rest("_status").should == {
+          'status' => "it's alive",
+          'job_processes' => [ @job1_id ]
+        }
+
+        # Start another "long running" job
+        @job2 = rest.post_rest("pushy/jobs", {
+          'command' => 'sleep 1',
+          'nodes' => %w{FIONA FARQUAD}
+        })
+        @job2_id = @job2['uri'].split('/')[-1]
+
+        # Verify that _status reports the job as active
+        top_level_rest.get_rest("_status")['job_processes'].sort.should == [ @job1_id, @job2_id ].sort
+
+        job_should_complete('sleep 1', [ 'DONKEY' ], @job1['uri'])
+        job_should_complete('sleep 1', [ 'FIONA', 'FARQUAD' ], @job2['uri'])
+
+        # Verify that both jobs are unloaded on completion
+        top_level_rest.get_rest("_status").should == {
+          'status' => "it's alive",
+          'job_processes' => [ ]
+        }
       end
     end
   end

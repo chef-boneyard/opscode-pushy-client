@@ -20,6 +20,7 @@ Dir["spec/support/**/*.rb"].map { |f| f.gsub(%r{.rb$}, '') }.each { |f| require 
 class TestConfig
   class << self
     attr_accessor :service_url_base
+    attr_accessor :organization
     attr_accessor :client_private_key_path
   end
 end
@@ -36,6 +37,7 @@ RSpec.configure do |config|
   PushyClient::Log.level = :debug
   Chef::Log.level = :debug
 
-  TestConfig.service_url_base = "http://33.33.33.10:10003/organizations/ponyville"
+  TestConfig.service_url_base = "http://33.33.33.10:10003"
+  TestConfig.organization = "ponyville"
   TestConfig.client_private_key_path = File.expand_path(File.join(File.dirname(__FILE__), '..', 'keys', 'client_private.pem'))
 end
