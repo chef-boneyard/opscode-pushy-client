@@ -112,10 +112,20 @@ module PushyClient
     module Utils
 
       def self.valid?(parts, server_public_key)
-        auth = parts[0].copy_out_string.split(':')[2]
+        headers = parts[0].copy_out_string.split(';')
+        header_map = headers.inject({}) do |a,e| 
+          k,v = e.split(':')
+          a[k] = v
+          a
+        end
+        auth_method = header_map["Method"]
+        auth_sig  = header_map["SignedChecksum"]
+      
+        raw_sig = Base64.decode64(auth_sig)
+  
         body = parts[1].copy_out_string
-
-        decrypted_checksum = server_public_key.public_decrypt(Base64.decode64(auth))
+        
+        decrypted_checksum = server_public_key.public_decrypt(raw_sig)
         hashed_body = Mixlib::Authentication::Digester.hash_string(body)
 
         decrypted_checksum == hashed_body
