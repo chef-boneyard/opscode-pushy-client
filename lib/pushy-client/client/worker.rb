@@ -15,6 +15,8 @@ module PushyClient
     attr_accessor :lifetime
     attr_accessor :client_private_key
     attr_accessor :server_public_key
+    attr_accessor :session_key
+    attr_accessor :session_method
     attr_accessor :node_name
     attr_accessor :subscriber
     attr_accessor :cmd_socket
@@ -39,6 +41,11 @@ module PushyClient
       @node_name = app.node_name
       @client_private_key = load_key(app.client_private_key_path)
       @server_public_key = OpenSSL::PKey::RSA.new(options[:server_public_key]) || load_key(options[:server_public_key_path])
+      # TODO: this key should be encrypted!
+      @session_method = Base64.decode64(options[:session_method])
+      @session_key    = options[:session_key]
+
+      pp method=>@session_method, key=>@session_key
 
       @sequence = 0
 
@@ -108,6 +115,8 @@ module PushyClient
           :online_threshold  => config['push_jobs']['heartbeat']['online_threshold'],
           :lifetime          => config['lifetime'],
           :server_public_key => config['public_key'],
+          :session_key       => config['session_key']['key']
+          :session_method    => config['session_key']['method']
       end
 
       def noauth_rest(app)
@@ -172,15 +181,22 @@ module PushyClient
       OpenSSL::PKey::RSA.new(raw_key)
     end
 
-    def sign_checksum(json)
+    def make_header_rsa(json)
       checksum = Mixlib::Authentication::Digester.hash_string(json)
-      Base64.encode64(client_private_key.private_encrypt(checksum)).chomp
+      b64_sig = Base64.encode64(client_private_key.private_encrypt(checksum)).chomp
+      "Version:2.0;Method:rsa2048_sha1;SignedChecksum:#{b64_sig}"
+    end
+    def make_header_hmac(json)
+      sig = OpenSSL::HMAC.digest('sha256', session_key, body)
+      b64_sig = Base64.encode64(sig).chomp
+      "Version:2.0;Method:hmac_sha256;SignedChecksum:#{b64_sig}"
     end
 
-    def send_signed_json(socket, message)
+    def send_signed_json(socket, method, message)
       json = Yajl::Encoder.encode(message)
-      sig = sign_checksum(json)
-      auth = "VersionId:0.0.1;SignedChecksum:#{sig}"
+      sig = sign_checksum_rsa(json)
+
+      auth = make_header_rsa(json)
 
       PushyClient::Log.debug "Sending Message #{json}"
 
