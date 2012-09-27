@@ -27,5 +27,10 @@ module PushyClient
     def to_s
       "#{state} #{job_id} (#{command})"
     end
+
+    def cancel
+      pid = process.get_pid
+      system "kill -9 #{pid}"
+    end
   end
 end
