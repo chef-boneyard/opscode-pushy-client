@@ -45,7 +45,7 @@ module PushyClient
       @session_method = Base64.decode64(options[:session_method])
       @session_key    = options[:session_key]
 
-      pp method=>@session_method, key=>@session_key
+      pp :method=>@session_method, :key=>@session_key
 
       @sequence = 0
 
@@ -94,7 +94,7 @@ module PushyClient
 
       @sequence+=1
 
-      send_signed_json(self.cmd_socket, message)
+      send_signed_json(self.cmd_socket, :hmac_sha256, message)
     end
 
     class << self
@@ -184,21 +184,26 @@ module PushyClient
     def make_header_rsa(json)
       checksum = Mixlib::Authentication::Digester.hash_string(json)
       b64_sig = Base64.encode64(client_private_key.private_encrypt(checksum)).chomp
-      "Version:2.0;Method:rsa2048_sha1;SignedChecksum:#{b64_sig}"
+      "Version:2.0;SigningMethod:rsa2048_sha1;SignedChecksum:#{b64_sig}"
     end
     def make_header_hmac(json)
       sig = OpenSSL::HMAC.digest('sha256', session_key, body)
       b64_sig = Base64.encode64(sig).chomp
-      "Version:2.0;Method:hmac_sha256;SignedChecksum:#{b64_sig}"
+      "Version:2.0;SigningMethod:hmac_sha256;SignedChecksum:#{b64_sig}"
     end
 
     def send_signed_json(socket, method, message)
       json = Yajl::Encoder.encode(message)
       sig = sign_checksum_rsa(json)
 
-      auth = make_header_rsa(json)
-
-      PushyClient::Log.debug "Sending Message #{json}"
+      auth = case method
+             when :rsa2048_sha1
+               make_header_rsa(json)
+             when :hmac_sha256
+               make_header_hmac(json)
+             end
+               
+      PushyClient::Log.debug "Sending Message #{method} #{json}"
 
       socket.send_msg(auth, json)
     end
