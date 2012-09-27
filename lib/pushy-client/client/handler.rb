@@ -121,32 +121,32 @@ module PushyClient
         pp header_map
 
         auth_method = header_map["SigningMethod"]
-        auth_sig  = header_map["SignedChecksum"]
+        auth_sig  = header_map["Signature"]
       
-        raw_sig = Base64.decode64(auth_sig)
-  
+        binary_sig = Base64.decode64(auth_sig)
         body = parts[1].copy_out_string
         
         case auth_method 
         when "rsa2048_sha1"
-          rsa_valid?(body, auth_sig, server_public_key)
+          pp "Using rsa"
+          rsa_valid?(body, binary_sig, server_public_key)
         when "hmac_sha256"
           pp "Using hmac"
-          hmac_valid?(body, auth_sig, session_key)
+          hmac_valid?(body, binary_sig, session_key)
         else
           false
         end
       end
 
-      def self.rsa_valid?(body, auth_sig, server_public_key) 
-        decrypted_checksum = server_public_key.public_decrypt(raw_sig)
+      def self.rsa_valid?(body, sig, server_public_key) 
+        decrypted_checksum = server_public_key.public_decrypt(sig)
         hashed_body = Mixlib::Authentication::Digester.hash_string(body)
         decrypted_checksum == hashed_body
       end
 
-      def self.hmac_valid?(body, auth_sig, hmac_key) 
-        body_sig = OpenSSL::HMAC.digest('sha256', hmac_key, body)
-        auth_sig = body_sig
+      def self.hmac_valid?(body, sig, hmac_key) 
+        body_sig = OpenSSL::HMAC.digest('sha256', hmac_key, body).chomp
+        sig = body_sig
       end
 
       def self.parse_json(json)
