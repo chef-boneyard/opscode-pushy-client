@@ -119,7 +119,6 @@ module PushyClient
           a[k] = v
           a
         end
-        pp header_map
 
         auth_method = header_map["SigningMethod"]
         auth_sig  = header_map["Signature"]
@@ -129,10 +128,8 @@ module PushyClient
         
         case auth_method 
         when "rsa2048_sha1"
-          pp "Using rsa"
           rsa_valid?(body, binary_sig, server_public_key)
         when "hmac_sha256"
-          pp "Using hmac"
           hmac_valid?(body, binary_sig, session_key)
         else
           false

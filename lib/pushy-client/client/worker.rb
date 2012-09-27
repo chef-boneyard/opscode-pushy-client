@@ -42,8 +42,8 @@ module PushyClient
       @client_private_key = load_key(app.client_private_key_path)
       @server_public_key = OpenSSL::PKey::RSA.new(options[:server_public_key]) || load_key(options[:server_public_key_path])
       # TODO: this key should be encrypted!
-      @session_method = Base64.decode64(options[:session_method])
-      @session_key    = options[:session_key]
+      @session_method = options[:session_method]
+      @session_key    = Base64::decode64(options[:session_key])
 
       pp :method=>@session_method, :key=>@session_key
 
@@ -115,7 +115,7 @@ module PushyClient
           :online_threshold  => config['push_jobs']['heartbeat']['online_threshold'],
           :lifetime          => config['lifetime'],
           :server_public_key => config['public_key'],
-          :session_key       => Base64::decode64(config['session_key']['key']),
+          :session_key       => config['session_key']['key'],
           :session_method    => config['session_key']['method']
       end
 
@@ -128,8 +128,9 @@ module PushyClient
       end
 
       def get_config_json(app)
+        node_name = app.node_name
         PushyClient::Log.info "Worker: Fetching configuration ..."
-        noauth_rest(app).get_rest("pushy/config", false)
+        noauth_rest(app).get_rest("pushy/config/#{node_name}", false)
       end
     end
 
@@ -189,7 +190,6 @@ module PushyClient
     def make_header_hmac(json)
       sig = OpenSSL::HMAC.digest('sha256', session_key, json)
       b64_sig = Base64.encode64(sig).chomp
-      pp :session_key=>session_key, :session_key64 => Base64.encode64(session_key).chomp
       "Version:2.0;SigningMethod:hmac_sha256;Signature:#{b64_sig}"
     end
 
