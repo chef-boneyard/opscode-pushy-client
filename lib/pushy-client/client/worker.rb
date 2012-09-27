@@ -115,7 +115,7 @@ module PushyClient
           :online_threshold  => config['push_jobs']['heartbeat']['online_threshold'],
           :lifetime          => config['lifetime'],
           :server_public_key => config['public_key'],
-          :session_key       => config['session_key']['key'],
+          :session_key       => Base64::decode64(config['session_key']['key']),
           :session_method    => config['session_key']['method']
       end
 
@@ -184,18 +184,17 @@ module PushyClient
     def make_header_rsa(json)
       checksum = Mixlib::Authentication::Digester.hash_string(json)
       b64_sig = Base64.encode64(client_private_key.private_encrypt(checksum)).chomp
-      "Version:2.0;SigningMethod:rsa2048_sha1;SignedChecksum:#{b64_sig}"
+      "Version:2.0;SigningMethod:rsa2048_sha1;Signature:#{b64_sig}"
     end
     def make_header_hmac(json)
-      sig = OpenSSL::HMAC.digest('sha256', session_key, body)
+      sig = OpenSSL::HMAC.digest('sha256', session_key, json)
       b64_sig = Base64.encode64(sig).chomp
-      "Version:2.0;SigningMethod:hmac_sha256;SignedChecksum:#{b64_sig}"
+      pp :session_key=>session_key, :session_key64 => Base64.encode64(session_key).chomp
+      "Version:2.0;SigningMethod:hmac_sha256;Signature:#{b64_sig}"
     end
 
     def send_signed_json(socket, method, message)
       json = Yajl::Encoder.encode(message)
-      sig = sign_checksum_rsa(json)
-
       auth = case method
              when :rsa2048_sha1
                make_header_rsa(json)
@@ -203,7 +202,7 @@ module PushyClient
                make_header_hmac(json)
              end
                
-      PushyClient::Log.debug "Sending Message #{method} #{json}"
+      PushyClient::Log.debug "Sending Message #{method} #{auth} #{json}"
 
       socket.send_msg(auth, json)
     end
