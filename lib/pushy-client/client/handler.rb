@@ -120,7 +120,7 @@ module PushyClient
         end
         pp header_map
 
-        auth_method = header_map["Method"]
+        auth_method = header_map["SigningMethod"]
         auth_sig  = header_map["SignedChecksum"]
       
         raw_sig = Base64.decode64(auth_sig)
@@ -145,7 +145,7 @@ module PushyClient
       end
 
       def self.hmac_valid?(body, auth_sig, hmac_key) 
-        body_sig = OpenSSL::HMAC.digest('sha256', hmac_key, body)b
+        body_sig = OpenSSL::HMAC.digest('sha256', hmac_key, body)
         auth_sig = body_sig
       end
 
