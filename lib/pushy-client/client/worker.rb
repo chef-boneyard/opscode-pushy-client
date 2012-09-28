@@ -76,7 +76,7 @@ module PushyClient
         :job_id => job_id
       }
 
-      send_signed_json(self.cmd_socket, message)
+      send_signed_json(self.cmd_socket, :hmac_sha256, message)
     end
 
     def send_heartbeat
