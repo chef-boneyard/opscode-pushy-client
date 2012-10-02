@@ -44,9 +44,6 @@ module PushyClient
       # TODO: this key should be encrypted!
       @session_method = options[:session_method]
       @session_key    = Base64::decode64(options[:session_key])
-
-      pp :method=>@session_method, :key=>@session_key
-
       @sequence = 0
 
       # TODO: This should be preserved across clean restarts...
@@ -151,6 +148,9 @@ module PushyClient
       # Probably need to set it up with a handler, like the subscriber socket above.
       self.cmd_socket = ctx.socket(ZMQ::DEALER, PushyClient::Handler::Command.new(self))
       self.cmd_socket.setsockopt(ZMQ::LINGER, 0)
+      # Note setting this to '1' causes the client to crash on send, but perhaps that
+      # beats storming the server when the server restarts
+      self.cmd_socket.setsockopt(ZMQ::HWM, 0) 
       self.cmd_socket.connect(cmd_address)
 
       monitor.start
