@@ -153,6 +153,10 @@ module PushyClient
       self.cmd_socket.setsockopt(ZMQ::HWM, 0) 
       self.cmd_socket.connect(cmd_address)
 
+      monitor.callback(:server_restart) do
+        app.reload
+      end
+
       monitor.start
 
       send_heartbeat
