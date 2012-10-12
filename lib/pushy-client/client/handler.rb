@@ -66,10 +66,9 @@ module PushyClient
           worker.send_command(:ack_commit, job_id)
           worker.change_job(JobState.new(job_id, command, :ready))
 
-        # Otherwise, we're involved with some other job.  ack.
+        # Otherwise, we're involved with some other job.  nack.
         else
           worker.send_command(:nack_commit, job_id)
-          worker.clear_job
         end
       end
 
