@@ -107,7 +107,7 @@ module PushyClient
           :offline_threshold => config['push_jobs']['heartbeat']['offline_threshold'],
           :online_threshold  => config['push_jobs']['heartbeat']['online_threshold'],
           :lifetime          => config['lifetime'],
-          :server_public_key => config['public_key'],
+          :server_public_key => config['public_key']
       end
 
       def noauth_rest(app)
