@@ -23,7 +23,7 @@ module PushyClient
       private
 
       def valid?(parts)
-        Utils.valid?(parts, @client.server_public_key)
+        Utils.valid?(parts, @client.server_public_key, @client.session_key)
       end
 
     end
@@ -104,31 +104,48 @@ module PushyClient
       end
 
       def valid?(parts)
-        Utils.valid?(parts, worker.server_public_key)
+        Utils.valid?(parts, worker.server_public_key, worker.session_key)
       end
 
     end
 
     module Utils
 
-      def self.valid?(parts, server_public_key)
+      def self.valid?(parts, server_public_key, session_key)
         headers = parts[0].copy_out_string.split(';')
         header_map = headers.inject({}) do |a,e| 
           k,v = e.split(':')
           a[k] = v
           a
         end
-        auth_method = header_map["Method"]
-        auth_sig  = header_map["SignedChecksum"]
+
+        auth_method = header_map["SigningMethod"]
+        auth_sig  = header_map["Signature"]
       
-        raw_sig = Base64.decode64(auth_sig)
-  
+        binary_sig = Base64.decode64(auth_sig)
         body = parts[1].copy_out_string
         
-        decrypted_checksum = server_public_key.public_decrypt(raw_sig)
-        hashed_body = Mixlib::Authentication::Digester.hash_string(body)
+        case auth_method 
+        when "rsa2048_sha1"
+          rsa_valid?(body, binary_sig, server_public_key)
+        when "hmac_sha256"
+          hmac_valid?(body, binary_sig, session_key)
+        else
+          false
+        end
+      end
 
+      def self.rsa_valid?(body, sig, server_public_key) 
+        decrypted_checksum = server_public_key.public_decrypt(sig)
+        hashed_body = Mixlib::Authentication::Digester.hash_string(body)
         decrypted_checksum == hashed_body
+      end
+
+      def self.hmac_valid?(body, sig, hmac_key) 
+        body_sig = OpenSSL::HMAC.digest('sha256', hmac_key, body).chomp
+        # Defeat timing attacks; attacking this requires breaking SHA.
+        sha = OpenSSL::Digest::SHA512.new
+        sha.digest(sig) == sha.digest(body_sig)
       end
 
       def self.parse_json(json)

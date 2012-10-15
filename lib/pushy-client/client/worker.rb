@@ -15,6 +15,8 @@ module PushyClient
     attr_accessor :lifetime
     attr_accessor :client_private_key
     attr_accessor :server_public_key
+    attr_accessor :session_key
+    attr_accessor :session_method
     attr_accessor :node_name
     attr_accessor :subscriber
     attr_accessor :cmd_socket
@@ -39,7 +41,9 @@ module PushyClient
       @node_name = app.node_name
       @client_private_key = load_key(app.client_private_key_path)
       @server_public_key = OpenSSL::PKey::RSA.new(options[:server_public_key]) || load_key(options[:server_public_key_path])
-
+      # TODO: this key should be encrypted!
+      @session_method = options[:session_method]
+      @session_key    = Base64::decode64(options[:session_key])
       @sequence = 0
 
       # TODO: This should be preserved across clean restarts...
@@ -69,7 +73,7 @@ module PushyClient
         :job_id => job_id
       }
 
-      send_signed_json(self.cmd_socket, message)
+      send_signed_json(self.cmd_socket, :hmac_sha256, message)
     end
 
     def send_heartbeat
@@ -87,7 +91,7 @@ module PushyClient
 
       @sequence+=1
 
-      send_signed_json(self.cmd_socket, message)
+      send_signed_json(self.cmd_socket, :hmac_sha256, message)
     end
 
     class << self
@@ -107,7 +111,9 @@ module PushyClient
           :offline_threshold => config['push_jobs']['heartbeat']['offline_threshold'],
           :online_threshold  => config['push_jobs']['heartbeat']['online_threshold'],
           :lifetime          => config['lifetime'],
-          :server_public_key => config['public_key']
+          :server_public_key => config['public_key'],
+          :session_key       => config['session_key']['key'],
+          :session_method    => config['session_key']['method']
       end
 
       def noauth_rest(app)
@@ -119,8 +125,9 @@ module PushyClient
       end
 
       def get_config_json(app)
+        node_name = app.node_name
         PushyClient::Log.info "Worker: Fetching configuration ..."
-        noauth_rest(app).get_rest("pushy/config", false)
+        noauth_rest(app).get_rest("pushy/config/#{node_name}", false)
       end
     end
 
@@ -141,6 +148,9 @@ module PushyClient
       # Probably need to set it up with a handler, like the subscriber socket above.
       self.cmd_socket = ctx.socket(ZMQ::DEALER, PushyClient::Handler::Command.new(self))
       self.cmd_socket.setsockopt(ZMQ::LINGER, 0)
+      # Note setting this to '1' causes the client to crash on send, but perhaps that
+      # beats storming the server when the server restarts
+      self.cmd_socket.setsockopt(ZMQ::HWM, 0) 
       self.cmd_socket.connect(cmd_address)
 
       monitor.start
@@ -172,17 +182,27 @@ module PushyClient
       OpenSSL::PKey::RSA.new(raw_key)
     end
 
-    def sign_checksum(json)
+    def make_header_rsa(json)
       checksum = Mixlib::Authentication::Digester.hash_string(json)
-      Base64.encode64(client_private_key.private_encrypt(checksum)).chomp
+      b64_sig = Base64.encode64(client_private_key.private_encrypt(checksum)).chomp
+      "Version:2.0;SigningMethod:rsa2048_sha1;Signature:#{b64_sig}"
+    end
+    def make_header_hmac(json)
+      sig = OpenSSL::HMAC.digest('sha256', session_key, json)
+      b64_sig = Base64.encode64(sig).chomp
+      "Version:2.0;SigningMethod:hmac_sha256;Signature:#{b64_sig}"
     end
 
-    def send_signed_json(socket, message)
+    def send_signed_json(socket, method, message)
       json = Yajl::Encoder.encode(message)
-      sig = sign_checksum(json)
-      auth = "VersionId:0.0.1;SignedChecksum:#{sig}"
-
-      PushyClient::Log.debug "Sending Message #{json}"
+      auth = case method
+             when :rsa2048_sha1
+               make_header_rsa(json)
+             when :hmac_sha256
+               make_header_hmac(json)
+             end
+               
+      PushyClient::Log.debug "Sending Message #{method} #{auth} #{json}"
 
       socket.send_msg(auth, json)
     end
