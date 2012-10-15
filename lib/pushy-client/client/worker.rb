@@ -206,7 +206,7 @@ module PushyClient
                make_header_hmac(json)
              end
                
-      PushyClient::Log.debug "Sending Message #{method} #{auth} #{json}"
+#      PushyClient::Log.debug "Sending Message #{method} #{auth} #{json}"
 
       socket.send_msg(auth, json)
     end
