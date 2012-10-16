@@ -153,6 +153,10 @@ module PushyClient
       self.cmd_socket.setsockopt(ZMQ::HWM, 0) 
       self.cmd_socket.connect(cmd_address)
 
+      monitor.callback(:server_restart) do
+        app.reload
+      end
+
       monitor.start
 
       send_heartbeat
@@ -202,7 +206,7 @@ module PushyClient
                make_header_hmac(json)
              end
                
-      PushyClient::Log.debug "Sending Message #{method} #{auth} #{json}"
+#      PushyClient::Log.debug "Sending Message #{method} #{auth} #{json}"
 
       socket.send_msg(auth, json)
     end
