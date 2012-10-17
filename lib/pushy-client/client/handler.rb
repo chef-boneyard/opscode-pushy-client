@@ -98,7 +98,7 @@ module PushyClient
       end
 
       def abort
-        worker.job.process.cancel if worker.job.running?
+        worker.job.cancel if worker.job.running?
         worker.send_command(:aborted, worker.job.job_id)
         worker.clear_job
       end
