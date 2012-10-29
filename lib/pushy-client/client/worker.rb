@@ -116,18 +116,11 @@ module PushyClient
           :session_method    => config['session_key']['method']
       end
 
-      def noauth_rest(app)
-        @noauth_rest ||= begin
-                           require 'chef/rest'
-                           Chef::REST.new(app.service_url_base || DEFAULT_SERVICE_URL_BASE, false, false)
-                         end
-        @noauth_rest
-      end
 
       def get_config_json(app)
         node_name = app.node_name
         PushyClient::Log.info "Worker: Fetching configuration ..."
-        noauth_rest(app).get_rest("pushy/config/#{node_name}", false)
+        app.get_rest("pushy/config/#{node_name}", false)
       end
     end
 
@@ -150,7 +143,7 @@ module PushyClient
       self.cmd_socket.setsockopt(ZMQ::LINGER, 0)
       # Note setting this to '1' causes the client to crash on send, but perhaps that
       # beats storming the server when the server restarts
-      self.cmd_socket.setsockopt(ZMQ::HWM, 0) 
+      self.cmd_socket.setsockopt(ZMQ::HWM, 0)
       self.cmd_socket.connect(cmd_address)
 
       monitor.callback(:server_restart) do
@@ -205,7 +198,7 @@ module PushyClient
              when :hmac_sha256
                make_header_hmac(json)
              end
-               
+
 #      PushyClient::Log.debug "Sending Message #{method} #{auth} #{json}"
 
       socket.send_msg(auth, json)
