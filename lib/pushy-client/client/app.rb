@@ -37,9 +37,9 @@ module PushyClient
       @client_private_key_path = options[:client_private_key_path]
       @node_name               = options[:node_name]
 
-      PushyClient::Log.info "Using configuration endpoint: #{service_url_base}"
-      PushyClient::Log.info "Using private key: #{client_private_key_path}"
-      PushyClient::Log.info "Using node name: #{node_name}"
+      PushyClient::Log.info "[#{node_name}] Using configuration endpoint: #{service_url_base}"
+      PushyClient::Log.info "[#{node_name}] Using private key: #{client_private_key_path}"
+      PushyClient::Log.info "[#{node_name}] Using node name: #{node_name}"
     end
 
     def get_rest(path, raw)
@@ -50,18 +50,23 @@ module PushyClient
     end
 
     def start
-      PushyClient::Log.info "Booting ..."
+      PushyClient::Log.info "[#{node_name}] Booting ..."
 
       EM.run do
-        start_worker
+        begin
+          start_worker
+        rescue Exception => e
+          PushyClient::Log.error "[#{node_name}] Exception #{e.message}"
+          PushyClient::Log.error "[#{node_name}] #{e.backtrace.inspect}"
+        end
       end
 
     end
 
     def stop
-      PushyClient::Log.info "Stopping client ..."
+      PushyClient::Log.info "[#{node_name}] Stopping client ..."
       worker.stop
-      PushyClient::Log.info "Stopped."
+      PushyClient::Log.info "[#{node_name}] Stopped."
     end
 
     def reload
