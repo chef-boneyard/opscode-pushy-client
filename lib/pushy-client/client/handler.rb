@@ -151,7 +151,7 @@ module PushyClient
       end
 
       def self.hmac_valid?(body, sig, hmac_key)
-        body_sig = OpenSSL::HMAC.digest('sha256', hmac_key, body).chomp
+        body_sig = OpenSSL::HMAC.digest('sha256', hmac_key, body)
         # Defeat timing attacks; attacking this requires breaking SHA.
         sha = OpenSSL::Digest::SHA512.new
         sha.digest(sig) == sha.digest(body_sig)
