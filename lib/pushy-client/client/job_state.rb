@@ -3,13 +3,13 @@ module PushyClient
     attr_accessor :job_id
     attr_accessor :command
     attr_accessor :state
-    attr_accessor :process
+    attr_accessor :pid
 
     def initialize(job_id, command, state)
       @job_id = job_id
       @command = command
       @state = state
-      @process = nil
+      @pid = nil
     end
 
     def idle?
@@ -29,8 +29,10 @@ module PushyClient
     end
 
     def cancel
-      pid = process.get_pid
-      system "kill -9 #{pid}"
+      if pid
+        Process.kill("KILL", pid)
+        pid = nil
+      end
     end
   end
 end

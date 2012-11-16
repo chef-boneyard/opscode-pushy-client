@@ -167,10 +167,7 @@ module PushyClient
       PushyClient::Log.debug "[#{node_name}] Worker: Stopping ..."
       monitor.stop
       timer.cancel
-      if job.running?
-        job.cancel
-        job.state = :aborted
-      end
+      job.cancel
       PushyClient::Log.debug "[#{node_name}] Worker: Stopped."
     end
 

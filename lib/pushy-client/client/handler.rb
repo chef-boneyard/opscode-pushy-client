@@ -91,11 +91,20 @@ module PushyClient
           worker.send_command(:ack_run, job_id)
           worker.change_job(JobState.new(job_id, command, :running))
 
-          worker.job.process = EM::DeferrableChildProcess.open(command)
-          # TODO what if this fails?
-          worker.job.process.callback do |data_from_child|
-            worker.send_command(:complete, job_id)
-            worker.clear_job
+          worker.job.pid = pid = Process.spawn(command)
+
+          # Wait for the job to complete and close it out.
+          Thread.new do
+            Process.wait(pid)
+            # This runs on the EM thread and handles a potential race condition
+            # between complete and aborted by checking whether the job is still
+            # active before sending the completed response
+            EM.schedule do
+              if worker.job.running?(job_id)
+                worker.send_command(:complete, job_id)
+                worker.clear_job
+              end
+            end
           end
 
         # Otherwise, we're clearly working on another job.  Ignore this request.
@@ -107,7 +116,7 @@ module PushyClient
       end
 
       def abort
-        worker.job.cancel if worker.job.running?
+        worker.job.cancel
         worker.send_command(:aborted, worker.job.job_id)
         worker.clear_job
       end
