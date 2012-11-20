@@ -91,7 +91,7 @@ module PushyClient
           worker.send_command(:ack_run, job_id)
           worker.change_job(JobState.new(job_id, command, :running))
 
-          worker.job.pid = pid = Process.spawn(command)
+          worker.job.pid = pid = Process.spawn({'PUSHY_NODE_NAME' => worker.node_name}, command)
 
           # Wait for the job to complete and close it out.
           Thread.new do
