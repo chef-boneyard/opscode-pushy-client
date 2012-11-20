@@ -16,6 +16,12 @@ module PushyClient
         :default => (`hostname`).chomp,
         :description => "The Node name"
 
+      option :org_name,
+        :short => "-o ORGNAME",
+        :long => "--org-name NODENAME",
+        :required => true,
+        :description => "The Organization name"
+
       option :offline_threshold,
         :long => "--offline-threshold THRESHOLD",
         :default => 3,
@@ -113,7 +119,8 @@ module PushyClient
         app = PushyClient::App.new \
                 :service_url_base        => config[:service_url_base],
                 :client_private_key_path => config[:client_private_key_path],
-                :node_name               => config[:node_name]
+                :node_name               => config[:node_name],
+                :org_name                => config[:org_name]
 
         app.start
       end

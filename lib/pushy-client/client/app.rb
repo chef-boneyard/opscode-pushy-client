@@ -23,10 +23,10 @@ require 'pp'
 
 module PushyClient
   class App
-    DEFAULT_SERVICE_URL_BASE = "https://localhost/organization/clownco"
 
     attr_accessor :service_url_base
     attr_accessor :client_private_key_path
+    attr_accessor :org_name
     attr_accessor :node_name
 
     attr_accessor :reaper, :worker
@@ -35,15 +35,21 @@ module PushyClient
     def initialize(options)
       @service_url_base        = options[:service_url_base]
       @client_private_key_path = options[:client_private_key_path]
+      @org_name                = options[:org_name]
       @node_name               = options[:node_name]
 
       PushyClient::Log.info "[#{node_name}] Using configuration endpoint: #{service_url_base}"
       PushyClient::Log.info "[#{node_name}] Using private key: #{client_private_key_path}"
+      PushyClient::Log.info "[#{org_name}] Using org name: #{org_name}"
       PushyClient::Log.info "[#{node_name}] Using node name: #{node_name}"
     end
 
+    def default_service_url_base
+      "https://localhost/organizations/#{org_name}"
+    end
+
     def get_rest(path, raw)
-      @rest_endpoint ||= Chef::REST.new(service_url_base || DEFAULT_SERVICE_URL_BASE,
+      @rest_endpoint ||= Chef::REST.new(service_url_base || default_service_url_base,
                                         node_name,
                                         client_private_key_path)
       @rest_endpoint.get_rest(path, raw)
