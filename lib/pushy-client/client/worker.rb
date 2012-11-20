@@ -17,7 +17,6 @@ module PushyClient
     attr_accessor :server_public_key
     attr_accessor :session_key
     attr_accessor :session_method
-    attr_accessor :node_name
     attr_accessor :subscriber
     attr_accessor :cmd_socket
     attr_accessor :on_state_change
@@ -38,7 +37,6 @@ module PushyClient
       @online_threshold = options[:online_threshold]
       @lifetime = options[:lifetime]
 
-      @node_name = app.node_name
       @client_private_key = load_key(app.client_private_key_path)
       @server_public_key = OpenSSL::PKey::RSA.new(options[:server_public_key]) || load_key(options[:server_public_key_path])
       # TODO: this key should be encrypted!
@@ -67,7 +65,7 @@ module PushyClient
       message = {
         :node => node_name,
         :client => (`hostname`).chomp,
-        :org => "pushy",
+        :org => org_name,
         :type => message_type,
         :timestamp => Time.now.httpdate,
         :incarnation_id => @incarnation_id,
@@ -82,7 +80,7 @@ module PushyClient
       message = {
         :node => node_name,
         :client => (`hostname`).chomp,
-        :org => "pushy",
+        :org => org_name,
         :type => :heartbeat,
         :timestamp => Time.now.httpdate,
         :incarnation_id => @incarnation_id,
@@ -94,6 +92,14 @@ module PushyClient
       @sequence+=1
 
       send_signed_json(self.cmd_socket, :hmac_sha256, message)
+    end
+
+    def node_name
+      app.node_name
+    end
+
+    def org_name
+      app.org_name
     end
 
     class << self
