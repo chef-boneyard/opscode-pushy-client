@@ -49,7 +49,7 @@ module PushyClient
     end
 
     def get_rest(path, raw)
-      @rest_endpoint ||= Chef::REST.new(service_url_base || DEFAULT_SERVICE_URL_BASE,
+      @rest_endpoint ||= Chef::REST.new(service_url_base || default_service_url_base,
                                         node_name,
                                         client_private_key_path)
       @rest_endpoint.get_rest(path, raw)
