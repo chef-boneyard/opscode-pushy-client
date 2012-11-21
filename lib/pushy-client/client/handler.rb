@@ -91,17 +91,18 @@ module PushyClient
           worker.send_command(:ack_run, job_id)
           worker.change_job(JobState.new(job_id, command, :running))
 
-          worker.job.pid = pid = Process.spawn(command)
+          worker.job.pid = pid = Process.spawn({'PUSHY_NODE_NAME' => worker.node_name}, command)
 
           # Wait for the job to complete and close it out.
           Thread.new do
             Process.wait(pid)
+            exit_status = $?.exitstatus == 0 ? :succeeded : :failed
             # This runs on the EM thread and handles a potential race condition
             # between complete and aborted by checking whether the job is still
             # active before sending the completed response
             EM.schedule do
               if worker.job.running?(job_id)
-                worker.send_command(:complete, job_id)
+                worker.send_command(exit_status, job_id)
                 worker.clear_job
               end
             end
