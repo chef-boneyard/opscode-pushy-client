@@ -13,7 +13,7 @@ module PushyClient
       option :node_name,
         :short => "-n NODENAME",
         :long => "--node-name NODENAME",
-        :default => (`hostname`).chomp,
+        :required => true,
         :description => "The Node name"
 
       option :org_name,
@@ -52,7 +52,7 @@ module PushyClient
       option :service_url_base,
         :short => "-s HOST",
         :long => "--service-url-base HOST",
-        :default => "http://33.33.33.10:10003/organizations/pushy",
+        :required => true,
         :description => "URL pointing to configuration service (eventually same as chef)"
 
       option :verbose,
@@ -64,7 +64,7 @@ module PushyClient
       option :client_private_key_path,
         :long => "--client-key KEY_FILE",
         :description => "Set the client key file location",
-        :default => File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'keys', 'client_private.pem')),
+        :required => true,
         :proc => nil
 
       option :server_public_key_path,
