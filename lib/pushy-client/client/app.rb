@@ -58,6 +58,10 @@ module PushyClient
     def start
       PushyClient::Log.info "[#{node_name}] Booting ..."
 
+      EM.error_handler do |err|
+        PushyClient::Log.error "Exception in EM handler: #{err}"
+      end
+
       EM.run do
         begin
           start_worker

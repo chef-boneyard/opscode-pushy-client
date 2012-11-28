@@ -95,15 +95,24 @@ module PushyClient
 
           # Wait for the job to complete and close it out.
           Thread.new do
-            Process.wait(pid)
-            exit_status = $?.exitstatus == 0 ? :succeeded : :failed
-            # This runs on the EM thread and handles a potential race condition
-            # between complete and aborted by checking whether the job is still
-            # active before sending the completed response
-            EM.schedule do
-              if worker.job.running?(job_id)
-                worker.send_command(exit_status, job_id)
-                worker.clear_job
+            begin
+              pid, status = Process.waitpid2(pid)
+              exit_status = status == 0 ? :succeeded : :failed
+              # This runs on the EM thread and handles a potential race condition
+              # between complete and aborted by checking whether the job is still
+              # active before sending the completed response
+              EM.schedule do
+                if worker.job.running?(job_id)
+                  worker.send_command(exit_status, job_id)
+                  worker.clear_job
+                end
+              end
+            rescue
+              PushyClient::Log.error "Exception raised while waiting for the process to complete: #{$!}"
+              EM.schedule do
+                if worker.job.running?(job_id)
+                  abort
+                end
               end
             end
           end
