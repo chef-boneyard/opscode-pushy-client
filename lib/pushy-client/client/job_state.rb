@@ -30,7 +30,7 @@ module PushyClient
 
     def cancel
       if pid
-        Process.kill("KILL", pid)
+        Process.kill(1, pid)
         pid = nil
       end
     end
