@@ -35,8 +35,13 @@ module PushyClient
     def initialize(options)
       @service_url_base        = options[:service_url_base]
       @client_private_key_path = options[:client_private_key_path]
-      @org_name                = options[:org_name]
       @node_name               = options[:node_name]
+
+      if @service_url_base =~ /\/organizations\/+([^\/]+)\/*/
+        @org_name = $1
+      else
+        raise "chef_server must end in /organizations/ORG_NAME"
+      end
 
       PushyClient::Log.info "[#{node_name}] Using configuration endpoint: #{service_url_base}"
       PushyClient::Log.info "[#{node_name}] Using private key: #{client_private_key_path}"
@@ -44,12 +49,8 @@ module PushyClient
       PushyClient::Log.info "[#{node_name}] Using node name: #{node_name}"
     end
 
-    def default_service_url_base
-      "https://localhost/organizations/#{org_name}"
-    end
-
     def get_rest(path, raw)
-      @rest_endpoint ||= Chef::REST.new(service_url_base || default_service_url_base,
+      @rest_endpoint ||= Chef::REST.new(service_url_base,
                                         node_name,
                                         client_private_key_path)
       @rest_endpoint.get_rest(path, raw)

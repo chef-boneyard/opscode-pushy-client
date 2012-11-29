@@ -1,26 +1,67 @@
+require 'chef/application'
+require 'chef/config'
+require 'chef/log'
+require 'pushy-client/client/app'
+require 'pushy-client/client/log'
+
 module PushyClient
   module CLI
-    class Client
-
-      include Mixlib::CLI
+    class Client < Chef::Application
 
       option :config_file,
         :short => "-c CONFIG",
-        :long => "--config CONFIG",
-        :default => "config.rb",
+        :long  => "--config CONFIG",
+        :default => Chef::Config.platform_specific_path("/etc/chef/client.rb"),
         :description => "The configuration file to use"
 
-      option :node_name,
-        :short => "-n NODENAME",
-        :long => "--node-name NODENAME",
-        :required => true,
-        :description => "The Node name"
+      option :log_level,
+        :short        => "-l LEVEL",
+        :long         => "--log_level LEVEL",
+        :description  => "Set the log level (debug, info, warn, error, fatal)",
+        :proc         => lambda { |l| l.to_sym }
 
-      option :org_name,
-        :short => "-o ORGNAME",
-        :long => "--org-name NODENAME",
-        :required => true,
-        :description => "The Organization name"
+      option :log_location,
+        :short        => "-L LOGLOCATION",
+        :long         => "--logfile LOGLOCATION",
+        :description  => "Set the log file location, defaults to STDOUT - recommended for daemonizing",
+        :proc         => nil
+
+      option :help,
+        :short        => "-h",
+        :long         => "--help",
+        :description  => "Show this message",
+        :on           => :tail,
+        :boolean      => true,
+        :show_options => true,
+        :exit         => 0
+
+      option :node_name,
+        :short => "-N NODE_NAME",
+        :long => "--node-name NODE_NAME",
+        :description => "The node name for this client",
+        :proc => nil
+
+      option :chef_server_url,
+        :short => "-S CHEFSERVERURL",
+        :long => "--server CHEFSERVERURL",
+        :description => "The chef server URL",
+        :proc => nil
+
+      option :client_key,
+        :short        => "-k KEY_FILE",
+        :long         => "--client_key KEY_FILE",
+        :description  => "Set the client key file location",
+        :proc         => nil
+
+      option :version,
+        :short        => "-v",
+        :long         => "--version",
+        :description  => "Show pushy version",
+        :boolean      => true,
+        :proc         => lambda {|v| puts "Pushy: #{::PushyClient::VERSION}"},
+        :exit         => 0
+
+      # Pushy-only options
 
       option :offline_threshold,
         :long => "--offline-threshold THRESHOLD",
@@ -49,95 +90,36 @@ module PushyClient
         :default => "tcp://127.0.0.1:10000",
         :description => "URL pointing to the server's heartbeat broadcast service"
 
-      option :service_url_base,
-        :short => "-s HOST",
-        :long => "--service-url-base HOST",
-        :required => true,
-        :description => "URL pointing to configuration service (eventually same as chef)"
-
-      option :verbose,
-        :short => "-v",
-        :long => "--verbose",
-        :boolean => true,
-        :description => "Be verbose"
-
-      option :client_private_key_path,
-        :long => "--client-key KEY_FILE",
-        :description => "Set the client key file location",
-        :required => true,
-        :proc => nil
-
       option :server_public_key_path,
         :long => "--server-key KEY_FILE",
         :description => "Set the client key file location",
         :default => File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'keys', 'server_public.pem')),
         :proc => nil
 
-      option :help,
-        :short => "-h",
-        :long => "--help",
-        :description => "Show this message",
-        :on => :tail,
-        :boolean => true,
-        :show_options => true,
-        :exit => 0
-
-      option :log_level,
-        :short => "-l LEVEL",
-        :long  => "--log_level LEVEL",
-        :description => "Set the log level (debug, info, warn, error, fatal) (default: warn)",
-        :default => :error,
-        :proc => Proc.new { |l| l.to_sym }
-
-      def setup
-        trap("TERM") do
-        end
-
-        trap("INT") do
-          EM::stop()
-        end
-
-        trap("QUIT") do
-          EM::stop()
-        end
-
-        trap("HUP") do
-          reconfigure
-        end
-
-        self.parse_options
-
-        # set log level
-        PushyClient::Log.level = config[:verbose] ? :debug : config[:log_level]
-        Chef::Log.level = config[:verbose] ? :debug : config[:log_level]
-
-        self
+      def reconfigure
+        # We do not use Chef's formatters.
+        Chef::Config[:force_logger] = true
+        # Set up our logger too (TODO get rid of this)
+        PushyClient::Log.level = config[:log_level] || :debug
+        super
       end
 
-      def run
-        reconfigure
-        app = PushyClient::App.new \
-                :service_url_base        => config[:service_url_base],
-                :client_private_key_path => config[:client_private_key_path],
-                :node_name               => config[:node_name],
-                :org_name                => config[:org_name]
+      def setup_application
+      end
+
+      def run_application
+        if Chef::Config[:version]
+          puts "Pushy version: #{::PushyClient::VERSION}"
+        end
+
+        app = PushyClient::App.new(
+          :service_url_base        => Chef::Config[:chef_server_url],
+          :client_private_key_path => Chef::Config[:client_key],
+          :node_name               => Chef::Config[:node_name]
+        )
 
         app.start
       end
-
-      def reconfigure
-        unless ::File.exists? config[:config_file]
-          PushyClient::Log.warn "No config file. Using command line options."
-          return
-        end
-
-        ::File::open(config[:config_file]) do |f|
-          Chef::Config.from_file(f.path)
-        end
-
-        true
-      end
-
     end
   end
 end
