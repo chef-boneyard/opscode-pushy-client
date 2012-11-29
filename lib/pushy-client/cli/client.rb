@@ -61,41 +61,6 @@ module PushyClient
         :proc         => lambda {|v| puts "Pushy: #{::PushyClient::VERSION}"},
         :exit         => 0
 
-      # Pushy-only options
-
-      option :offline_threshold,
-        :long => "--offline-threshold THRESHOLD",
-        :default => 3,
-        :description => "Number of missed intervals before I stop sending a heartbeat"
-
-      option :online_threshold,
-        :long => "--online-threshold THRESHOLD",
-        :default => 2,
-        :description => "Number of messages to receive after disconnect before I start sending a heartbeat"
-
-      option :interval,
-        :short => "-i INTERVAL",
-        :long => "--interval INTERVAL",
-        :default => 1,
-        :description => "How often do I send a heartbeat"
-
-      option :lifetime,
-        :short => "-r TIMEOUT",
-        :long => "--lifetime TIMEOUT",
-        :default => 3600,
-        :description => "How often do restart the client"
-
-      option :out_address,
-        :long => "--out-address HOST",
-        :default => "tcp://127.0.0.1:10000",
-        :description => "URL pointing to the server's heartbeat broadcast service"
-
-      option :server_public_key_path,
-        :long => "--server-key KEY_FILE",
-        :description => "Set the client key file location",
-        :default => File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'keys', 'server_public.pem')),
-        :proc => nil
-
       def reconfigure
         # We do not use Chef's formatters.
         Chef::Config[:force_logger] = true
