@@ -14,7 +14,7 @@ module PushyClient
 
       def on_readable(socket, parts)
         unless valid?(parts)
-          PushyClient::Log.error "[#{node_name}] Received Invalid Heartbeat : #{parts[1].copy_out_string}}"
+          Chef::Log.error "[#{node_name}] Received Invalid Heartbeat : #{parts[1].copy_out_string}}"
           return
         end
 
@@ -44,12 +44,12 @@ module PushyClient
 
       def on_readable(socket, parts)
         unless valid?(parts)
-          PushyClient::Log.error "[#{node_name}] Received Invalid Message : #{parts[1].copy_out_string}}"
+          Chef::Log.error "[#{node_name}] Received Invalid Message : #{parts[1].copy_out_string}}"
           return
         end
         command_hash = Utils.parse_json(parts[1].copy_out_string)
 
-        PushyClient::Log.debug "[#{node_name}] Received command #{command_hash}"
+        Chef::Log.debug "[#{node_name}] Received command #{command_hash}"
         if command_hash['type'] == "commit"
           ack_nack(command_hash['job_id'], command_hash['command'])
         elsif command_hash['type'] == "run"
@@ -57,7 +57,7 @@ module PushyClient
         elsif command_hash['type'] == "abort"
           abort
         else
-          PushyClient::Log.error "[#{node_name}] Received unknown command #{command_hash}"
+          Chef::Log.error "[#{node_name}] Received unknown command #{command_hash}"
         end
 
       end
@@ -67,7 +67,7 @@ module PushyClient
       def ack_nack(job_id, command)
         # If we are ready or have started this job, do nothing.
         if worker.job.ready?(job_id) || worker.job.running?(job_id)
-          PushyClient::Log.warn "Received command request for job #{job_id} after twice: doing nothing."
+          Chef::Log.warn "Received command request for job #{job_id} after twice: doing nothing."
           worker.send_command(:ack_commit, job_id)
 
         # If we are idle, ack.
@@ -84,7 +84,7 @@ module PushyClient
       def run_command(job_id, command)
         # If we are already running this job, do nothing.
         if worker.job.running?(job_id)
-          PushyClient::Log.warn "[#{node_name}] Received execute request for job #{job_id} twice: doing nothing."
+          Chef::Log.warn "[#{node_name}] Received execute request for job #{job_id} twice: doing nothing."
 
         # If we are ready for this job, or are idle, start.
         elsif worker.job.ready?(job_id) || worker.job.idle?
@@ -108,7 +108,7 @@ module PushyClient
                 end
               end
             rescue
-              PushyClient::Log.error "Exception raised while waiting for the process to complete: #{$!}"
+              Chef::Log.error "Exception raised while waiting for the process to complete: #{$!}"
               EM.schedule do
                 if worker.job.running?(job_id)
                   abort
@@ -121,7 +121,7 @@ module PushyClient
         # TODO perhaps remind the server of our state with respect to this job.
         else
           worker.send_command(:nack_run, job_id)
-          PushyClient::Log.warn "[#{node_name}] Received execute request for job #{job_id} when we are already #{worker.job}: Doing nothing."
+          Chef::Log.warn "[#{node_name}] Received execute request for job #{job_id} when we are already #{worker.job}: Doing nothing."
         end
       end
 

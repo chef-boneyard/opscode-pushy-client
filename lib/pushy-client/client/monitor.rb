@@ -22,7 +22,7 @@ module PushyClient
         @server_incarnation_id = data["incarnation_id"]
       elsif (@server_incarnation_id !=  data["incarnation_id"])
         # server has changed id; trigger reconnect
-        PushyClient::Log.error "Server Restart id was #{@server_incarnation_id} now #{data['incarnation_id']}"
+        Chef::Log.error "Server Restart id was #{@server_incarnation_id} now #{data['incarnation_id']}"
         @server_incarnation_id = data["incarnation_id"]
         fire_callback(:server_restart)
       end
@@ -76,7 +76,7 @@ module PushyClient
       if callables = @callbacks[type.to_sym]
         callables.each { |callable| callable.call }
       else
-        PushyClient::Log.error "Can't fire_callback for '#{type}'"
+        Chef::Log.error "Can't fire_callback for '#{type}'"
       end
     end
 

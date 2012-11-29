@@ -34,7 +34,7 @@ RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.formatter = 'documentation'
 
-  PushyClient::Log.level = :debug
+  Chef::Log.level = :debug
   Chef::Log.level = :debug
 
   TestConfig.service_url_base = "http://33.33.33.10:10003"

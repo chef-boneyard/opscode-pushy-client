@@ -10,4 +10,4 @@ Bundler.require(:default)
 require 'pushy-client'
 require 'pushy-client/cli/client'
 
-PushyClient::CLI::Client.new.setup.run
+PushyClient::CLI::Client.new.run
