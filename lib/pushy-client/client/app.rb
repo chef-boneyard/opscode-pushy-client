@@ -35,48 +35,49 @@ module PushyClient
     def initialize(options)
       @service_url_base        = options[:service_url_base]
       @client_private_key_path = options[:client_private_key_path]
-      @org_name                = options[:org_name]
       @node_name               = options[:node_name]
 
-      PushyClient::Log.info "[#{node_name}] Using configuration endpoint: #{service_url_base}"
-      PushyClient::Log.info "[#{node_name}] Using private key: #{client_private_key_path}"
-      PushyClient::Log.info "[#{org_name}] Using org name: #{org_name}"
-      PushyClient::Log.info "[#{node_name}] Using node name: #{node_name}"
-    end
+      if @service_url_base =~ /\/organizations\/+([^\/]+)\/*/
+        @org_name = $1
+      else
+        raise "chef_server must end in /organizations/ORG_NAME"
+      end
 
-    def default_service_url_base
-      "https://localhost/organizations/#{org_name}"
+      Chef::Log.info "[#{node_name}] Using configuration endpoint: #{service_url_base}"
+      Chef::Log.info "[#{node_name}] Using private key: #{client_private_key_path}"
+      Chef::Log.info "[#{org_name}] Using org name: #{org_name}"
+      Chef::Log.info "[#{node_name}] Using node name: #{node_name}"
     end
 
     def get_rest(path, raw)
-      @rest_endpoint ||= Chef::REST.new(service_url_base || default_service_url_base,
+      @rest_endpoint ||= Chef::REST.new(service_url_base,
                                         node_name,
                                         client_private_key_path)
       @rest_endpoint.get_rest(path, raw)
     end
 
     def start
-      PushyClient::Log.info "[#{node_name}] Booting ..."
+      Chef::Log.info "[#{node_name}] Booting ..."
 
       EM.error_handler do |err|
-        PushyClient::Log.error "Exception in EM handler: #{err}"
+        Chef::Log.error "Exception in EM handler: #{err}"
       end
 
       EM.run do
         begin
           start_worker
         rescue Exception => e
-          PushyClient::Log.error "[#{node_name}] Exception #{e.message}"
-          PushyClient::Log.error "[#{node_name}] #{e.backtrace.inspect}"
+          Chef::Log.error "[#{node_name}] Exception #{e.message}"
+          Chef::Log.error "[#{node_name}] #{e.backtrace.inspect}"
         end
       end
 
     end
 
     def stop
-      PushyClient::Log.info "[#{node_name}] Stopping client ..."
+      Chef::Log.info "[#{node_name}] Stopping client ..."
       worker.stop
-      PushyClient::Log.info "[#{node_name}] Stopped."
+      Chef::Log.info "[#{node_name}] Stopped."
     end
 
     def reload
