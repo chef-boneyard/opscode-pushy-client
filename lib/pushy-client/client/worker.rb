@@ -49,19 +49,19 @@ module PushyClient
     end
 
     def change_job(job)
-      PushyClient::Log.info("[#{node_name}] Changing to new job: #{job}")
+      Chef::Log.info("[#{node_name}] Changing to new job: #{job}")
       @job = job
       on_state_change.call(self.job) if on_state_change
     end
 
     def clear_job
-      PushyClient::Log.info("[#{node_name}] Clearing current job: #{job}")
+      Chef::Log.info("[#{node_name}] Clearing current job: #{job}")
       @job = JobState.new(nil, nil, :idle)
       on_state_change.call(self.job) if on_state_change
     end
 
     def send_command(message_type, job_id)
-      PushyClient::Log.info("[#{node_name}] Sending command #{message_type} to job #{job_id}")
+      Chef::Log.info("[#{node_name}] Sending command #{message_type} to job #{job_id}")
       message = {
         :node => node_name,
         :client => (`hostname`).chomp,
@@ -76,7 +76,7 @@ module PushyClient
     end
 
     def send_heartbeat
-      PushyClient::Log.info("[#{node_name}] Sending heartbeat")
+      Chef::Log.info("[#{node_name}] Sending heartbeat")
       message = {
         :node => node_name,
         :client => (`hostname`).chomp,
@@ -127,7 +127,7 @@ module PushyClient
 
       def get_config_json(app)
         node_name = app.node_name
-        PushyClient::Log.info "[#{node_name}] Worker: Fetching configuration ..."
+        Chef::Log.info "[#{node_name}] Worker: Fetching configuration ..."
         app.get_rest("pushy/config/#{node_name}", false)
       end
     end
@@ -137,13 +137,13 @@ module PushyClient
       # TODO: Define hwm behavior for sockets below
 
       # Subscribe to heartbeat from the server
-      PushyClient::Log.info "[#{node_name}] Worker: Listening for server heartbeat at #{out_address}"
+      Chef::Log.info "[#{node_name}] Worker: Listening for server heartbeat at #{out_address}"
       self.subscriber = ctx.socket(ZMQ::SUB, PushyClient::Handler::Heartbeat.new(monitor, self))
       self.subscriber.connect(out_address)
       self.subscriber.setsockopt(ZMQ::SUBSCRIBE, "")
 
       # command socket for server
-      PushyClient::Log.info "[#{node_name}] Worker: Connecting to command channel at #{cmd_address}"
+      Chef::Log.info "[#{node_name}] Worker: Connecting to command channel at #{cmd_address}"
       # TODO
       # This needs to be set up to be able to handle bidirectional messages; right now this is Tx only
       # Probably need to set it up with a handler, like the subscriber socket above.
@@ -163,18 +163,18 @@ module PushyClient
       send_heartbeat
 
       # Set up the client->server heartbeat on a timer
-      PushyClient::Log.debug "[#{node_name}] Worker: Setting heartbeat at every #{interval} seconds"
+      Chef::Log.debug "[#{node_name}] Worker: Setting heartbeat at every #{interval} seconds"
       @timer = EM::PeriodicTimer.new(interval) do
         send_heartbeat
       end
     end
 
     def stop
-      PushyClient::Log.debug "[#{node_name}] Worker: Stopping ..."
+      Chef::Log.debug "[#{node_name}] Worker: Stopping ..."
       monitor.stop
       timer.cancel
       job.cancel
-      PushyClient::Log.debug "[#{node_name}] Worker: Stopped."
+      Chef::Log.debug "[#{node_name}] Worker: Stopped."
     end
 
     private
@@ -204,7 +204,7 @@ module PushyClient
                make_header_hmac(json)
              end
 
-#      PushyClient::Log.debug "[#{node_name}] Sending Message #{method} #{auth} #{json}"
+#      Chef::Log.debug "[#{node_name}] Sending Message #{method} #{auth} #{json}"
 
       socket.send_msg(auth, json)
     end

@@ -2,7 +2,6 @@ require 'chef/application'
 require 'chef/config'
 require 'chef/log'
 require 'pushy-client/client/app'
-require 'pushy-client/client/log'
 
 module PushyClient
   module CLI
@@ -64,8 +63,6 @@ module PushyClient
       def reconfigure
         # We do not use Chef's formatters.
         Chef::Config[:force_logger] = true
-        # Set up our logger too (TODO get rid of this)
-        PushyClient::Log.level = config[:log_level] || :debug
         super
       end
 
