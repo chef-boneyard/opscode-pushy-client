@@ -1,7 +1,7 @@
 #
 # Author:: James Casey (<james@opscode.com>)
 # Author:: Mark Anderson (<mark@opscode.com>)
-# Author:: John Keiser (<john@opscode.com>)
+# Author:: John Keiser (<jkeiser@opscode.com>)
 # Copyright:: Copyright (c) 2012 Opscode, Inc.
 # License:: Apache License, Version 2.0
 #
