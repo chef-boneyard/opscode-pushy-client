@@ -2,6 +2,7 @@ require 'chef/application'
 require 'chef/config'
 require 'chef/log'
 require 'pushy_client'
+require 'pushy_client/version'
 
 class PushyClient
   class CLI < Chef::Application
