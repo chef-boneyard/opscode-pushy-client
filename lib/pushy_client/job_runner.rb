@@ -9,9 +9,9 @@ class PushyClient
   class JobRunner
     def initialize(client)
       @client = client
-      @state = :idle
-      @job_id = nil
-      @command = nil
+      @on_job_state_change = []
+
+      set_job_state(:idle)
       @pid = nil
       @process_thread = nil
 
@@ -35,9 +35,7 @@ class PushyClient
       if @state == :running
         kill_process
       end
-      @state = :idle
-      @job_id = nil
-      @command = nil
+      set_job_state(:idle)
     end
 
     def reconfigure
@@ -48,9 +46,7 @@ class PushyClient
       @state_lock.synchronize do
         if @state == :idle
           Chef::Log.info("[#{node_name}] Received commit #{job_id}")
-          @state = :committed
-          @job_id = job_id
-          @command = command
+          set_job_state(:committed, job_id, command)
           client.send_command(:ack_commit, job_id)
           true
         else
@@ -65,8 +61,8 @@ class PushyClient
       @state_lock.synchronize do
         if @state == :committed && @job_id == job_id
           Chef::Log.info("[#{node_name}] Received run #{job_id}")
-          @state = :running
-          start_process
+          pid, process_thread = start_process
+          set_job_state(:running, job_id, @command, pid, process_thread)
           client.send_command(:ack_run, job_id)
           true
         else
@@ -87,25 +83,40 @@ class PushyClient
 
     def job_state
       @state_lock.synchronize do
-        {
-          :state => @state,
-          :job_id => @job_id,
-          :command => @command
-        }
+        get_job_state
       end
     end
 
+    def on_job_state_change(&block)
+      @on_job_state_change << block
+    end
+
     private
+
+    def get_job_state
+      {
+        :state => @state,
+        :job_id => @job_id,
+        :command => @command
+      }
+    end
+
+    def set_job_state(state, job_id = nil, command = nil, pid = nil, process_thread = nil)
+      @state = state
+      @job_id = job_id
+      @command = command
+      @pid = pid
+      @process_thread = process_thread
+
+      # Notify people of the change
+      @on_job_state_change.each { |block| block.call(get_job_state) }
+    end
 
     def completed(job_id, exit_code)
       Chef::Log.info("[#{node_name}] Job #{job_id} completed with exit code #{exit_code}")
       @state_lock.synchronize do
         if @state == :running && @job_id == job_id
-          @state = :idle
-          @job_id = nil
-          @command = nil
-          @pid = nil
-          @process_thread = nil
+          set_job_state(:idle)
           status = exit_code == 0 ? :succeeded : :failed
           client.send_command(status, job_id)
         end
@@ -116,12 +127,12 @@ class PushyClient
       # _pid and _job_id are local variables so that if @pid or @job_id change
       # for any reason (for example, they become nil), the thread we create
       # still tracks the correct pid.
-      @pid = _pid = Process.spawn({'PUSHY_NODE_NAME' => node_name}, command)
+      _pid = Process.spawn({'PUSHY_NODE_NAME' => node_name}, command)
       _job_id = @job_id
       Chef::Log.info("[#{node_name}] Job #{job_id}: started command '#{command}' with PID '#{_pid}'")
 
       # Wait for the job to complete and close it out.
-      @process_thread = Thread.new do
+      process_thread = Thread.new do
         begin
           pid, exit_code = Process.waitpid2(_pid)
           completed(_job_id, exit_code)
@@ -130,6 +141,8 @@ class PushyClient
           abort
         end
       end
+
+      [ _pid, process_thread ]
     end
 
     def kill_process
@@ -137,8 +150,6 @@ class PushyClient
       @process_thread.kill
       @process_thread.join
       Process.kill(1, @pid)
-      @pid = nil
-      @process_thread = nil
     end
   end
 end

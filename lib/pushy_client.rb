@@ -142,6 +142,14 @@ class PushyClient
     Chef::Log.error("[#{node_name}] #{message}: #{exception}\n#{exception.backtrace.join("\n")}")
   end
 
+  def online?
+    @heartbeater.online?
+  end
+
+  def on_job_state_change(&block)
+    @job_runner.on_job_state_change(&block)
+  end
+
   private
 
   def rest

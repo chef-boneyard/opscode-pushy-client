@@ -16,6 +16,10 @@ class PushyClient
       client.node_name
     end
 
+    def online?
+      @online
+    end
+
     def start
       @incarnation_id = nil
       @online_threshold = client.config['push_jobs']['heartbeat']['online_threshold']
