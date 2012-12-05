@@ -56,6 +56,7 @@ class PushyClient
     end
 
     def stop
+      Chef::Log.info "[#{node_name}] Stopping server / heartbeat thread and destroying sockets ..."
       @receive_thread.kill
       @receive_thread.join
       @receive_thread = nil

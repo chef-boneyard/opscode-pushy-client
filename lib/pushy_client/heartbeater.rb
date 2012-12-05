@@ -37,6 +37,7 @@ class PushyClient
                 if @offline_counter > offline_threshold
                   Chef::Log.info "[#{node_name}] Server has missed #{@offline_counter} heartbeats in a row.  Considering it offline, and stopping heartbeat."
                   @online = false
+                  @online_counter = 0
                 else
                   @offline_counter += 1
                 end
@@ -78,7 +79,7 @@ class PushyClient
           Chef::Log.info "[#{node_name}] First heartbeat received.  Server is at incarnation ID #{incarnation_id}."
         else
           Chef::Log.info "[#{node_name}] Server restart detected (incarnation ID changed from #{@incarnation_id} to #{incarnation_id}).  Reconfiguring ..."
-          client.reconfigure
+          client.trigger_reconfigure
         end
         @incarnation_id = incarnation_id
       end

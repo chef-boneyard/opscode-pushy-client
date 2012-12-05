@@ -19,7 +19,7 @@ class PushyClient
           begin
             sleep(@lifetime)
             Chef::Log.info "[#{node_name}] Config is now #{@lifetime} seconds old.  Reconfiguring / reloading keys ..."
-            reconfigure
+            client.trigger_reconfigure
           rescue
             client.log_exception("Error in reconfigure thread", $!)
           end

@@ -33,8 +33,6 @@ class PushyClient
       raise "chef_server must end in /organizations/ORG_NAME"
     end
 
-    @config_lock = Mutex.new
-
     @incarnation_id = UUIDTools::UUID.random_create
 
     # State is global and persists across stops and starts
@@ -42,6 +40,8 @@ class PushyClient
     @heartbeater = Heartbeater.new(self)
     @protocol_handler = ProtocolHandler.new(self)
     @periodic_reconfigurer = PeriodicReconfigurer.new(self)
+
+    @reconfigure_lock = Mutex.new
 
     Chef::Log.info "[#{node_name}] Using node name: #{node_name}"
     Chef::Log.info "[#{node_name}] Using Chef server: #{chef_server_url}"
@@ -83,7 +83,7 @@ class PushyClient
   end
 
   def reconfigure
-    @config_lock.synchronize do
+    @reconfigure_lock.synchronize do
       Chef::Log.info "[#{node_name}] Reconfiguring client / reloading keys ..."
 
       @config = get_config
@@ -94,6 +94,14 @@ class PushyClient
       @periodic_reconfigurer.reconfigure
 
       Chef::Log.info "[#{node_name}] Reconfigured client."
+    end
+  end
+
+  def trigger_reconfigure
+    # Many of the threads triggering a reconfigure will get destroyed DURING
+    # a reconfigure, so we need to spawn a separate thread to take care of it.
+    Thread.new do
+      reconfigure
     end
   end
 
@@ -130,8 +138,6 @@ class PushyClient
   end
 
   private
-
-  attr_reader :config_lock
 
   def rest
     @rest ||= Chef::REST.new(chef_server_url, node_name, client_key)
