@@ -150,7 +150,11 @@ class PushyClient
       Chef::Log.info("[#{node_name}] Killing process #{@pid}")
       @process_thread.kill
       @process_thread.join
-      Process.kill(1, @pid)
+      begin
+        Process.kill(1, @pid)
+      rescue
+        client.log_exception("Exception in Process.kill(1, #{@pid})", $!)
+      end
     end
   end
 end
