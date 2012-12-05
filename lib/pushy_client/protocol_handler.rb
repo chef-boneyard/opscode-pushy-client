@@ -6,6 +6,8 @@ require 'mixlib/authentication/digester'
 
 class PushyClient
   class ProtocolHandler
+    ZMQ_CONTEXT = ZMQ::Context.new(1)
+
     def initialize(client)
       @client = client
       # We synchronize on this when we change the socket (so if you want a
@@ -32,14 +34,13 @@ class PushyClient
       @session_key = Base64::decode64(client.config['session_key']['key'])
       @session_method = client.config['session_key']['method']
       @client_private_key = ProtocolHandler::load_key(client.client_key)
-      @zmq_context = ZMQ::Context.new(1)
 
       # Command socket
       Chef::Log.info "[#{node_name}] Connecting to command channel at #{@command_address}"
       # TODO
       # This needs to be set up to be able to handle bidirectional messages; right now this is Tx only
       # Probably need to set it up with a handler, like the subscriber socket above.
-      @command_socket = @zmq_context.socket(ZMQ::DEALER)
+      @command_socket = ZMQ_CONTEXT.socket(ZMQ::DEALER)
       @command_socket.setsockopt(ZMQ::LINGER, 0)
       # Note setting this to '1' causes the client to crash on send, but perhaps that
       # beats storming the server when the server restarts
@@ -48,7 +49,7 @@ class PushyClient
 
       # Server heartbeat socket
       Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
-      @server_heartbeat_socket = @zmq_context.socket(ZMQ::SUB)
+      @server_heartbeat_socket = ZMQ_CONTEXT.socket(ZMQ::SUB)
       @server_heartbeat_socket.connect(@server_heartbeat_address)
       @server_heartbeat_socket.setsockopt(ZMQ::SUBSCRIBE, "")
 
@@ -64,8 +65,6 @@ class PushyClient
       @command_socket = nil
       @server_heartbeat_socket.close
       @server_heartbeat_socket = nil
-      @zmq_context.close
-      @zmq_context = nil
     end
 
     def reconfigure
