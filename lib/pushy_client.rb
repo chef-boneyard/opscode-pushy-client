@@ -101,7 +101,11 @@ class PushyClient
     # Many of the threads triggering a reconfigure will get destroyed DURING
     # a reconfigure, so we need to spawn a separate thread to take care of it.
     Thread.new do
-      reconfigure
+      begin
+        reconfigure
+      rescue
+        log_exception("Error reconfiguring", $!)
+      end
     end
   end
 
