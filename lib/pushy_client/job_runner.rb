@@ -76,8 +76,9 @@ class PushyClient
     def abort
       Chef::Log.info("[#{node_name}] Received abort")
       @state_lock.synchronize do
+        _job_id = job_id
         stop
-        client.send_command(:aborted, job_id)
+        client.send_command(:aborted, _job_id)
       end
     end
 
