@@ -24,7 +24,7 @@ class PushyClient
 
       @online_counter = 0
       @offline_counter = 0
-      @online = false
+      @online = true
 
       @heartbeat_thread = Thread.new do
         Chef::Log.info "[#{node_name}] Starting heartbeat / offline detection thread ..."
