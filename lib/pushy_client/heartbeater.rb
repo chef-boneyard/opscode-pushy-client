@@ -62,11 +62,9 @@ class PushyClient
     end
 
     def stop
-      heartbeat_thread = @heartbeat_thread
-      if heartbeat_thread
-        heartbeat_thread.kill
-        heartbeat_thread.join
-      end
+      Chef::Log.info "[#{node_name}] Stopping heartbeat / offline detection thread ..."
+      @heartbeat_thread.kill
+      @heartbeat_thread.join
     end
 
     def reconfigure

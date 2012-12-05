@@ -56,18 +56,14 @@ class PushyClient
     end
 
     def stop
-      Chef::Log.info "[#{node_name}] Stopping server / heartbeat thread and destroying sockets ..."
+      Chef::Log.info "[#{node_name}] Stopping command / server heartbeat receive thread and destroying sockets ..."
       @receive_thread.kill
       @receive_thread.join
       @receive_thread = nil
-      if @command_socket
-        @command_socket.close
-        @command_socket = nil
-      end
-      if @server_heartbeat_socket
-        @server_heartbeat_socket.close
-        @server_heartbeat_socket = nil
-      end
+      @command_socket.close
+      @command_socket = nil
+      @server_heartbeat_socket.close
+      @server_heartbeat_socket = nil
       @zmq_context.close
       @zmq_context = nil
     end

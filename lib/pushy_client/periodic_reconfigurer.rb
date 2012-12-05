@@ -28,6 +28,7 @@ class PushyClient
     end
 
     def stop
+      Chef::Log.info "[#{node_name}] Stopping reconfigure thread ..."
       @reconfigure_thread.kill
       @reconfigure_thread.join
       @reconfigure_thread = nil
