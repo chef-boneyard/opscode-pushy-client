@@ -47,6 +47,7 @@ class PushyClient
     Chef::Log.info "[#{node_name}] Using Chef server: #{chef_server_url}"
     Chef::Log.info "[#{node_name}] Using private key: #{client_key}"
     Chef::Log.info "[#{node_name}] Using org name: #{org_name}"
+    Chef::Log.info "[#{node_name}] Incarnation ID: #{incarnation_id}"
   end
 
   attr_accessor :chef_server_url
