@@ -13,6 +13,24 @@ class PushyClient
       # We synchronize on this when we change the socket (so if you want a
       # valid socket to send or receive on, synchronize on this)
       @socket_lock = Mutex.new
+      # This holds the same purpose, but receive blocks for a while so it gets
+      # its own lock to avoid blocking sends.  reconfigure will take both locks.
+      @receive_socket_lock = Mutex.new
+
+      # When the server goes down, close and reopen sockets.
+      client.on_server_availability_change do |available|
+        if !available
+          Thread.new do
+            begin
+              Chef::Log.info "[#{node_name}] Closing and reopening sockets since server is down ..."
+              reconfigure
+              Chef::Log.info "[#{node_name}] Done closing and reopening sockets."
+            rescue
+              client.log_exception("Error reconfiguring sockets when server went down", $!)
+            end
+          end
+        end
+      end
     end
 
     attr_reader :client
@@ -58,19 +76,21 @@ class PushyClient
 
     def stop
       Chef::Log.info "[#{node_name}] Stopping command / server heartbeat receive thread and destroying sockets ..."
-      @receive_thread.kill
-      @receive_thread.join
-      @receive_thread = nil
       @command_socket.close
       @command_socket = nil
       @server_heartbeat_socket.close
       @server_heartbeat_socket = nil
+      @receive_thread.kill
+      @receive_thread.join
+      @receive_thread = nil
     end
 
     def reconfigure
       @socket_lock.synchronize do
-        stop
-        start # Start picks up new configuration
+        @receive_socket_lock.synchronize do
+          stop
+          start # Start picks up new configuration
+        end
       end
     end
 
@@ -114,26 +134,43 @@ class PushyClient
         Chef::Log.info "[#{node_name}] Starting command / server heartbeat receive thread ..."
         while true
           begin
-            ready_sockets, = ZMQ.select([@command_socket, @server_heartbeat_socket])
-            ready_sockets.each do |socket|
-              header = socket.recv
-              if socket.getsockopt(ZMQ::RCVMORE)
-                message = socket.recv
-                if !socket.getsockopt(ZMQ::RCVMORE)
-                  if ProtocolHandler::valid?(header, message, @server_public_key, @session_key)
-                    handle_message(message)
+            messages = []
+            @receive_socket_lock.synchronize do
+              # Time out after 1 second to relinquish the lock and give
+              # reconfigure a chance.
+              ready_sockets, = ZMQ.select([@command_socket, @server_heartbeat_socket], [], [], 1)
+              # Grab messages from the socket, but don't process them yet (we
+              # want to relinquish the socket_lock as soon as we can)
+              if ready_sockets
+                ready_sockets.each do |socket|
+                  header = socket.recv
+                  if socket.getsockopt(ZMQ::RCVMORE)
+                    message = socket.recv
+                    if !socket.getsockopt(ZMQ::RCVMORE)
+                      messages << [header, message]
+                    else
+                      # Eat up the useless packets
+                      begin
+                        socket.recv
+                      end while socket.getsockopt(ZMQ::RCVMORE)
+                      Chef::Log.error "[#{node_name}] Received ZMQ message with more than two packets!  Should only have header and data packets."
+                    end
                   else
-                    Chef::Log.error "[#{node_name}] Received invalid message: header=#{header}, message=#{message}}"
+                    Chef::Log.error "[#{node_name}] Received ZMQ message with only one packet!  Need both header and data packets."
                   end
-                else
-                  # Eat up the useless packets
-                  begin
-                    socket.recv
-                  end while socket.getsockopt(ZMQ::RCVMORE)
-                  Chef::Log.error "[#{node_name}] Received ZMQ message with more than two packets!  Should only have header and data packets."
                 end
+              end
+            end
+
+            # Need to do this to ensure reconfigure thread gets a chance to
+            # wake up and grab the lock.
+            sleep(0)
+
+            messages.each do |message|
+              if ProtocolHandler::valid?(message[0], message[1], @server_public_key, @session_key)
+                handle_message(message[1])
               else
-                Chef::Log.error "[#{node_name}] Received ZMQ message with only one packet!  Need both header and data packets."
+                Chef::Log.error "[#{node_name}] Received invalid message: header=#{header}, message=#{message}}"
               end
             end
           rescue
