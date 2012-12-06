@@ -31,7 +31,9 @@ class PushyClient
       @online = true
 
       @heartbeat_thread = Thread.new do
-        Chef::Log.info "[#{node_name}] Starting heartbeat / offline detection thread ..."
+        splay = Random.rand(interval)
+        Chef::Log.info "[#{node_name}] Starting heartbeat / offline detection thread on interval #{interval} (delaying first heartbeat with splay=#{splay})..."
+        sleep(splay)
         while true
           begin
             # When the server goes more than <offline_threshold> intervals
