@@ -75,20 +75,17 @@ class PushyClient
     end
 
     def stop
-      Chef::Log.info "[#{node_name}] Stopping command / server heartbeat receive thread and destroying sockets ..."
-      @command_socket.close
-      @command_socket = nil
-      @server_heartbeat_socket.close
-      @server_heartbeat_socket = nil
-      @receive_thread.kill
-      @receive_thread.join
-      @receive_thread = nil
+      @socket_lock.synchronize do
+        @receive_socket_lock.synchronize do
+          internal_stop
+        end
+      end
     end
 
     def reconfigure
       @socket_lock.synchronize do
         @receive_socket_lock.synchronize do
-          stop
+          internal_stop
           start # Start picks up new configuration
         end
       end
@@ -128,6 +125,17 @@ class PushyClient
     end
 
     private
+
+    def internal_stop
+      Chef::Log.info "[#{node_name}] Stopping command / server heartbeat receive thread and destroying sockets ..."
+      @command_socket.close
+      @command_socket = nil
+      @server_heartbeat_socket.close
+      @server_heartbeat_socket = nil
+      @receive_thread.kill
+      @receive_thread.join
+      @receive_thread = nil
+    end
 
     def start_receive_thread
       Thread.new do
