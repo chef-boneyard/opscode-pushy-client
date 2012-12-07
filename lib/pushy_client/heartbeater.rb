@@ -21,7 +21,7 @@ class PushyClient
     end
 
     def start
-      @incarnation_id = nil
+      @incarnation_id = client.config['incarnation_id']
       @online_threshold = client.config['push_jobs']['heartbeat']['online_threshold']
       @offline_threshold = client.config['push_jobs']['heartbeat']['offline_threshold']
       @interval = client.config['push_jobs']['heartbeat']['interval']
