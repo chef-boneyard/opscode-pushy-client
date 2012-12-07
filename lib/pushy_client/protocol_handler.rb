@@ -274,7 +274,11 @@ class PushyClient
     def send_signed_json_command(method, json)
       @socket_lock.synchronize do
         message = JSON.generate(json)
-        ProtocolHandler::send_signed_message(@command_socket, method, @client_private_key, @session_key, message)
+        if @command_socket
+          ProtocolHandler::send_signed_message(@command_socket, method, @client_private_key, @session_key, message)
+        else
+          Chef::Log.warn("[#{node_name}] Dropping packet because client was stopped: #{message}")
+        end
       end
     end
 
