@@ -142,6 +142,10 @@ class PushyClient
     Chef::Log.error("[#{node_name}] #{message}: #{exception}\n#{exception.backtrace.join("\n")}")
   end
 
+  def on_server_availability_change(&block)
+    @heartbeater.on_server_availability_change(&block)
+  end
+
   def online?
     @heartbeater.online?
   end
