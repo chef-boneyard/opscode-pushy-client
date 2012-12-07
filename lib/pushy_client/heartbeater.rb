@@ -31,7 +31,8 @@ class PushyClient
       @online = true
 
       @heartbeat_thread = Thread.new do
-        Chef::Log.info "[#{node_name}] Starting heartbeat / offline detection thread ..."
+        Chef::Log.info "[#{node_name}] Starting heartbeat / offline detection thread on interval #{interval} ..."
+
         while true
           begin
             # When the server goes more than <offline_threshold> intervals
@@ -78,12 +79,17 @@ class PushyClient
       # If the incarnation id has changed, we need to reconfigure.
       if @incarnation_id != incarnation_id
         if @incarnation_id.nil?
+          @incarnation_id = incarnation_id
           Chef::Log.info "[#{node_name}] First heartbeat received.  Server is at incarnation ID #{incarnation_id}."
         else
-          Chef::Log.info "[#{node_name}] Server restart detected (incarnation ID changed from #{@incarnation_id} to #{incarnation_id}).  Reconfiguring ..."
+          # We need to set incarnation id before we reconfigure; this thread will
+          # be killed by the reconfigure :)
+          @incarnation_id = incarnation_id
+          splay = Random.rand(interval)
+          Chef::Log.info "[#{node_name}] Server restart detected (incarnation ID changed from #{@incarnation_id} to #{incarnation_id}).  Reconfiguring after a randomly chosen #{splay} second delay to avoid storming the server ..."
+          sleep(splay)
           client.trigger_reconfigure
         end
-        @incarnation_id = incarnation_id
       end
 
       @online_mutex.synchronize do
