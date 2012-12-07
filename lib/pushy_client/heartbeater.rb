@@ -85,7 +85,7 @@ class PushyClient
           # We need to set incarnation id before we reconfigure; this thread will
           # be killed by the reconfigure :)
           @incarnation_id = incarnation_id
-          splay = Random.rand(interval)
+          splay = Random.new.rand(interval.to_f)
           Chef::Log.info "[#{node_name}] Server restart detected (incarnation ID changed from #{@incarnation_id} to #{incarnation_id}).  Reconfiguring after a randomly chosen #{splay} second delay to avoid storming the server ..."
           sleep(splay)
           client.trigger_reconfigure
