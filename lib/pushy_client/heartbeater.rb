@@ -4,6 +4,7 @@ class PushyClient
       @client = client
       @online_mutex = Mutex.new
       @heartbeat_sequence = 1
+      @on_server_availability_change = []
     end
 
     attr_reader :client
@@ -20,6 +21,10 @@ class PushyClient
       @online
     end
 
+    def on_server_availability_change(&block)
+      @on_server_availability_change << block
+    end
+
     def start
       @incarnation_id = client.config['incarnation_id']
       @online_threshold = client.config['push_jobs']['heartbeat']['online_threshold']
@@ -28,7 +33,7 @@ class PushyClient
 
       @online_counter = 0
       @offline_counter = 0
-      @online = true
+      set_online(true)
 
       @heartbeat_thread = Thread.new do
         Chef::Log.info "[#{node_name}] Starting heartbeat / offline detection thread ..."
@@ -40,7 +45,7 @@ class PushyClient
               if @online
                 if @offline_counter > offline_threshold
                   Chef::Log.info "[#{node_name}] Server has missed #{@offline_counter} heartbeats in a row.  Considering it offline, and stopping heartbeat."
-                  @online = false
+                  set_online(false)
                   @online_counter = 0
                 else
                   @offline_counter += 1
@@ -91,10 +96,19 @@ class PushyClient
 
         if !@online && @online_counter > online_threshold
           Chef::Log.info "[#{node_name}] Server has heartbeated #{@online_counter} times without missing more than #{offline_threshold} heartbeats in a row.  Considering it online, and starting to heartbeat ..."
-          @online = true
+          set_online(true)
         else
           @online_counter += 1
         end
+      end
+    end
+
+    private
+
+    def set_online(online)
+      @online = online
+      @on_server_availability_change.each do |block|
+        block.call(online)
       end
     end
   end
