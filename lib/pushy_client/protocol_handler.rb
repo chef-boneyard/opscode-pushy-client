@@ -178,7 +178,7 @@ class PushyClient
               if ProtocolHandler::valid?(message[0], message[1], @server_public_key, @session_key)
                 handle_message(message[1])
               else
-                Chef::Log.error "[#{node_name}] Received invalid message: header=#{header}, message=#{message}}"
+                Chef::Log.error "[#{node_name}] Received invalid message: header=#{message[0]}, message=#{message[1]}}"
               end
             end
           rescue
