@@ -49,20 +49,16 @@ class PushyClient
       @server_heartbeat_address = client.config['push_jobs']['heartbeat']['out_addr']
       @command_address = client.config['push_jobs']['heartbeat']['command_addr']
       @server_public_key = OpenSSL::PKey::RSA.new(client.config['public_key'])
-      @session_method = client.config['session_key']['method']
       @client_private_key = ProtocolHandler::load_key(client.client_key)
 
       # decode and extract session key
       begin 
+        @session_method = client.config['encoded_session_key']['method']
         enc_session_key = Base64::decode64(client.config['encoded_session_key']['key'])
         @session_key = @client_private_key.private_decrypt(enc_session_key)
-      rescue
-        if (client.config['session_key']['key'] rescue nil) then
-          @session_key = Base64::decode64(client.config['session_key']['key'])
-        else
-          Chef::Log.error "[#{node_name}] No session key found in config"
-          exit(-1)
-        end
+      rescue =>e
+        Chef::Log.error "[#{node_name}] No session key found in config"
+        exit(-1)
       end
 
       # Command socket
