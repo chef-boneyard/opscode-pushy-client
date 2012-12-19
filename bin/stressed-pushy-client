@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
+
+require "rubygems"
+require "bundler"
+
+Bundler.require(:default)
+
+require 'chef/config'
+require 'pushy_client'
+
+STDOUT.sync = true
+
+Chef::Config.from_file(ARGV[0])
+Chef::Log.init(Chef::Config[:log_location])
+if ( Chef::Config[:log_location] != STDOUT ) && STDOUT.tty? && (!Chef::Config[:daemonize]) && (Chef::Config[:force_logger])
+  stdout_logger = Logger.new(STDOUT)
+  STDOUT.sync = true
+  stdout_logger.formatter = Chef::Log.logger.formatter
+  Chef::Log.loggers <<  stdout_logger
+end
+Chef::Log.level = Chef::Config[:log_level] == :auto ? :info : Chef::Config[:log_level]
+
+
+first = (ARGV[1] || 1).to_i
+last = (ARGV[2] || 1).to_i
+clients = first.upto(last).map do |index|
+  puts "Starting client ##{index}"
+  client = PushyClient.new(
+    :chef_server_url => Chef::Config.chef_server_url,
+    :client_name => Chef::Config.node_name,
+    :client_key => Chef::Config.client_key,
+    :node_name => "stress#{index}"
+  )
+  client.start
+  client
+end
+puts "Finished starting clients #{first} through #{last}.  Sleeping forever."
+while true
+  sleep 1200
+end

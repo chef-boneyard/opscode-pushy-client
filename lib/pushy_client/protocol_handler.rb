@@ -136,7 +136,7 @@ class PushyClient
     end
 
     def send_command(message_type, job_id)
-      Chef::Log.debug("[#{node_name}] Sending command #{message_type} for job #{job_id}")
+      Chef::Log.info("[#{node_name}] Sending command #{message_type} for job #{job_id}")
       message = {
         :node => node_name,
         :client => client.hostname,

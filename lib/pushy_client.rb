@@ -49,6 +49,7 @@ class PushyClient
     @reconfigure_lock = Mutex.new
 
     Chef::Log.info "[#{node_name}] Using node name: #{node_name}"
+    Chef::Log.info "[#{node_name}] Using client name to authenticate: #{client_name}"
     Chef::Log.info "[#{node_name}] Using Chef server: #{chef_server_url}"
     Chef::Log.info "[#{node_name}] Using private key: #{client_key}"
     Chef::Log.info "[#{node_name}] Using org name: #{org_name}"
