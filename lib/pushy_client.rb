@@ -23,6 +23,7 @@ require 'pushy_client/periodic_reconfigurer'
 class PushyClient
   def initialize(options)
     @chef_server_url = options[:chef_server_url]
+    @client_name     = options[:client_name] || options[:node_name]
     @client_key      = options[:client_key]
     @node_name       = options[:node_name]
     @hostname = (`hostname`).chomp
@@ -44,6 +45,7 @@ class PushyClient
     @reconfigure_lock = Mutex.new
 
     Chef::Log.info "[#{node_name}] Using node name: #{node_name}"
+    Chef::Log.info "[#{node_name}] Using client name to authenticate: #{client_name}"
     Chef::Log.info "[#{node_name}] Using Chef server: #{chef_server_url}"
     Chef::Log.info "[#{node_name}] Using private key: #{client_key}"
     Chef::Log.info "[#{node_name}] Using org name: #{org_name}"
@@ -51,6 +53,7 @@ class PushyClient
   end
 
   attr_accessor :chef_server_url
+  attr_accessor :client_name
   attr_accessor :client_key
   attr_accessor :org_name
   attr_accessor :node_name
@@ -157,7 +160,7 @@ class PushyClient
   private
 
   def rest
-    @rest ||= Chef::REST.new(chef_server_url, node_name, client_key)
+    @rest ||= Chef::REST.new(chef_server_url, client_name, client_key)
   end
 
   def get_config
