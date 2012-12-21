@@ -72,13 +72,17 @@ class PushyClient
       # beats storming the server when the server restarts
       @command_socket.setsockopt(ZMQ::HWM, 0)
       @command_socket.connect(@command_address)
+      @command_socket_server_seq_no = -1
+      @command_socket_client_seq_no = 1
+
 
       # Server heartbeat socket
       Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
       @server_heartbeat_socket = ZMQ_CONTEXT.socket(ZMQ::SUB)
       @server_heartbeat_socket.connect(@server_heartbeat_address)
       @server_heartbeat_socket.setsockopt(ZMQ::SUBSCRIBE, "")
-
+      @server_heartbeat_seq_no = -1
+      
       @receive_thread = start_receive_thread
     end
 
@@ -106,10 +110,12 @@ class PushyClient
         :client => client.hostname,
         :org => client.org_name,
         :type => message_type,
+        :sequence => @command_socket_client_seq_no,
         :timestamp => Time.now.httpdate,
         :incarnation_id => client.incarnation_id,
         :job_id => job_id
       }
+      @command_socket_client_seq_no+=1
 
       send_signed_json_command(:hmac_sha256, message)
     end
@@ -122,12 +128,13 @@ class PushyClient
         :client => client.hostname,
         :org => client.org_name,
         :type => :heartbeat,
+        :sequence => @command_socket_client_seq_no,
         :timestamp => Time.now.httpdate,
         :incarnation_id => client.incarnation_id,
         :job_state => job_state[:state],
-        :job_id => job_state[:job_id],
-        :sequence => sequence
+        :job_id => job_state[:job_id]
       }
+      @command_socket_client_seq_no+=1
 
       send_signed_json_command(:hmac_sha256, message)
     end
