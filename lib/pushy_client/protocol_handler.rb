@@ -4,6 +4,23 @@ require 'time'
 require 'openssl'
 require 'mixlib/authentication/digester'
 
+class SequenceNo
+  def initialize()
+    @lock = Mutex.new
+    @seq = 0
+  end
+
+  def next()
+    val = nil
+    @lock.synchronize do
+      val = @seq
+      @seq += 1
+    end
+    val
+  end
+end
+
+
 class PushyClient
   class ProtocolHandler
     ZMQ_CONTEXT = ZMQ::Context.new(1)
@@ -73,8 +90,8 @@ class PushyClient
       @command_socket.setsockopt(ZMQ::HWM, 0)
       @command_socket.connect(@command_address)
       @command_socket_server_seq_no = -1
-      @command_socket_client_seq_no = 1
 
+      @command_socket_outgoing_seq = SequenceNo.new
 
       # Server heartbeat socket
       Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
@@ -110,12 +127,11 @@ class PushyClient
         :client => client.hostname,
         :org => client.org_name,
         :type => message_type,
-        :sequence => @command_socket_client_seq_no,
+        :sequence => @command_socket_outgoing_seq.next(),
         :timestamp => Time.now.httpdate,
         :incarnation_id => client.incarnation_id,
         :job_id => job_id
       }
-      @command_socket_client_seq_no+=1
 
       send_signed_json_command(:hmac_sha256, message)
     end
@@ -128,13 +144,12 @@ class PushyClient
         :client => client.hostname,
         :org => client.org_name,
         :type => :heartbeat,
-        :sequence => @command_socket_client_seq_no,
+        :sequence => @command_socket_outgoing_seq.next(),
         :timestamp => Time.now.httpdate,
         :incarnation_id => client.incarnation_id,
         :job_state => job_state[:state],
         :job_id => job_state[:job_id]
       }
-      @command_socket_client_seq_no+=1
 
       send_signed_json_command(:hmac_sha256, message)
     end
