@@ -12,7 +12,7 @@ require 'rubygems/specification'
 
 require 'date'
 
-gemspec = eval(File.read('pushy-client.gemspec'))
+gemspec = eval(File.read('opscode-pushy-client.gemspec'))
 
 Gem::PackageTask.new(gemspec) do |pkg|
   pkg.need_zip = true
