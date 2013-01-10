@@ -43,8 +43,22 @@ class PushyClient
     end
 
     def commit(job_id, command)
+      # We don't want to run if there is already another instance of chef-client going,
+      # so we check to see if there is a runlock on chef-client before committing. This
+      # currently only works in versions of chef where runlock has been implemented.
+
+      # The location of our lockfile
+      lockfile_location = Chef::Config[:lockfile] || "#{Chef::Config[:file_cache_path]}/chef-client-running.pid"
+      # Open the Lockfile
+      lockfile = File.open(lockfile_location, File::RDWR|File::CREAT, 0644)
+      # See if we can get the lock
+      lock = lockfile.flock(File::LOCK_EX|File::LOCK_NB)
+      # Release the lock to allow chef-client to run
+      lockfile.flock(File::LOCK_UN)
+      lockfile.close
+
       @state_lock.synchronize do
-        if `ps aux | grep chef-client[l]` == ""
+        if lock == false
           Chef::Log.info("[#{node_name}] Received commit #{job_id} but is already running chef-client")
           client.send_command(:nack_commit, job_id)
           false
