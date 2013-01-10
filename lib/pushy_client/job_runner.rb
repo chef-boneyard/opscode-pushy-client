@@ -44,7 +44,11 @@ class PushyClient
 
     def commit(job_id, command)
       @state_lock.synchronize do
-        if @state == :idle
+        if `ps aux | grep chef-client[l]` == ""
+          Chef::Log.info("[#{node_name}] Received commit #{job_id} but is already running chef-client")
+          client.send_command(:nack_commit, job_id)
+          false
+        elsif @state == :idle
           Chef::Log.info("[#{node_name}] Received commit #{job_id}")
           set_job_state(:committed, job_id, command)
           client.send_command(:ack_commit, job_id)
