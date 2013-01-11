@@ -221,6 +221,24 @@ class PushyClient
     def handle_message(message)
       begin
         json = JSON.parse(message, :create_additions => false)
+
+        # Verify timestamp
+        if !json.has_key?('timestamp')
+          Chef::Log.error "[#{node_name}] Received invalid message: missing timestamp"
+          return
+        end
+        max_skew = 300 # TODO Get this from config
+        begin
+          ts = Time.parse(json['timestamp'])
+          if ts - Time.now > max_skew
+            Chef::Log.error "[#{node_name}] Received message with timestamp too far from current time (Msg: #{json['timestamp']})"
+            return 
+          end
+        rescue
+          Chef::Log.error "[#{node_name}] Received message unparseable timestamp (Msg: #{json['timestamp']})"
+          return
+        end
+
         case json['type']
         when "heartbeat"
           incarnation_id = json['incarnation_id']
