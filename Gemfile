@@ -1,12 +1,11 @@
 source :rubygems
 
+gemspec
+
 gem "mixlib-cli", "~> 1.2.2", :require => "mixlib/cli"
 gem "mixlib-log", "~> 1.3.0", :require => "mixlib/log"
 gem "chef", ">= 0.10.12"
-#gem "ffi-rzmq", "~> 0.9.3"
 gem "zmq"
-#gem "uuid", "~> 2.3.5"
-#gem 'awesome_print'
 
 platforms :mswin, :mingw do
   gem "ffi"
@@ -27,7 +26,6 @@ end
 
 group :test do
   gem "rspec"
-#  gem "awesome_print"
   gem 'rack'
   gem 'thin'
 end
