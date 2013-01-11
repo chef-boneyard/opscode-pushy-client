@@ -67,6 +67,7 @@ class PushyClient
       @command_address = client.config['push_jobs']['heartbeat']['command_addr']
       @server_public_key = OpenSSL::PKey::RSA.new(client.config['public_key'])
       @client_private_key = ProtocolHandler::load_key(client.client_key)
+      @max_message_skew = client.config['max_message_skew']
 
       # decode and extract session key
       begin 
@@ -227,10 +228,9 @@ class PushyClient
           Chef::Log.error "[#{node_name}] Received invalid message: missing timestamp"
           return
         end
-        max_skew = 300 # TODO Get this from config
         begin
           ts = Time.parse(json['timestamp'])
-          if ts - Time.now > max_skew
+          if ts - Time.now > @max_message_skew
             Chef::Log.error "[#{node_name}] Received message with timestamp too far from current time (Msg: #{json['timestamp']})"
             return 
           end
