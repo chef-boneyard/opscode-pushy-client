@@ -20,6 +20,19 @@ class SequenceNo
   end
 end
 
+##
+## Allow send and recieve times to be independently stubbed in testing. 
+##
+class TimeSendWrapper
+  def self.now
+    Time.now()
+  end
+end
+class TimeRecvWrapper
+  def self.now
+    Time.now()
+  end
+end
 
 class PushyClient
   class ProtocolHandler
@@ -129,7 +142,7 @@ class PushyClient
         :org => client.org_name,
         :type => message_type,
         :sequence => @command_socket_outgoing_seq.next(),
-        :timestamp => Time.now.httpdate,
+        :timestamp => TimeSendWrapper.now.httpdate,
         :incarnation_id => client.incarnation_id,
         :job_id => job_id
       }
@@ -146,7 +159,7 @@ class PushyClient
         :org => client.org_name,
         :type => :heartbeat,
         :sequence => @command_socket_outgoing_seq.next(),
-        :timestamp => Time.now.httpdate,
+        :timestamp => TimeSendWrapper.now.httpdate,
         :incarnation_id => client.incarnation_id,
         :job_state => job_state[:state],
         :job_id => job_state[:job_id]
@@ -230,8 +243,9 @@ class PushyClient
         end
         begin
           ts = Time.parse(json['timestamp'])
-          if ts - Time.now > @max_message_skew
-            Chef::Log.error "[#{node_name}] Received message with timestamp too far from current time (Msg: #{json['timestamp']})"
+          delta = ts - TimeRecvWrapper.now
+          if delta > @max_message_skew
+            Chef::Log.error "[#{node_name}] Received message with timestamp too far from current time (Msg: #{json['timestamp']}, delta #{delta}, max allowed #{@max_message_skew} )"
             return 
           end
         rescue
