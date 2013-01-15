@@ -14,4 +14,6 @@ Gem::Specification.new do |gem|
   gem.name          = "opscode-pushy-client"
   gem.require_paths = ["lib"]
   gem.version       = '0.0.1'
-end
+
+  %w(rdoc rspec_junit_formatter).each { |dep| gem.add_development_dependency dep }
+  end
