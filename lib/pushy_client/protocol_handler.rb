@@ -6,6 +6,20 @@ require 'mixlib/authentication/digester'
 
 class PushyClient
   class ProtocolHandler
+    ##
+    ## Allow send and receive times to be independently stubbed in testing. 
+    ##
+    class TimeSendWrapper
+      def self.now
+        Time.now()
+      end
+    end
+    class TimeRecvWrapper
+      def self.now
+        Time.now()
+      end
+    end
+
     ZMQ_CONTEXT = ZMQ::Context.new(1)
 
     def initialize(client)
@@ -50,6 +64,7 @@ class PushyClient
       @command_address = client.config['push_jobs']['heartbeat']['command_addr']
       @server_public_key = OpenSSL::PKey::RSA.new(client.config['public_key'])
       @client_private_key = ProtocolHandler::load_key(client.client_key)
+      @max_message_skew = client.config['max_message_skew']
 
       # decode and extract session key
       begin 
@@ -72,13 +87,17 @@ class PushyClient
       # beats storming the server when the server restarts
       @command_socket.setsockopt(ZMQ::HWM, 0)
       @command_socket.connect(@command_address)
+      @command_socket_server_seq_no = -1
+
+      @command_socket_outgoing_seq = 0
 
       # Server heartbeat socket
       Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
       @server_heartbeat_socket = ZMQ_CONTEXT.socket(ZMQ::SUB)
       @server_heartbeat_socket.connect(@server_heartbeat_address)
       @server_heartbeat_socket.setsockopt(ZMQ::SUBSCRIBE, "")
-
+      @server_heartbeat_seq_no = -1
+      
       @receive_thread = start_receive_thread
     end
 
@@ -106,7 +125,8 @@ class PushyClient
         :client => client.hostname,
         :org => client.org_name,
         :type => message_type,
-        :timestamp => Time.now.httpdate,
+        :sequence => -1, 
+        :timestamp => TimeSendWrapper.now.httpdate,
         :incarnation_id => client.incarnation_id,
         :job_id => job_id
       }
@@ -122,11 +142,11 @@ class PushyClient
         :client => client.hostname,
         :org => client.org_name,
         :type => :heartbeat,
-        :timestamp => Time.now.httpdate,
+        :sequence => -1,
+        :timestamp => TimeSendWrapper.now.httpdate,
         :incarnation_id => client.incarnation_id,
         :job_state => job_state[:state],
-        :job_id => job_state[:job_id],
-        :sequence => sequence
+        :job_id => job_state[:job_id]
       }
 
       send_signed_json_command(:hmac_sha256, message)
@@ -199,6 +219,24 @@ class PushyClient
     def handle_message(message)
       begin
         json = JSON.parse(message, :create_additions => false)
+
+        # Verify timestamp
+        if !json.has_key?('timestamp')
+          Chef::Log.error "[#{node_name}] Received invalid message: missing timestamp"
+          return
+        end
+        begin
+          ts = Time.parse(json['timestamp'])
+          delta = ts - TimeRecvWrapper.now
+          if delta > @max_message_skew
+            Chef::Log.error "[#{node_name}] Received message with timestamp too far from current time (Msg: #{json['timestamp']}, delta #{delta}, max allowed #{@max_message_skew} )"
+            return 
+          end
+        rescue
+          Chef::Log.error "[#{node_name}] Received message unparseable timestamp (Msg: #{json['timestamp']})"
+          return
+        end
+
         case json['type']
         when "heartbeat"
           incarnation_id = json['incarnation_id']
@@ -289,6 +327,8 @@ class PushyClient
     # Message signing and sending (on send)
     def send_signed_json_command(method, json)
       @socket_lock.synchronize do
+        @command_socket_outgoing_seq += 1
+        json[:sequence] = @command_socket_outgoing_seq
         message = JSON.generate(json)
         if @command_socket
           ProtocolHandler::send_signed_message(@command_socket, method, @client_private_key, @session_key, message)
