@@ -4,25 +4,8 @@ require 'time'
 require 'openssl'
 require 'mixlib/authentication/digester'
 
-class SequenceNo
-  def initialize()
-    @lock = Mutex.new
-    @seq = 0
-  end
-
-  def next()
-    val = nil
-    @lock.synchronize do
-      val = @seq
-      @seq += 1
-    end
-    val
-  end
-end
 class PushyClient
   class ProtocolHandler
-
-
     ##
     ## Allow send and receive times to be independently stubbed in testing. 
     ##
@@ -106,7 +89,7 @@ class PushyClient
       @command_socket.connect(@command_address)
       @command_socket_server_seq_no = -1
 
-      @command_socket_outgoing_seq = SequenceNo.new
+      @command_socket_outgoing_seq = 0
 
       # Server heartbeat socket
       Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
@@ -142,7 +125,7 @@ class PushyClient
         :client => client.hostname,
         :org => client.org_name,
         :type => message_type,
-        :sequence => @command_socket_outgoing_seq.next(),
+        :sequence => -1, 
         :timestamp => TimeSendWrapper.now.httpdate,
         :incarnation_id => client.incarnation_id,
         :job_id => job_id
@@ -159,7 +142,7 @@ class PushyClient
         :client => client.hostname,
         :org => client.org_name,
         :type => :heartbeat,
-        :sequence => @command_socket_outgoing_seq.next(),
+        :sequence => -1,
         :timestamp => TimeSendWrapper.now.httpdate,
         :incarnation_id => client.incarnation_id,
         :job_state => job_state[:state],
@@ -344,6 +327,8 @@ class PushyClient
     # Message signing and sending (on send)
     def send_signed_json_command(method, json)
       @socket_lock.synchronize do
+        @command_socket_outgoing_seq += 1
+        json[:sequence] = @command_socket_outgoing_seq
         message = JSON.generate(json)
         if @command_socket
           ProtocolHandler::send_signed_message(@command_socket, method, @client_private_key, @session_key, message)
