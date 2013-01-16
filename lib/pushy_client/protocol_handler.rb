@@ -19,23 +19,24 @@ class SequenceNo
     val
   end
 end
-
-##
-## Allow send and recieve times to be independently stubbed in testing. 
-##
-class TimeSendWrapper
-  def self.now
-    Time.now()
-  end
-end
-class TimeRecvWrapper
-  def self.now
-    Time.now()
-  end
-end
-
 class PushyClient
   class ProtocolHandler
+
+
+    ##
+    ## Allow send and receive times to be independently stubbed in testing. 
+    ##
+    class TimeSendWrapper
+      def self.now
+        Time.now()
+      end
+    end
+    class TimeRecvWrapper
+      def self.now
+        Time.now()
+      end
+    end
+
     ZMQ_CONTEXT = ZMQ::Context.new(1)
 
     def initialize(client)
