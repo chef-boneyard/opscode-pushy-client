@@ -44,32 +44,46 @@ class PushyClient
     end
 
     def commit(job_id, command)
-      if command.include?("chef-client")
-        # If the command is chef-client
-        # We don't want to run if there is already another instance of chef-client going,
-        # so we check to see if there is a runlock on chef-client before committing. This
-        # currently only works in versions of chef where runlock has been implemented.
-
-        # The location of our lockfile
-        lockfile_location = Chef::Config[:lockfile] || "#{Chef::Config[:file_cache_path]}/chef-client-running.pid"
-        # Open the Lockfile
-        @lockfile = File.open(lockfile_location, File::RDWR|File::CREAT, 0644)
-        # See if we can get the lock
-        lock = lockfile.flock(File::LOCK_EX|File::LOCK_NB)
-      end
-
       @state_lock.synchronize do
-        if lock == false
-          Chef::Log.info("[#{node_name}] Received commit #{job_id} but is already running chef-client")
-          client.send_command(:nack_commit, job_id)
-          false
-        elsif @state == :idle
-          Chef::Log.info("[#{node_name}] Received commit #{job_id}")
-          set_job_state(:committed, job_id, command)
-          client.send_command(:ack_commit, job_id)
-          true
+        if @state == :idle
+          # If we're being asked to lock
+          if client.whitelist[command] &&
+             client.whitelist[command].is_a?(Hash) &&
+             client.whitelist[command][:lock]
+            # If the command is chef-client
+            # We don't want to run if there is already another instance of chef-client going,
+            # so we check to see if there is a runlock on chef-client before committing. This
+            # currently only works in versions of chef where runlock has been implemented.
+
+            # The location of our lockfile
+            if client.whitelist[command][:lock] == true
+              lockfile_location = Chef::Config[:lockfile] || "#{Chef::Config[:file_cache_path]}/chef-client-running.pid"
+            else
+              lockfile_location = client.whitelist[command][:lock]
+            end
+            # Open the Lockfile
+            begin
+              @lockfile = File.open(lockfile_location, 'w')
+              locked = lockfile.flock(File::LOCK_EX|File::LOCK_NB)
+              unless locked
+                Chef::Log.info("[#{node_name}] Received commit #{job_id} but is already running '#{command}'")
+                client.send_command(:nack_commit, job_id)
+                return false
+              end
+            rescue Errno::ENOENT
+            end
+          elsif client.whitelist[command]
+            Chef::Log.info("[#{node_name}] Received commit #{job_id}")
+            set_job_state(:committed, job_id, command)
+            client.send_command(:ack_commit, job_id)
+            true
+          else
+            Chef::Log.error("[#{node_name}] Received commit #{job_id}, but command '#{command}' is not in the whitelist!")
+            client.send_command(:nack_commit, job_id)
+            false
+          end
         else
-          Chef::Log.info("[#{node_name}] Received commit #{job_id} but current state is #{@state} #{@job_id}")
+          Chef::Log.warn("[#{node_name}] Received commit #{job_id} but current state is #{@state} #{@job_id}")
           client.send_command(:nack_commit, job_id)
           false
         end
@@ -77,12 +91,6 @@ class PushyClient
     end
 
     def run(job_id)
-      if @lockfile
-        # If there is a lockfile Release the lock to allow chef-client to run
-        lockfile.flock(File::LOCK_UN)
-        lockfile.close
-      end
-
       @state_lock.synchronize do
         if @state == :committed && @job_id == job_id
           Chef::Log.info("[#{node_name}] Received run #{job_id}")
@@ -128,6 +136,13 @@ class PushyClient
     end
 
     def set_job_state(state, job_id = nil, command = nil, pid = nil, process_thread = nil)
+      if state == :idle || state == :running
+        if @lockfile
+          # If there is a lockfile Release the lock to allow chef-client to run
+          lockfile.flock(File::LOCK_UN)
+          lockfile.close
+        end
+      end
       @state = state
       @job_id = job_id
       @command = command
@@ -153,9 +168,14 @@ class PushyClient
       # _pid and _job_id are local variables so that if @pid or @job_id change
       # for any reason (for example, they become nil), the thread we create
       # still tracks the correct pid.
-      _pid = Process.spawn({'PUSHY_NODE_NAME' => node_name}, command)
+      if client.whitelist[command].is_a?(Hash)
+        command_line = client.whitelist[command][:command_line]
+      else
+        command_line = client.whitelist[command]
+      end
+      _pid = Process.spawn({'PUSHY_NODE_NAME' => node_name}, command_line)
       _job_id = @job_id
-      Chef::Log.info("[#{node_name}] Job #{job_id}: started command '#{command}' with PID '#{_pid}'")
+      Chef::Log.info("[#{node_name}] Job #{job_id}: started command '#{command_line}' with PID '#{_pid}'")
 
       # Wait for the job to complete and close it out.
       process_thread = Thread.new do

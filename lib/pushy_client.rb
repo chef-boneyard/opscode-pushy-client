@@ -25,6 +25,12 @@ class PushyClient
     @chef_server_url = options[:chef_server_url]
     @client_key      = options[:client_key]
     @node_name       = options[:node_name]
+    @whitelist       = options[:whitelist]
+
+    if !@whitelist
+      raise "whitelist is a required parameter"
+    end
+
     @hostname = (`hostname`).chomp
 
     if @chef_server_url =~ /\/organizations\/+([^\/]+)\/*/
@@ -55,6 +61,7 @@ class PushyClient
   attr_accessor :org_name
   attr_accessor :node_name
   attr_accessor :hostname
+  attr_accessor :whitelist
   attr_reader :incarnation_id
 
   attr_reader :config
