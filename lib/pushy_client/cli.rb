@@ -78,7 +78,7 @@ class PushyClient
         :chef_server_url => Chef::Config[:chef_server_url],
         :client_key      => Chef::Config[:client_key],
         :node_name       => Chef::Config[:node_name],
-        :whitelist       => Chef::Config[:whitelist]
+        :whitelist       => Chef::Config[:whitelist] || { 'chef-client' => 'chef-client' }
       )
 
       client.start
