@@ -19,6 +19,7 @@ require 'pushy_client/heartbeater'
 require 'pushy_client/job_runner'
 require 'pushy_client/protocol_handler'
 require 'pushy_client/periodic_reconfigurer'
+require 'uuidtools'
 
 class PushyClient
   def initialize(options)
