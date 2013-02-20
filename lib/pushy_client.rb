@@ -19,6 +19,7 @@ require 'pushy_client/heartbeater'
 require 'pushy_client/job_runner'
 require 'pushy_client/protocol_handler'
 require 'pushy_client/periodic_reconfigurer'
+require 'ohai'
 require 'uuidtools'
 
 class PushyClient
@@ -27,8 +28,7 @@ class PushyClient
     @client_key      = options[:client_key]
     @node_name       = options[:node_name]
     @whitelist       = options[:whitelist]
-
-    @hostname = (`hostname`).chomp
+    @hostname        = options[:hostname]
 
     if @chef_server_url =~ /\/organizations\/+([^\/]+)\/*/
       @org_name = $1
