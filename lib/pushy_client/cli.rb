@@ -74,11 +74,16 @@ class PushyClient
         puts "Pushy version: #{::PushyClient::VERSION}"
       end
 
+      ohai = Ohai::System.new
+      ohai.require_plugin('os')
+      ohai.require_plugin('hostname')
+
       client = PushyClient.new(
         :chef_server_url => Chef::Config[:chef_server_url],
         :client_key      => Chef::Config[:client_key],
-        :node_name       => Chef::Config[:node_name],
-        :whitelist       => Chef::Config[:whitelist] || { 'chef-client' => 'chef-client' }
+        :node_name       => Chef::Config[:node_name] || ohai[:fqdn] || ohai[:hostname],
+        :whitelist       => Chef::Config[:whitelist] || { 'chef-client' => 'chef-client' },
+        :hostname        => ohai[:hostname]
       )
 
       client.start
