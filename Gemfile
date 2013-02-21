@@ -2,12 +2,6 @@ source :rubygems
 
 gemspec
 
-gem "mixlib-cli", "~> 1.2.2", :require => "mixlib/cli"
-gem "mixlib-log", "~> 1.3.0", :require => "mixlib/log"
-gem "chef", ">= 0.10.12"
-gem "zmq"
-gem "uuidtools"
-
 platforms :mswin, :mingw do
   gem "ffi"
   gem "rdp-ruby-wmi"
