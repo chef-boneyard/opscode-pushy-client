@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
+
+require "rubygems"
+require 'chef'
+require 'chef/application/windows_service_manager'
+
+if Chef::Platform.windows?
+  pushy_service = {
+    :service_name => "pushy-client",
+    :service_display_name => "Pushy Client Service",
+    :service_description => "Runs Opscode Pushy Client.",
+    :service_file_path => File.expand_path(File.join(File.dirname(__FILE__), '../lib/pushy_client/windows_service.rb'))
+  }
+  Chef::Application::WindowsServiceManager.new(pushy_service).run
+else
+  puts "pushy-service-manager is only available on Windows platforms."
+end
