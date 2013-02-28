@@ -200,7 +200,7 @@ class PushyClient
 
             # Need to do this to ensure reconfigure thread gets a chance to
             # wake up and grab the lock.
-            sleep(0)
+            sleep(0.005)
 
             messages.each do |message|
               if ProtocolHandler::valid?(message[0], message[1], @server_public_key, @session_key)
