@@ -15,7 +15,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = '0.0.1'
 
-  gem.add_dependency "mixlib-log", "~> 1.3.0"
   gem.add_dependency "chef", ">= 0.10.12"
   gem.add_dependency "zmq"
   gem.add_dependency "uuidtools"
