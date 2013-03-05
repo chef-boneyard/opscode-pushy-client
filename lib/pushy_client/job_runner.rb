@@ -1,6 +1,7 @@
 # This is needed to fix an issue in win32-process v. 0.6.5
 # where Process.wait blocks the entire Ruby interpreter
 # for the duration of the process.
+require 'chef/platform'
 if Chef::Platform.windows?
   require 'pushy_client/win32'
 end
