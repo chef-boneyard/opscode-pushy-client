@@ -1,5 +1,5 @@
 class PushyClient
-  class Whitelist < Hash
+  class Whitelist
 
     attr_accessor :whitelist
 
@@ -17,7 +17,10 @@ class PushyClient
             if key.match(argument)
               value = whitelist[key]
               if value.kind_of?(Hash)
-                return argument.gsub(key, value[:command_line])
+                # Need a deep copy, don't want to change the global value
+                new_value = Marshal.load(Marshal.dump(value))
+                new_value[:command_line] = argument.gsub(key, value[:command_line])
+                return new_value
               else
                 return argument.gsub(key, value)
               end
@@ -27,6 +30,10 @@ class PushyClient
       end
 
       nil
+    end
+
+    def method_missing(method, *args, &block)
+      @whitelist.send(method, *args, &block)
     end
   end
 end
