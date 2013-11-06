@@ -85,7 +85,8 @@ class PushyClient
       @command_socket.setsockopt(ZMQ::LINGER, 0)
       # Note setting this to '1' causes the client to crash on send, but perhaps that
       # beats storming the server when the server restarts
-      @command_socket.setsockopt(ZMQ::HWM, 0)
+      @command_socket.setsockopt(ZMQ::SNDHWM, 0)
+      @command_socket.setsockopt(ZMQ::RCVHWM, 0)
       @command_socket.connect(@command_address)
       @command_socket_server_seq_no = -1
 
