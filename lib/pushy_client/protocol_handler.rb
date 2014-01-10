@@ -48,7 +48,6 @@ class PushyClient
     end
 
     attr_reader :client
-    attr_reader :server_heartbeat_address
     attr_reader :command_address
     attr_reader :server_public_key
     attr_reader :session_key
@@ -60,7 +59,6 @@ class PushyClient
     end
 
     def start
-      @server_heartbeat_address = client.config['push_jobs']['heartbeat']['out_addr']
       @command_address = client.config['push_jobs']['heartbeat']['command_addr']
       @server_public_key = OpenSSL::PKey::RSA.new(client.config['public_key'])
       @client_private_key = ProtocolHandler::load_key(client.client_key)
@@ -85,19 +83,15 @@ class PushyClient
       @command_socket.setsockopt(ZMQ::LINGER, 0)
       # Note setting this to '1' causes the client to crash on send, but perhaps that
       # beats storming the server when the server restarts
-      @command_socket.setsockopt(ZMQ::HWM, 0)
+      @command_socket.setsockopt(ZMQ::SNDHWM, 0)
+      @command_socket.setsockopt(ZMQ::RCVHWM, 0)
       @command_socket.connect(@command_address)
       @command_socket_server_seq_no = -1
 
       @command_socket_outgoing_seq = 0
 
-      # Server heartbeat socket
-      Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
-      @server_heartbeat_socket = ZMQ_CONTEXT.socket(ZMQ::SUB)
-      @server_heartbeat_socket.connect(@server_heartbeat_address)
-      @server_heartbeat_socket.setsockopt(ZMQ::SUBSCRIBE, "")
-      @server_heartbeat_seq_no = -1
-      
+      @monitor_socket = @command_socket.monitor(ZMQ::EVENT_ALL)
+
       @receive_thread = start_receive_thread
     end
 
@@ -135,6 +129,12 @@ class PushyClient
     end
 
     def send_heartbeat(sequence)
+      # Right now, have a problem with sending heartbeats after server disconnects,
+      # attempting to send heartbeats when we've already shut down our connections,
+      # due to random splay delay. So for time being, need to short-circuit this:
+      if @command_socket.nil?
+        return
+      end
       Chef::Log.debug("[#{node_name}] Sending heartbeat (sequence ##{sequence})")
       job_state = client.job_state
       message = {
@@ -156,13 +156,19 @@ class PushyClient
 
     def internal_stop
       Chef::Log.info "[#{node_name}] Stopping command / server heartbeat receive thread and destroying sockets ..."
-      @command_socket.close
-      @command_socket = nil
-      @server_heartbeat_socket.close
-      @server_heartbeat_socket = nil
-      @receive_thread.kill
-      @receive_thread.join
-      @receive_thread = nil
+      if @monitor_socket
+        @monitor_socket.close
+        @monitor_socket = nil
+      end
+      if @command_socket
+        @command_socket.close
+        @command_socket = nil
+      end
+      if @receive_thread
+        @receive_thread.kill
+        @receive_thread.join
+        @receive_thread = nil
+      end
     end
 
     def start_receive_thread
@@ -174,11 +180,12 @@ class PushyClient
             @receive_socket_lock.synchronize do
               # Time out after 1 second to relinquish the lock and give
               # reconfigure a chance.
-              ready_sockets, = ZMQ.select([@command_socket, @server_heartbeat_socket], [], [], 1)
+              ready_sockets, = ZMQ.select([@command_socket, @monitor_socket], [], [], 1)
               # Grab messages from the socket, but don't process them yet (we
               # want to relinquish the socket_lock as soon as we can)
               if ready_sockets
-                ready_sockets.each do |socket|
+                if ready_sockets.length > 1 || ready_sockets[0] == @command_socket
+                  socket = ready_sockets[0]
                   header = socket.recv
                   if socket.getsockopt(ZMQ::RCVMORE)
                     message = socket.recv
@@ -193,6 +200,28 @@ class PushyClient
                     end
                   else
                     Chef::Log.error "[#{node_name}] Received ZMQ message with only one packet!  Need both header and data packets."
+                  end
+                end
+                if ready_sockets.length > 1 || ready_sockets[0] == @monitor_socket
+                  socket = ready_sockets[0]
+                  if ready_sockets.length > 1
+                    socket = ready_sockets[1]
+                  end
+                  status = socket.recv
+                  if (status == ZMQ::EVENT_DISCONNECTED)
+                    # We don't really have a heartbeat interval to splay over,
+                    # so just picking a reasonably wide random splay here.
+                    @monitor_socket.close
+                    @monitor_socket = nil
+                    @command_socket.close
+                    @command_socket = nil
+                    splay = Random.new.rand(65.0)
+                    Chef::Log.info "[#{node_name} Received ZQM disconnect monitoring command socket.  Reconfiguring after random delay #{splay} to avoid storming the server ..."
+                    sleep(1)
+                    client.trigger_reconfigure
+                    # Okay, uh, we need to sit here a while and wait to get killed, since
+                    # continuing this loop or returning will do stuff we don't want
+                    sleep(60)
                   end
                 end
               end
@@ -238,17 +267,6 @@ class PushyClient
         end
 
         case json['type']
-        when "heartbeat"
-          incarnation_id = json['incarnation_id']
-          if !incarnation_id
-            Chef::Log.error "[#{node_name}] Missing incarnation_id in heartbeat message: #{message}"
-          end
-          sequence = json['sequence']
-          if !sequence
-            Chef::Log.error "[#{node_name}] Missing sequence in heartbeat message: #{message}"
-          end
-          client.heartbeat_received(incarnation_id, sequence)
-
         when "commit"
           job_id = json['job_id']
           if job_id

@@ -9,8 +9,6 @@ class PushyClient
 
     attr_reader :client
     attr_reader :incarnation_id
-    attr_reader :online_threshold
-    attr_reader :offline_threshold
     attr_reader :interval
 
     def node_name
@@ -27,12 +25,8 @@ class PushyClient
 
     def start
       @incarnation_id = client.config['incarnation_id']
-      @online_threshold = client.config['push_jobs']['heartbeat']['online_threshold']
-      @offline_threshold = client.config['push_jobs']['heartbeat']['offline_threshold']
       @interval = client.config['push_jobs']['heartbeat']['interval']
 
-      @online_counter = 0
-      @offline_counter = 0
       set_online(true)
 
       @heartbeat_thread = Thread.new do
@@ -42,17 +36,6 @@ class PushyClient
           begin
             # When the server goes more than <offline_threshold> intervals
             # without sending us a heartbeat, treat it as offline
-            @online_mutex.synchronize do
-              if @online
-                if @offline_counter > offline_threshold
-                  Chef::Log.info "[#{node_name}] Server has missed #{@offline_counter} heartbeats in a row.  Considering it offline, and stopping heartbeat."
-                  set_online(false)
-                  @online_counter = 0
-                else
-                  @offline_counter += 1
-                end
-              end
-            end
 
             # We only send heartbeats to online servers
             if @online
@@ -76,37 +59,6 @@ class PushyClient
     def reconfigure
       stop
       start # Start picks up new configuration
-    end
-
-    # TODO use the sequence for something?
-    def heartbeat_received(incarnation_id, sequence)
-      Chef::Log.debug("[#{node_name}] Received server heartbeat (sequence ##{sequence})")
-      # If the incarnation id has changed, we need to reconfigure.
-      if @incarnation_id != incarnation_id
-        if @incarnation_id.nil?
-          @incarnation_id = incarnation_id
-          Chef::Log.info "[#{node_name}] First heartbeat received.  Server is at incarnation ID #{incarnation_id}."
-        else
-          # We need to set incarnation id before we reconfigure; this thread will
-          # be killed by the reconfigure :)
-          splay = Random.new.rand(interval.to_f)
-          Chef::Log.info "[#{node_name}] Server restart detected (incarnation ID changed from #{@incarnation_id} to #{incarnation_id}).  Reconfiguring after a randomly chosen #{splay} second delay to avoid storming the server ..."
-          @incarnation_id = incarnation_id
-          sleep(splay)
-          client.trigger_reconfigure
-        end
-      end
-
-      @online_mutex.synchronize do
-        @offline_counter = 0
-
-        if !@online && @online_counter > online_threshold
-          Chef::Log.info "[#{node_name}] Server has heartbeated #{@online_counter} times without missing more than #{offline_threshold} heartbeats in a row.  Considering it online, and starting to heartbeat ..."
-          set_online(true)
-        else
-          @online_counter += 1
-        end
-      end
     end
 
     private
