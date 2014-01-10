@@ -215,13 +215,11 @@ class PushyClient
                     @monitor_socket = nil
                     @command_socket.close
                     @command_socket = nil
-                    splay = Random.new.rand(65.0)
+                    splay = client.config['push_jobs']['reconfigure_splay'] || 65
+                    delay = Random.new.rand(splay)
                     Chef::Log.info "[#{node_name} Received ZQM disconnect monitoring command socket.  Reconfiguring after random delay #{splay} to avoid storming the server ..."
-                    sleep(1)
+                    sleep(delay)
                     client.trigger_reconfigure
-                    # Okay, uh, we need to sit here a while and wait to get killed, since
-                    # continuing this loop or returning will do stuff we don't want
-                    sleep(60)
                   end
                 end
               end
@@ -230,6 +228,13 @@ class PushyClient
             # Need to do this to ensure reconfigure thread gets a chance to
             # wake up and grab the lock.
             sleep(0.005)
+
+            # If we shut down the sockets above, we want to break out of the polling
+            # loop.  However, because of the sychronization, we wait until we're out of
+            # the socket loop block, otherwise the whole platform tends to crash
+            if @command_socket.nil?
+              break
+            end
 
             messages.each do |message|
               if ProtocolHandler::valid?(message[0], message[1], @server_public_key, @session_key)
