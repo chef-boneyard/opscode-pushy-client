@@ -19,6 +19,8 @@ platforms :mingw_18 do
   gem "win32-open3"
 end
 
+gem "zmq", :git => "git@github.com:opscode/rbzmq.git"
+
 group :test do
   gem "rspec"
   gem 'rack'
