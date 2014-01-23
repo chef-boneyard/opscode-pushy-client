@@ -128,34 +128,15 @@ class PushyClient
       send_signed_json_command(:hmac_sha256, message)
     end
 
-    def send_heartbeat(sequence)
-      # Right now, have a problem with sending heartbeats after server disconnects,
-      # attempting to send heartbeats when we've already shut down our connections,
-      # due to random splay delay. So for time being, need to short-circuit this:
-      if @command_socket.nil?
-        return
-      end
-      Chef::Log.debug("[#{node_name}] Sending heartbeat (sequence ##{sequence})")
-      job_state = client.job_state
-      message = {
-        :node => node_name,
-        :client => client.hostname,
-        :org => client.org_name,
-        :type => :heartbeat,
-        :sequence => -1,
-        :timestamp => TimeSendWrapper.now.httpdate,
-        :incarnation_id => client.incarnation_id,
-        :job_state => job_state[:state],
-        :job_id => job_state[:job_id]
-      }
-
-      send_signed_json_command(:hmac_sha256, message)
+    def online?
+      # If we get a disconnect message, we nil out the sockets.  So.
+      !@command_socket.nil?
     end
 
     private
 
     def internal_stop
-      Chef::Log.info "[#{node_name}] Stopping command / server heartbeat receive thread and destroying sockets ..."
+      Chef::Log.info "[#{node_name}] Stopping command receive thread and destroying sockets ..."
       if @monitor_socket
         @monitor_socket.close
         @monitor_socket = nil
@@ -173,7 +154,7 @@ class PushyClient
 
     def start_receive_thread
       Thread.new do
-        Chef::Log.info "[#{node_name}] Starting command / server heartbeat receive thread ..."
+        Chef::Log.info "[#{node_name}] Starting command receive thread ..."
         while true
           begin
             messages = []
@@ -244,7 +225,7 @@ class PushyClient
               end
             end
           rescue
-            client.log_exception "Error in command / server heartbeat receive thread", $!
+            client.log_exception "Error in command receive thread", $!
           end
         end
       end
