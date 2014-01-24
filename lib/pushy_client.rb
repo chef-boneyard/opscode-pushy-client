@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'pushy_client/heartbeater'
 require 'pushy_client/job_runner'
 require 'pushy_client/protocol_handler'
 require 'pushy_client/periodic_reconfigurer'
@@ -42,7 +41,6 @@ class PushyClient
 
     # State is global and persists across stops and starts
     @job_runner = JobRunner.new(self)
-    @heartbeater = Heartbeater.new(self)
     @protocol_handler = ProtocolHandler.new(self)
     @periodic_reconfigurer = PeriodicReconfigurer.new(self)
 
@@ -73,7 +71,6 @@ class PushyClient
 
     @job_runner.start
     @protocol_handler.start
-    @heartbeater.start
     @periodic_reconfigurer.start
 
     Chef::Log.info "[#{node_name}] Started client."
@@ -84,7 +81,6 @@ class PushyClient
 
     @job_runner.stop
     @protocol_handler.stop
-    @heartbeater.stop
     @periodic_reconfigurer.stop
 
     Chef::Log.info "[#{node_name}] Stopped client."
@@ -98,7 +94,6 @@ class PushyClient
 
       @job_runner.reconfigure
       @protocol_handler.reconfigure
-      @heartbeater.reconfigure
       @periodic_reconfigurer.reconfigure
 
       Chef::Log.info "[#{node_name}] Reconfigured client."
@@ -125,10 +120,6 @@ class PushyClient
     @protocol_handler.send_command(command, job_id)
   end
 
-  def send_heartbeat(sequence)
-    @protocol_handler.send_heartbeat(sequence)
-  end
-
   def commit(job_id, command)
     @job_runner.commit(job_id, command)
   end
@@ -141,20 +132,17 @@ class PushyClient
     @job_runner.abort
   end
 
-  def heartbeat_received(incarnation_id, sequence)
-    @heartbeater.heartbeat_received(incarnation_id, sequence)
-  end
-
   def log_exception(message, exception)
     Chef::Log.error("[#{node_name}] #{message}: #{exception}\n#{exception.backtrace.join("\n")}")
   end
 
   def on_server_availability_change(&block)
-    @heartbeater.on_server_availability_change(&block)
+    # Do we need to replace this with anything?
+    # @heartbeater.on_server_availability_change(&block)
   end
 
   def online?
-    @heartbeater.online?
+    @protocol_handler.online?
   end
 
   def on_job_state_change(&block)

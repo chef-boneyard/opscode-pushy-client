@@ -16,7 +16,6 @@ Gem::Specification.new do |gem|
   gem.version       = '0.0.1'
 
   gem.add_dependency "chef", ">= 0.10.12"
-  gem.add_dependency "zmq"
   gem.add_dependency "uuidtools"
 
   %w(rdoc rspec_junit_formatter).each { |dep| gem.add_development_dependency dep }
