@@ -2,6 +2,9 @@ source 'https://rubygems.org'
 
 gemspec
 
+gem "zmq", :git => "https://github.com/opscode/rbzmq", :branch => "master"
+
+
 platforms :mswin, :mingw do
   gem "ffi"
   gem "rdp-ruby-wmi"
