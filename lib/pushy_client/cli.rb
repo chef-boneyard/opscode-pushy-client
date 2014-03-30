@@ -17,6 +17,7 @@
 
 require 'chef/application'
 require 'chef/config'
+require 'chef/config_fetcher'
 require 'chef/log'
 require 'pushy_client'
 require 'pushy_client/version'
