@@ -13,7 +13,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = Dir.glob('{test,spec,features}/**/*')
   gem.name          = "opscode-pushy-client"
   gem.require_paths = ["lib"]
-  gem.version       = '0.0.1'
+  gem.version       = PushyClient::VERSION
 
   gem.add_dependency "chef", ">= 0.10.12"
   gem.add_dependency "zmq"
