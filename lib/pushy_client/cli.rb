@@ -17,6 +17,7 @@
 
 require 'chef/application'
 require 'chef/config'
+require 'chef/config_fetcher'
 require 'chef/log'
 require 'pushy_client'
 require 'pushy_client/version'
@@ -86,6 +87,11 @@ class PushyClient
     def setup_application
     end
 
+    def shutdown(ret_code = 0)
+        @client.stop if @client
+        exit(ret_code)
+    end
+
     def run_application
       if Chef::Config[:version]
         puts "Pushy version: #{::PushyClient::VERSION}"
@@ -95,7 +101,7 @@ class PushyClient
       ohai.require_plugin('os')
       ohai.require_plugin('hostname')
 
-      client = PushyClient.new(
+      @client = PushyClient.new(
         :chef_server_url => Chef::Config[:chef_server_url],
         :client_key      => Chef::Config[:client_key],
         :node_name       => Chef::Config[:node_name] || ohai[:fqdn] || ohai[:hostname],
@@ -103,7 +109,21 @@ class PushyClient
         :hostname        => ohai[:hostname]
       )
 
-      client.start
+      @client.start
+
+      # install signal handlers
+      ["TERM", "QUIT", "KILL"].each do |sig|
+        Signal.trap(sig) do
+          puts "received #{sig}, shutting down"
+          shutdown(0)
+        end
+      end
+
+      Signal.trap("USR1") do
+        puts "received USR1, reconfiguring"
+        @client.trigger_reconfigure
+      end
+
       # Block forever so that client threads can run
       while true
         sleep 3600
