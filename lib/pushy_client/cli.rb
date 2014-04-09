@@ -17,7 +17,9 @@
 
 require 'chef/application'
 require 'chef/config'
-require 'chef/config_fetcher'
+# This is needed for compat with chef-client >= 11.8.0.
+# To keep compat with older chef-client, rescue if not found
+require 'chef/config_fetcher' rescue 'assuming chef-client < 11.8.0'
 require 'chef/log'
 require 'pushy_client'
 require 'pushy_client/version'
