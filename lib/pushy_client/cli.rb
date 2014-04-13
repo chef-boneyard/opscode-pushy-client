@@ -100,6 +100,7 @@ class PushyClient
       end
 
       ohai = Ohai::System.new
+      ohai.load_plugins
       ohai.require_plugin('os')
       ohai.require_plugin('hostname')
 
