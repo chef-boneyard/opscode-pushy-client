@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = PushyClient::VERSION
 
-  gem.add_dependency "chef", ">= 0.10.12"
+  gem.add_dependency "chef", ">= 11.12.2"
   gem.add_dependency "zmq"
   gem.add_dependency "uuidtools"
 
