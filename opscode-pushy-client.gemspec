@@ -22,7 +22,8 @@ Gem::Specification.new do |gem|
 # Remove once we're ready for ruby 2.1.x (probably at version 2.0)
 #
   gem.add_dependency "ohai", "~> 7.0.4"
-  gem.add_dependency "zmq"
+
+  gem.add_dependency "ffi-rzmq"
   gem.add_dependency "uuidtools"
 
   %w(rdoc rspec_junit_formatter).each { |dep| gem.add_development_dependency dep }
