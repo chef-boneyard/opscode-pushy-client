@@ -15,7 +15,7 @@
 # under the License.
 #
 
-require 'zmq'
+require 'ffi-rzmq'
 require 'json'
 require 'time'
 require 'openssl'
@@ -102,7 +102,7 @@ class PushyClient
       @command_socket.setsockopt(ZMQ::LINGER, 0)
       # Note setting this to '1' causes the client to crash on send, but perhaps that
       # beats storming the server when the server restarts
-      @command_socket.setsockopt(ZMQ::HWM, 0)
+      @command_socket.setsockopt(ZMQ::RCVHWM, 0)
       @command_socket.connect(@command_address)
       @command_socket_server_seq_no = -1
 
@@ -185,27 +185,34 @@ class PushyClient
     def start_receive_thread
       Thread.new do
         Chef::Log.info "[#{node_name}] Starting command / server heartbeat receive thread ..."
+	poller = ZMQ::Poller.new
+	poller.register_readable(@command_socket)
+	poller.register_readable(@server_heartbeat_socket)
         while true
           begin
             messages = []
             @receive_socket_lock.synchronize do
               # Time out after 1 second to relinquish the lock and give
               # reconfigure a chance.
-              ready_sockets, = ZMQ.select([@command_socket, @server_heartbeat_socket], [], [], 1)
+	      poller.poll(1000)
+	      ready_sockets = poller.readables
               # Grab messages from the socket, but don't process them yet (we
               # want to relinquish the socket_lock as soon as we can)
               if ready_sockets
                 ready_sockets.each do |socket|
-                  header = socket.recv
-                  if socket.getsockopt(ZMQ::RCVMORE)
-                    message = socket.recv
-                    if !socket.getsockopt(ZMQ::RCVMORE)
+		  header = ''
+                  socket.recv_string(header)
+                  if socket.more_parts?
+		    message = ''
+                    socket.recv_string(message)
+                    if !socket.more_parts?
                       messages << [header, message]
                     else
                       # Eat up the useless packets
                       begin
-                        socket.recv
-                      end while socket.getsockopt(ZMQ::RCVMORE)
+			s = ''
+                        socket.recv(s)
+                      end while socket.more_parts?
                       Chef::Log.error "[#{node_name}] Received ZMQ message with more than two packets!  Should only have header and data packets."
                     end
                   else
@@ -362,8 +369,8 @@ class PushyClient
              when :hmac_sha256
                make_header_hmac(message, session_key)
              end
-      socket.send(auth, ZMQ::SNDMORE)
-      socket.send(message)
+      socket.send_string(auth, ZMQ::SNDMORE)
+      socket.send_string(message)
     end
 
     def self.load_key(key_path)

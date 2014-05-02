@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
   gem.version       = PushyClient::VERSION
 
   gem.add_dependency "chef", ">= 11.12.2"
-  gem.add_dependency "zmq"
+  gem.add_dependency "ffi-rzmq"
   gem.add_dependency "uuidtools"
 
   %w(rdoc rspec_junit_formatter).each { |dep| gem.add_development_dependency dep }
