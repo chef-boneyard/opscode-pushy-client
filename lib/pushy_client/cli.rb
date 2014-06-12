@@ -113,16 +113,25 @@ class PushyClient
       @client.start
 
       # install signal handlers
-      ["TERM", "QUIT", "KILL"].each do |sig|
+      # Windows does not support QUIT and USR1 signals
+      exit_signals = if Chef::Platform.windows? 
+                       ["TERM", "KILL"]
+                     else
+                       ["TERM", "QUIT", "KILL"]
+                     end
+
+      exit_signals.each do |sig|
         Signal.trap(sig) do
           puts "received #{sig}, shutting down"
           shutdown(0)
         end
       end
 
-      Signal.trap("USR1") do
-        puts "received USR1, reconfiguring"
-        @client.trigger_reconfigure
+      unless Chef::Platform.windows?
+        Signal.trap("USR1") do
+          puts "received USR1, reconfiguring"
+          @client.trigger_reconfigure
+        end
       end
 
       # Block forever so that client threads can run
