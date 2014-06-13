@@ -1,5 +1,11 @@
 # Chef Push Client Changes
 
+## 1.1.1 - 2014-06-13
+
+* Adjust plugin loading for Ohai 7
+
+* Fix signal handling to work under windows
+
 ## 1.0.1 - 2014-04-09
 
 * Add require with rescue for chef/config_fetcher needed for compatibility with
