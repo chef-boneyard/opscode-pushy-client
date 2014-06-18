@@ -82,6 +82,7 @@ class PushyClient
       @server_public_key = OpenSSL::PKey::RSA.new(client.config['public_key'])
       @client_private_key = ProtocolHandler::load_key(client.client_key)
       @max_message_skew = client.config['max_message_skew']
+      server_curve_pub_key = client.config['curve_public_key']
 
       # decode and extract session key
       begin 
@@ -103,6 +104,9 @@ class PushyClient
       # Note setting this to '1' causes the client to crash on send, but perhaps that
       # beats storming the server when the server restarts
       @command_socket.setsockopt(ZMQ::RCVHWM, 0)
+      @command_socket.setsockopt(ZMQ::CURVE_SERVERKEY, server_curve_pub_key)
+      @command_socket.setsockopt(ZMQ::CURVE_PUBLICKEY, client.client_curve_pub_key)
+      @command_socket.setsockopt(ZMQ::CURVE_SECRETKEY, client.client_curve_sec_key)
       @command_socket.connect(@command_address)
       @command_socket_server_seq_no = -1
 
