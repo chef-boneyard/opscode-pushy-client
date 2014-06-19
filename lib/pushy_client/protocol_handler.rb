@@ -189,6 +189,8 @@ class PushyClient
     def start_receive_thread
       Thread.new do
         Chef::Log.info "[#{node_name}] Starting command / server heartbeat receive thread ..."
+	received_command = false
+	seconds_since_connection = 0
 	poller = ZMQ::Poller.new
 	poller.register_readable(@command_socket)
 	poller.register_readable(@server_heartbeat_socket)
@@ -211,6 +213,9 @@ class PushyClient
                     socket.recv_string(message)
                     if !socket.more_parts?
                       messages << [header, message]
+		      if socket == @command_socket
+		        received_command = true
+		      end
                     else
                       # Eat up the useless packets
                       begin
@@ -237,6 +242,15 @@ class PushyClient
                 Chef::Log.error "[#{node_name}] Received invalid message: header=#{message[0]}, message=#{message[1]}}"
               end
             end
+
+	    if !received_command
+	      seconds_since_connection += 1
+	      if (seconds_since_connection > 3 )
+		Chef::Log.error "[#{node_name}] No messages being received on command port.  Possible encryption problem?"
+		client.trigger_reconfigure
+	      end
+	    end
+
           rescue
             client.log_exception "Error in command / server heartbeat receive thread", $!
           end
@@ -303,6 +317,11 @@ class PushyClient
 
         when "abort"
           client.abort
+
+	when "ack"
+	  # Do nothing.  If this _didn't_ come through, it might mean there was
+	  # an encryption problem in the command port.
+	  nil
 
         else
           Chef::Log.error "[#{node_name}] Missing type in ZMQ message: #{message}"
