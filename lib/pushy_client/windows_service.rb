@@ -58,8 +58,8 @@ class PushyClient
 
           # Lifted from PushyClient::CLI
           ohai = Ohai::System.new
-          ohai.all_plugins('os', 'hostname')
-  
+          ohai.all_plugins('os')
+          ohai.all_plugins('hostname')
           @client = PushyClient.new(
                                     :chef_server_url => Chef::Config[:chef_server_url],
                                     :client_key      => Chef::Config[:client_key],
