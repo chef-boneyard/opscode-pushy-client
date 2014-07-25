@@ -1,5 +1,11 @@
 # Chef Push Client Changes
 
+
+## 1.1.2 - 2014-07-23
+
+* Fix issue where Windows service was not being installed
+* Fix issue where Windows service would not start
+
 ## 1.1.1 - 2014-06-13
 
 * Adjust plugin loading for Ohai 7
