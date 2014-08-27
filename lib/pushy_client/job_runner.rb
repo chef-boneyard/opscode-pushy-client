@@ -61,7 +61,8 @@ class PushyClient
       # We have no configuration, and keep state between reconfigures
     end
 
-    def commit(job_id, command)
+    def commit(job_id, command, opts)
+      @opts = opts
       @state_lock.synchronize do
         if @state == :idle
           # If we're being asked to lock
@@ -91,10 +92,17 @@ class PushyClient
             rescue Errno::ENOENT
             end
           elsif client.whitelist[command]
-            Chef::Log.info("[#{node_name}] Received commit #{job_id}")
-            set_job_state(:committed, job_id, command)
-            client.send_command(:ack_commit, job_id)
-            true
+            user_ok = check_user(job_id)
+            dir_ok = check_dir(job_id)
+            file_ok = check_file(job_id)
+            if user_ok && dir_ok && file_ok
+              Chef::Log.info("[#{node_name}] Received commit #{job_id}")
+              set_job_state(:committed, job_id, command)
+              client.send_command(:ack_commit, job_id)
+              true
+            else
+              client.send_command(:nack_commit, job_id)
+            end
           else
             Chef::Log.error("[#{node_name}] Received commit #{job_id}, but command '#{command}' is not in the whitelist!")
             client.send_command(:nack_commit, job_id)
@@ -191,14 +199,27 @@ class PushyClient
       else
         command_line = client.whitelist[command]
       end
-      _pid = Process.spawn({'PUSHY_NODE_NAME' => node_name}, command_line)
+      _pid = fork
+      raise "Fork failed" if _pid == -1
+      if _pid.nil?
+        user = @opts['user']
+        dir = @opts['dir']
+        env = @opts['env'] || {}
+        path = extract_file
+        env.merge!({'PUSHY_JOB_FILE' => path}) if path
+        std_env = {'PUSHY_NODE_NAME' => node_name, 'PUSHY_JOB_ID' => @job_id}
+        env.merge!(std_env)
+        Dir.chdir(dir) if dir
+        Process::Sys.setuid(Etc.getpwnam(user).uid) if user
+        Process.exec(env, command_line)
+      end
       _job_id = @job_id
       Chef::Log.info("[#{node_name}] Job #{job_id}: started command '#{command_line}' with PID '#{_pid}'")
 
       # Wait for the job to complete and close it out.
       process_thread = Thread.new do
         begin
-          pid, exit_code = Process.waitpid2(_pid)
+          _, exit_code = Process.waitpid2(_pid)
           completed(_job_id, exit_code)
         rescue
           client.log_exception("Exception raised while waiting for job #{_job_id} to complete", $!)
@@ -218,6 +239,53 @@ class PushyClient
       rescue
         client.log_exception("Exception in Process.kill(1, #{@pid})", $!)
       end
+    end
+
+    def check_user(job_id)
+      user = @opts['user']
+      if user
+        begin
+          Etc.getpwnam(user)
+          true
+        rescue
+          Chef::Log.error("[#{node_name}] Received commit #{job_id}, but user '#{user}' does not exist!")
+          false
+        end
+      else
+        true
+      end
+    end
+
+    def check_dir(job_id)
+      # XX Perhaps should be stricted, e.g. forking a process to actually try to chdir
+      dir = @opts['dir']
+      dir_ok = !dir || Dir.exists?(dir)
+      Chef::Log.error("[#{node_name}] Received commit #{job_id}, but dir '#{dir}' does not exist!") unless dir_ok
+      dir_ok
+    end
+
+    def check_file(job_id)
+      file = @opts['file']
+      file_ok = !file || file.start_with?('base64:', 'raw:')
+      Chef::Log.error("[#{node_name}] Received commit #{job_id}, but file '#{file}' is a bad format!") unless file_ok
+      file_ok
+    end
+
+    def extract_file
+      file = @opts['file']
+      return nil unless file
+      require 'tmpdir'
+      dir = client.file_dir
+      Dir.mkdir(dir) unless Dir.exists?(dir)
+      path = Dir::Tmpname.create('pushy_file', dir){|p| p}
+      File.open(path, 'w') do |f|
+        if file =~ /^raw:(.*)/
+          f.write($1)
+        elsif file =~ /^base64:(.*)/
+          f.write(Base64.decode64($1))
+        end
+      end
+      path
     end
   end
 end
