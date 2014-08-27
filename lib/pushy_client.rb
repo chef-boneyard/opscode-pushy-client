@@ -33,6 +33,8 @@ class PushyClient
     @node_name       = options[:node_name]
     @whitelist       = PushyClient::Whitelist.new(options[:whitelist])
     @hostname        = options[:hostname]
+    @file_dir        = options[:file_dir] || '/tmp/pushy'
+    @file_dir_expiry = options[:file_dir_expiry] || 86400
     @client_curve_pub_key, @client_curve_sec_key = ZMQ::Util.curve_keypair
 
     if @chef_server_url =~ /\/organizations\/+([^\/]+)\/*/
@@ -48,6 +50,7 @@ class PushyClient
     @heartbeater = Heartbeater.new(self)
     @protocol_handler = ProtocolHandler.new(self)
     @periodic_reconfigurer = PeriodicReconfigurer.new(self)
+    @file_dir_cleaner = FileDirCleaner.new(self)
 
     @reconfigure_lock = Mutex.new
 
@@ -68,6 +71,8 @@ class PushyClient
   attr_reader :incarnation_id
   attr_reader :client_curve_pub_key
   attr_reader :client_curve_sec_key
+  attr_reader :file_dir
+  attr_reader :file_dir_expiry
 
   attr_reader :config
 
@@ -80,6 +85,7 @@ class PushyClient
     @protocol_handler.start
     @heartbeater.start
     @periodic_reconfigurer.start
+    @file_dir_cleaner.start
 
     Chef::Log.info "[#{node_name}] Started client."
   end
@@ -91,6 +97,7 @@ class PushyClient
     @protocol_handler.stop
     @heartbeater.stop
     @periodic_reconfigurer.stop
+    @file_dir_cleaner.stop
 
     Chef::Log.info "[#{node_name}] Stopped client."
   end
@@ -134,8 +141,8 @@ class PushyClient
     @protocol_handler.send_heartbeat(sequence)
   end
 
-  def commit(job_id, command)
-    @job_runner.commit(job_id, command)
+  def commit(job_id, command, opts)
+    @job_runner.commit(job_id, command, opts)
   end
 
   def run(job_id)
@@ -176,5 +183,34 @@ class PushyClient
     Chef::Log.info "[#{node_name}] Retrieving configuration from #{chef_server_url}/pushy/config/#{node_name} ..."
     esc_key = CGI::escape(@client_curve_pub_key)
     rest.get_rest("pushy/config/#{node_name}?ccpk=#{esc_key}", false)
+  end
+
+  # XXX Should go in a separate file
+  class FileDirCleaner
+    def initialize(client)
+      @client = client
+      @expiration_time = client.file_dir_expiry
+      @file_dir = client.file_dir
+    end
+
+    def start
+      @thread = Thread.new { expiration_loop }
+    end
+
+    def stop
+      @thread.kill
+    end
+
+    private
+
+    def expiration_loop
+      while true do
+        files = Dir.glob(@file_dir + "/pushy_file*")
+        now = Time.now
+        old_files = files.select { |f| now - File.mtime(f) > @expiration_time}
+        File.delete(*old_files)
+        sleep @expiration_time
+      end
+    end
   end
 end

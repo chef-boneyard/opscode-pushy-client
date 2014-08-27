@@ -80,6 +80,13 @@ class PushyClient
       :proc         => lambda {|v| puts "Pushy: #{::PushyClient::VERSION}"},
       :exit         => 0
 
+    option :file_dir,
+      :short        => "-d DIR",
+      :long         => "--file_dir DIR",
+      :description  => "Set the directory for temporary files",
+      :default      => "/tmp/pushy/",
+      :proc         => nil
+
     def reconfigure
       # We do not use Chef's formatters.
       Chef::Config[:force_logger] = true
@@ -107,7 +114,8 @@ class PushyClient
         :client_key      => Chef::Config[:client_key],
         :node_name       => Chef::Config[:node_name] || ohai[:fqdn] || ohai[:hostname],
         :whitelist       => Chef::Config[:whitelist] || { 'chef-client' => 'chef-client' },
-        :hostname        => ohai[:hostname]
+        :hostname        => ohai[:hostname],
+        :filedir         => Chef::Config[:file_dir]
       )
 
       @client.start
