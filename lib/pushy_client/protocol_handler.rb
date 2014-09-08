@@ -139,8 +139,9 @@ class PushyClient
       end
     end
 
-    def send_command(message_type, job_id)
+    def send_command(message_type, job_id, params)
       Chef::Log.debug("[#{node_name}] Sending command #{message_type} for job #{job_id}")
+      # Nil params will be stripped by JSON.generate()
       message = {
         :node => node_name,
         :client => client.hostname,
@@ -150,7 +151,7 @@ class PushyClient
         :timestamp => TimeSendWrapper.now.httpdate,
         :incarnation_id => client.incarnation_id,
         :job_id => job_id
-      }
+      }.merge(params)
 
       send_signed_json_command(:hmac_sha256, message)
     end
@@ -300,6 +301,7 @@ class PushyClient
               opts.merge!('user' => json['user']) if json['user']
               opts.merge!('dir' => json['dir']) if json['dir']
               opts.merge!('env' => json['env']) if json['env']
+              opts.merge!('capture' => json['capture']) if json['capture']
               opts.merge!('file' => json['file']) if json['file']
               client.commit(job_id, command, opts)
             else

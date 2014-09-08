@@ -133,8 +133,8 @@ class PushyClient
     @job_runner.job_state
   end
 
-  def send_command(command, job_id)
-    @protocol_handler.send_command(command, job_id)
+  def send_command(command, job_id, params = {})
+    @protocol_handler.send_command(command, job_id, params)
   end
 
   def send_heartbeat(sequence)
