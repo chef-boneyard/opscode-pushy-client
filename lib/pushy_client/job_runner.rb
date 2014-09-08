@@ -19,6 +19,7 @@
 # where Process.wait blocks the entire Ruby interpreter
 # for the duration of the process.
 require 'chef/platform'
+require 'mixlib/shellout'
 if Chef::Platform.windows?
   require 'pushy_client/win32'
 end
@@ -179,13 +180,16 @@ class PushyClient
       @on_job_state_change.each { |block| block.call(get_job_state) }
     end
 
-    def completed(job_id, exit_code)
+    def completed(job_id, exit_code, stdout, stderr)
       Chef::Log.info("[#{node_name}] Job #{job_id} completed with exit code #{exit_code}")
       @state_lock.synchronize do
         if @state == :running && @job_id == job_id
           set_job_state(:idle)
           status = exit_code == 0 ? :succeeded : :failed
-          client.send_command(status, job_id)
+          params = {}
+          params[:stdout] = stdout if stdout
+          params[:stderr] = stderr if stderr
+          client.send_command(status, job_id, params)
         end
       end
     end
@@ -199,28 +203,37 @@ class PushyClient
       else
         command_line = client.whitelist[command]
       end
-      _pid = fork
-      raise "Fork failed" if _pid == -1
-      if _pid.nil?
-        user = @opts['user']
-        dir = @opts['dir']
-        env = @opts['env'] || {}
-        path = extract_file
-        env.merge!({'PUSHY_JOB_FILE' => path}) if path
-        std_env = {'PUSHY_NODE_NAME' => node_name, 'PUSHY_JOB_ID' => @job_id}
-        env.merge!(std_env)
-        Dir.chdir(dir) if dir
-        Process::Sys.setuid(Etc.getpwnam(user).uid) if user
-        Process.exec(env, command_line)
-      end
+      user = @opts['user']
+      dir = @opts['dir']
+      env = @opts['env'] || {}
+      capture = @opts['capture'] || false
+      path = extract_file
+      env.merge!({'PUSHY_JOB_FILE' => path}) if path
+      std_env = {'PUSHY_NODE_NAME' => node_name, 'PUSHY_JOB_ID' => @job_id}
+      env.merge!(std_env)
+      # XXX We set the timeout to 86400, because the time in ShellOut is
+      # 60 seconds, and that might be too slow.  But we currently don't
+      # have the timeout from the pushy-server.  Instead of changing it from
+      # a hard-coded value to a config option, we should expand the protocol
+      # to support sending the timeout.
+      command = Mixlib::ShellOut.new(command_line,
+                                      :user => user,
+                                      :cwd => dir,
+                                      :env => env,
+                                      :timeout => 86400)
       _job_id = @job_id
+      # Can't get the _pid from the ShellOut command.  So
+      # we can't kill it, either.
+      _pid = nil
       Chef::Log.info("[#{node_name}] Job #{job_id}: started command '#{command_line}' with PID '#{_pid}'")
 
       # Wait for the job to complete and close it out.
       process_thread = Thread.new do
         begin
-          _, exit_code = Process.waitpid2(_pid)
-          completed(_job_id, exit_code)
+          command.run_command
+          stdout = command.stdout if capture
+          stderr = command.stderr if capture
+          completed(_job_id, command.status.exitstatus, stdout, stderr)
         rescue
           client.log_exception("Exception raised while waiting for job #{_job_id} to complete", $!)
           abort
@@ -235,7 +248,7 @@ class PushyClient
       @process_thread.kill
       @process_thread.join
       begin
-        Process.kill(1, @pid)
+        Process.kill(1, @pid) if @pid
       rescue
         client.log_exception("Exception in Process.kill(1, #{@pid})", $!)
       end
