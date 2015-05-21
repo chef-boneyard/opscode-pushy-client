@@ -15,14 +15,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = PushyClient::VERSION
 
-  gem.add_dependency "chef", ">= 11.12.2"
-#
-# Lock ohai to 7.0.4 because v8 requires a newer ruby. 7.0.4 was chosen because
-# other stuff was already locking on that.
-# Remove once we're ready for ruby 2.1.x (probably at version 2.0)
-#
-  gem.add_dependency "ohai", "~> 7.0.4"
-
+  gem.add_dependency "chef", ">= 12.0"
+  gem.add_dependency "ohai"
   gem.add_dependency "ffi-rzmq"
   gem.add_dependency "uuidtools"
 
