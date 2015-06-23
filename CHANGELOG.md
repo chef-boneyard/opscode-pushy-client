@@ -1,5 +1,17 @@
 # Chef Push Client Changes
 
+## 1.3.1
+
+* Bump version to avoid semver issues with non-compliant 1.3.0.rc.0 tag
+
+## 1.3.0 
+
+* Move to ZeroMQ 4 and ffi-rzmq.
+* Update Chef to 12.0
+* Unlock Ohai to be free to track Chef
+* Pull in latest omnibus-software including new OpenSSL
+
+## 1.2.X - 2015-06-20 Botched version
 
 ## 1.1.2 - 2014-07-23
 
