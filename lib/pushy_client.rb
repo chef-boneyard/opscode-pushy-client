@@ -22,6 +22,8 @@ require 'pushy_client/periodic_reconfigurer'
 require 'pushy_client/whitelist'
 require 'ohai'
 require 'uuidtools'
+require 'ffi-rzmq'
+require 'cgi'
 
 class PushyClient
   def initialize(options)
@@ -31,6 +33,7 @@ class PushyClient
     @node_name       = options[:node_name]
     @whitelist       = PushyClient::Whitelist.new(options[:whitelist])
     @hostname        = options[:hostname]
+    @client_curve_pub_key, @client_curve_sec_key = ZMQ::Util.curve_keypair
 
     if @chef_server_url =~ /\/organizations\/+([^\/]+)\/*/
       @org_name = $1
@@ -63,6 +66,8 @@ class PushyClient
   attr_accessor :hostname
   attr_accessor :whitelist
   attr_reader :incarnation_id
+  attr_reader :client_curve_pub_key
+  attr_reader :client_curve_sec_key
 
   attr_reader :config
 
@@ -169,6 +174,7 @@ class PushyClient
 
   def get_config
     Chef::Log.info "[#{node_name}] Retrieving configuration from #{chef_server_url}/pushy/config/#{node_name} ..."
-    rest.get_rest("pushy/config/#{node_name}", false)
+    esc_key = CGI::escape(@client_curve_pub_key)
+    rest.get_rest("pushy/config/#{node_name}?ccpk=#{esc_key}", false)
   end
 end
