@@ -89,7 +89,7 @@ class PushyClient
         @session_method = client.config['encoded_session_key']['method']
         enc_session_key = Base64::decode64(client.config['encoded_session_key']['key'])
         @session_key = @client_private_key.private_decrypt(enc_session_key)
-      rescue =>e
+      rescue =>_
         Chef::Log.error "[#{node_name}] No session key found in config"
         exit(-1)
       end
@@ -296,7 +296,12 @@ class PushyClient
           if job_id
             command = json['command']
             if command
-              client.commit(job_id, command)
+              opts = {}
+              opts.merge!('user' => json['user']) if json['user']
+              opts.merge!('dir' => json['dir']) if json['dir']
+              opts.merge!('env' => json['env']) if json['env']
+              opts.merge!('file' => json['file']) if json['file']
+              client.commit(job_id, command, opts)
             else
               Chef::Log.error "[#{node_name}] Missing command in commit message: #{message}"
               client.send_command(:nack_commit, command)
