@@ -17,6 +17,8 @@
 
 class PushyClient
   class Heartbeater
+    NUM_HEARTBEATS_TO_LOG = 3
+
     def initialize(client)
       @client = client
       @online_mutex = Mutex.new
@@ -50,6 +52,8 @@ class PushyClient
 
       @online_counter = 0
       @offline_counter = 0
+      # We optimistically declare the server online since we just got a config blob via http from it
+      # however, if the server is reachable via http but not zmq we'll go down after a few heartbeats.
       set_online(true)
 
       @heartbeat_thread = Thread.new do
@@ -74,6 +78,11 @@ class PushyClient
             # We only send heartbeats to online servers
             if @online
               client.send_heartbeat(@heartbeat_sequence)
+              if @heartbeat_sequence <= NUM_HEARTBEATS_TO_LOG
+                Chef::Log.info "[#{node_name}] Sending heartbeat #{@heartbeat_sequence} (logging first #{NUM_HEARTBEATS_TO_LOG})"
+              else
+                Chef::Log.debug "[#{node_name}] Sending heartbeat #{@heartbeat_sequence}"
+              end
               @heartbeat_sequence += 1
             end
             sleep(interval)
@@ -97,7 +106,12 @@ class PushyClient
 
     # TODO use the sequence for something?
     def heartbeat_received(incarnation_id, sequence)
-      Chef::Log.debug("[#{node_name}] Received server heartbeat (sequence ##{sequence})")
+      message = "[#{node_name}] Received server heartbeat (sequence ##{sequence})"
+      if @online_counter <= NUM_HEARTBEATS_TO_LOG
+        Chef::Log.info message + " logging #{@online_counter}/#{NUM_HEARTBEATS_TO_LOG}"
+      else
+        Chef::Log.debug message
+      end
       # If the incarnation id has changed, we need to reconfigure.
       if @incarnation_id != incarnation_id
         if @incarnation_id.nil?
@@ -118,7 +132,7 @@ class PushyClient
         @offline_counter = 0
 
         if !@online && @online_counter > online_threshold
-          Chef::Log.info "[#{node_name}] Server has heartbeated #{@online_counter} times without missing more than #{offline_threshold} heartbeats in a row.  Considering it online, and starting to heartbeat ..."
+          Chef::Log.info "[#{node_name}] Server has heartbeated #{@online_counter} times without missing more than #{offline_threshold} heartbeats in a row."
           set_online(true)
         else
           @online_counter += 1
@@ -130,6 +144,7 @@ class PushyClient
 
     def set_online(online)
       @online = online
+      Chef::Log.info "[#{node_name}] Considering server online, and starting to heartbeat"
       @on_server_availability_change.each do |block|
         block.call(online)
       end
