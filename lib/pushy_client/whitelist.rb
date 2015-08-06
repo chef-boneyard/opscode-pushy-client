@@ -25,6 +25,14 @@ class PushyClient
     end
 
     def [](argument)
+      command = process(argument)
+      node_name = "UNKNOWN"
+      job_id = "UNKNOWN"
+      Chef::Log.info("[#{node_name}] Job #{job_id}: whitelist '#{argument}' to '#{command}'")
+      command
+    end
+
+    def process(argument)
       # If we have an exact match, use it
       if whitelist.has_key?(argument)
         return whitelist[argument]
@@ -54,4 +62,3 @@ class PushyClient
     end
   end
 end
-
