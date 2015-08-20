@@ -208,8 +208,8 @@ class PushyClient
       env = @opts['env'] || {}
       capture = @opts['capture'] || false
       path = extract_file
-      env.merge!({'PUSHY_JOB_FILE' => path}) if path
-      std_env = {'PUSHY_NODE_NAME' => node_name, 'PUSHY_JOB_ID' => @job_id}
+      env.merge!({'CHEF_PUSH_JOB_FILE' => path}) if path
+      std_env = {'CHEF_PUSH_NODE_NAME' => node_name, 'CHEF_PUSH_JOB_ID' => @job_id}
       env.merge!(std_env)
       # XXX We set the timeout to 86400, because the time in ShellOut is
       # 60 seconds, and that might be too slow.  But we currently don't
