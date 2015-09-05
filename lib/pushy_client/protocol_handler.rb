@@ -16,6 +16,7 @@
 #
 
 require 'ffi-rzmq'
+require 'ffi-rzmq-core'
 require 'json'
 require 'time'
 require 'openssl'
@@ -94,6 +95,13 @@ class PushyClient
         exit(-1)
       end
 
+      # Server heartbeat socket
+      Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
+      @server_heartbeat_socket = ZMQ_CONTEXT.socket(ZMQ::SUB)
+      @server_heartbeat_socket.connect(@server_heartbeat_address)
+      @server_heartbeat_socket.setsockopt(ZMQ::SUBSCRIBE, "")
+      @server_heartbeat_seq_no = -1
+
       # Command socket
       Chef::Log.info "[#{node_name}] Connecting to command channel at #{@command_address}"
       # TODO
@@ -111,13 +119,6 @@ class PushyClient
       @command_socket_server_seq_no = -1
 
       @command_socket_outgoing_seq = 0
-
-      # Server heartbeat socket
-      Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
-      @server_heartbeat_socket = ZMQ_CONTEXT.socket(ZMQ::SUB)
-      @server_heartbeat_socket.connect(@server_heartbeat_address)
-      @server_heartbeat_socket.setsockopt(ZMQ::SUBSCRIBE, "")
-      @server_heartbeat_seq_no = -1
       
       @receive_thread = start_receive_thread
     end
