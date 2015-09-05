@@ -97,6 +97,8 @@ class PushyClient
         exit(-1)
       end
 
+      Chef::Log.info "[#{node_name}] Starting ZMQ version #{LibZMQ.version}"
+
       # Command socket
       Chef::Log.info "[#{node_name}] Connecting to command channel at #{@command_address}"
       # TODO

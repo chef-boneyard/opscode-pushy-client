@@ -46,14 +46,14 @@ class PushyClient
       @service_signal = ConditionVariable.new
 
       reconfigure
-      Chef::Log.info("Pushy Client Service initialized")
+      Chef::Log.info("Chef Push Jobs Client Service initialized")
     end
 
     def service_main(*startup_parameters)
       begin
         @service_action_mutex.synchronize do
-          Chef::Log.info("Pushy version: #{::PushyClient::VERSION}")
-
+          Chef::Log.info("Push Client version: #{::PushyClient::VERSION}")
+          Chef::Log.info("Push Client started as service with parameters: #{startup_parameters}")
           reconfigure(startup_parameters)
 
           # Lifted from PushyClient::CLI
