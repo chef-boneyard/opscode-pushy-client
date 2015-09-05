@@ -21,8 +21,8 @@ require 'chef/config'
 # To keep compat with older chef-client, rescue if not found
 require 'chef/config_fetcher' rescue 'assuming chef-client < 11.8.0'
 require 'chef/log'
-require 'pushy_client'
-require 'pushy_client/version'
+require_relative '../pushy_client'
+require_relative '../pushy_client/version'
 
 class PushyClient
   class CLI < Chef::Application

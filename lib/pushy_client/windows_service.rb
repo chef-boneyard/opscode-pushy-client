@@ -22,8 +22,8 @@ require 'chef/log'
 require 'chef/rest'
 require 'mixlib/cli'
 require 'win32/daemon'
-require 'pushy_client'
-require 'pushy_client/version'
+require_relative '../pushy_client'
+require_relative '../pushy_client/version'
 
 class PushyClient
   class WindowsService < ::Win32::Daemon

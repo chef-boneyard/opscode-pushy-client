@@ -15,11 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'pushy_client/heartbeater'
-require 'pushy_client/job_runner'
-require 'pushy_client/protocol_handler'
-require 'pushy_client/periodic_reconfigurer'
-require 'pushy_client/whitelist'
+require_relative 'pushy_client/heartbeater'
+require_relative 'pushy_client/job_runner'
+require_relative 'pushy_client/protocol_handler'
+require_relative 'pushy_client/periodic_reconfigurer'
+require_relative 'pushy_client/whitelist'
 require 'ohai'
 require 'uuidtools'
 require 'ffi-rzmq'
