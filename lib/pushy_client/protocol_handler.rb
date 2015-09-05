@@ -95,6 +95,8 @@ class PushyClient
         exit(-1)
       end
 
+      Chef::Log.info "[#{node_name}] Starting ZMQ version #{LibZMQ.version}"
+ 
       # Server heartbeat socket
       Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
       @server_heartbeat_socket = ZMQ_CONTEXT.socket(ZMQ::SUB)
@@ -214,6 +216,8 @@ class PushyClient
 		    message = ''
                     socket.recv_string(message)
                     if !socket.more_parts?
+                      # TODO make info
+                      Chef::Log.error("[#{node_name}] Received ZMQ message (#{header}, #{message.length}")
                       messages << [header, message]
 		      if socket == @command_socket
 		        received_command = true
@@ -248,7 +252,7 @@ class PushyClient
 	    if !received_command
 	      seconds_since_connection += 1
 	      if (seconds_since_connection > 3 )
-		Chef::Log.error "[#{node_name}] No messages being received on command port.  Possible encryption problem?"
+		Chef::Log.error "[#{node_name}] No messages being received on command port in #{seconds_since_connection}s.  Possible encryption problem?"
 		client.trigger_reconfigure
 	      end
 	    end
