@@ -18,6 +18,7 @@
 require 'ffi-rzmq'
 require 'json'
 require 'time'
+require 'resolv'
 require 'openssl'
 require 'mixlib/authentication/digester'
 
@@ -77,6 +78,9 @@ class PushyClient
     end
 
     def start
+      server_address = URI(client.config['push_jobs']['heartbeat']['out_addr']).host
+      check_server_address(node_name, server_address)
+      
       @server_heartbeat_address = client.config['push_jobs']['heartbeat']['out_addr']
       @command_address = client.config['push_jobs']['heartbeat']['command_addr']
       @server_public_key = OpenSSL::PKey::RSA.new(client.config['public_key'])
@@ -206,6 +210,7 @@ class PushyClient
 		    message = ''
                     socket.recv_string(message)
                     if !socket.more_parts?
+                      Chef::Log.debug("[#{node_name}] Received ZMQ message (#{header}, #{message.length}")
                       messages << [header, message]
                     else
                       # Eat up the useless packets
@@ -308,6 +313,22 @@ class PushyClient
       end
     end
 
+    def check_server_address(name, server_address)
+      if server_address =~ Resolv::IPv4::Regex || server_address =~ Resolv::IPv6::Regex
+        return true
+      else 
+        begin
+          addrs = Resolv::DNS.new.getaddresses(server_address) + Resolv::Hosts.new.getaddresses(server_address)
+          Chef::Log.info "[#{node_name}] Resolved #{server_address} to '#{addrs.first}' and #{addrs.length-1} others"
+          return true
+        rescue =>_
+          Chef::Log.error "[#{node_name}] Could not resolve #{server_address}"
+          return false
+        end
+        
+      end
+    end
+    
     # Message authentication (on receive)
     def self.valid?(header, message, server_public_key, session_key)
       headers = header.split(';')
@@ -389,5 +410,6 @@ class PushyClient
       b64_sig = Base64.encode64(sig).chomp
       "Version:2.0;SigningMethod:hmac_sha256;Signature:#{b64_sig}"
     end
+
   end
 end
