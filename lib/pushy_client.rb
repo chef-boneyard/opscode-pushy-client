@@ -37,6 +37,8 @@ class PushyClient
     @file_dir_expiry = options[:file_dir_expiry] || 86400
     @client_curve_pub_key, @client_curve_sec_key = ZMQ::Util.curve_keypair
 
+    Chef::Log.info("[#{@node_name}] using config file path: '#{Chef::Config[:config_file]}'")
+
     if @chef_server_url =~ /\/organizations\/+([^\/]+)\/*/
       @org_name = $1
     else
