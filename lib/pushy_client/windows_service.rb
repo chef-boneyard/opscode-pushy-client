@@ -54,6 +54,7 @@ class PushyClient
         @service_action_mutex.synchronize do
           Chef::Log.info("Push Client version: #{::PushyClient::VERSION}")
           Chef::Log.info("Push Client started as service with parameters: #{startup_parameters}")
+          Chef::Log.info("Push Client passed: #{ARGV.join(', ')}"
           reconfigure(startup_parameters)
 
           # Lifted from PushyClient::CLI
