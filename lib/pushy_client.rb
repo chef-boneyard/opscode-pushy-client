@@ -32,6 +32,8 @@ class PushyClient
     @whitelist       = PushyClient::Whitelist.new(options[:whitelist])
     @hostname        = options[:hostname]
 
+    Chef::Log.info("[#{@node_name}] using config file path: '#{Chef::Config[:config_file]}'")
+
     if @chef_server_url =~ /\/organizations\/+([^\/]+)\/*/
       @org_name = $1
     else
