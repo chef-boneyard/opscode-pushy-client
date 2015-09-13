@@ -15,11 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'pushy_client/heartbeater'
-require 'pushy_client/job_runner'
-require 'pushy_client/protocol_handler'
-require 'pushy_client/periodic_reconfigurer'
-require 'pushy_client/whitelist'
+require_relative 'pushy_client/heartbeater'
+require_relative 'pushy_client/job_runner'
+require_relative 'pushy_client/protocol_handler'
+require_relative 'pushy_client/periodic_reconfigurer'
+require_relative 'pushy_client/whitelist'
 require 'ohai'
 require 'uuidtools'
 require 'ffi-rzmq'
@@ -36,6 +36,8 @@ class PushyClient
     @file_dir        = options[:file_dir] || '/tmp/pushy'
     @file_dir_expiry = options[:file_dir_expiry] || 86400
     @client_curve_pub_key, @client_curve_sec_key = ZMQ::Util.curve_keypair
+
+    Chef::Log.info("[#{@node_name}] using config file path: '#{Chef::Config[:config_file]}'")
 
     if @chef_server_url =~ /\/organizations\/+([^\/]+)\/*/
       @org_name = $1

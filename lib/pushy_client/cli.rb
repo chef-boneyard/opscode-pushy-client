@@ -21,16 +21,26 @@ require 'chef/config'
 # To keep compat with older chef-client, rescue if not found
 require 'chef/config_fetcher' rescue 'assuming chef-client < 11.8.0'
 require 'chef/log'
-require 'pushy_client'
-require 'pushy_client/version'
+require_relative '../pushy_client'
+require_relative '../pushy_client/version'
 
 class PushyClient
   class CLI < Chef::Application
 
+    def self.find_default_config
+      configs = ['chef-push-client.rb', 'push-jobs-client.rb', 'client.rb']
+      base = "/etc/chef"
+      paths = configs.map {|c| Chef::Config.platform_specific_path(File.join(base, c)) }
+      path = paths.detect {|p| File.exist?(p) }
+      # todo make debug before commit
+      Chef::Log.info("Push Client using default config file path: '#{path}'")
+      path
+    end
+
     option :config_file,
       :short => "-c CONFIG",
       :long  => "--config CONFIG",
-      :default => Chef::Config.platform_specific_path("/etc/chef/client.rb"),
+      :default => find_default_config,
       :description => "The configuration file to use"
 
     option :log_level,

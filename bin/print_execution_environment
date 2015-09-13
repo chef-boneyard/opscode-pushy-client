@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
+
+require "rubygems"
+
+require 'pp'
+
+puts "# Node name '#{ENV['PUSHY_NODE_NAME']}'"
+puts "# Running command with args: "
+pp ARGV
+puts "# As user '#{ENV['USERNAME']}'"
+puts "# In directory '#{Dir.pwd}'"
+puts "# Job file '#{ENV['PUSHY_JOB_FILE']}'"
+puts "# Full environment"
+pp ENV
+

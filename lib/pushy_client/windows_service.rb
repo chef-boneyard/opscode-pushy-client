@@ -22,8 +22,8 @@ require 'chef/log'
 require 'chef/rest'
 require 'mixlib/cli'
 require 'win32/daemon'
-require 'pushy_client'
-require 'pushy_client/version'
+require_relative '../pushy_client'
+require_relative '../pushy_client/version'
 
 class PushyClient
   class WindowsService < ::Win32::Daemon
@@ -46,14 +46,15 @@ class PushyClient
       @service_signal = ConditionVariable.new
 
       reconfigure
-      Chef::Log.info("Pushy Client Service initialized")
+      Chef::Log.info("Chef Push Jobs Client Service initialized")
     end
 
     def service_main(*startup_parameters)
       begin
         @service_action_mutex.synchronize do
-          Chef::Log.info("Pushy version: #{::PushyClient::VERSION}")
-
+          Chef::Log.info("Push Client version: #{::PushyClient::VERSION}")
+          Chef::Log.info("Push Client started as service with parameters: #{startup_parameters}")
+          Chef::Log.info("Push Client passed: #{ARGV.join(', ')}"
           reconfigure(startup_parameters)
 
           # Lifted from PushyClient::CLI

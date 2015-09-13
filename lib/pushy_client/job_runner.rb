@@ -208,8 +208,8 @@ class PushyClient
       env = @opts['env'] || {}
       capture = @opts['capture'] || false
       path = extract_file
-      env.merge!({'PUSHY_JOB_FILE' => path}) if path
-      std_env = {'PUSHY_NODE_NAME' => node_name, 'PUSHY_JOB_ID' => @job_id}
+      env.merge!({'CHEF_PUSH_JOB_FILE' => path}) if path
+      std_env = {'CHEF_PUSH_NODE_NAME' => node_name, 'CHEF_PUSH_JOB_ID' => @job_id}
       env.merge!(std_env)
       # XXX We set the timeout to 86400, because the time in ShellOut is
       # 60 seconds, and that might be too slow.  But we currently don't
@@ -292,10 +292,14 @@ class PushyClient
       Dir.mkdir(dir) unless Dir.exists?(dir)
       path = Dir::Tmpname.create('pushy_file', dir){|p| p}
       File.open(path, 'w') do |f|
-        if file =~ /^raw:(.*)/
-          f.write($1)
-        elsif file =~ /^base64:(.*)/
-          f.write(Base64.decode64($1))
+        type, filedata = file.split(/:/, 2)
+        case type
+        when "raw"
+          f.write(filedata)
+        when "base64"
+          f.write(Base64.decode64(filedata))
+        else
+          Chef::Log.error("[#{node_name}] Received commit #{job_id}, but file starting with '#{file.slice(0,80)}' has a bad format!") 
         end
       end
       path

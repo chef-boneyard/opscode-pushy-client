@@ -16,8 +16,10 @@
 #
 
 require 'ffi-rzmq'
+require 'ffi-rzmq-core'
 require 'json'
 require 'time'
+require 'resolv'
 require 'openssl'
 require 'mixlib/authentication/digester'
 
@@ -77,6 +79,9 @@ class PushyClient
     end
 
     def start
+      server_address = URI(client.config['push_jobs']['heartbeat']['out_addr']).host
+      check_server_address(node_name, server_address)
+      
       @server_heartbeat_address = client.config['push_jobs']['heartbeat']['out_addr']
       @command_address = client.config['push_jobs']['heartbeat']['command_addr']
       @server_public_key = OpenSSL::PKey::RSA.new(client.config['public_key'])
@@ -93,6 +98,15 @@ class PushyClient
         Chef::Log.error "[#{node_name}] No session key found in config"
         exit(-1)
       end
+
+      Chef::Log.info "[#{node_name}] Starting ZMQ version #{LibZMQ.version}"
+ 
+      # Server heartbeat socket
+      Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
+      @server_heartbeat_socket = ZMQ_CONTEXT.socket(ZMQ::SUB)
+      @server_heartbeat_socket.connect(@server_heartbeat_address)
+      @server_heartbeat_socket.setsockopt(ZMQ::SUBSCRIBE, "")
+      @server_heartbeat_seq_no = -1
 
       # Command socket
       Chef::Log.info "[#{node_name}] Connecting to command channel at #{@command_address}"
@@ -111,13 +125,6 @@ class PushyClient
       @command_socket_server_seq_no = -1
 
       @command_socket_outgoing_seq = 0
-
-      # Server heartbeat socket
-      Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
-      @server_heartbeat_socket = ZMQ_CONTEXT.socket(ZMQ::SUB)
-      @server_heartbeat_socket.connect(@server_heartbeat_address)
-      @server_heartbeat_socket.setsockopt(ZMQ::SUBSCRIBE, "")
-      @server_heartbeat_seq_no = -1
       
       @receive_thread = start_receive_thread
     end
@@ -213,6 +220,7 @@ class PushyClient
 		    message = ''
                     socket.recv_string(message)
                     if !socket.more_parts?
+                      Chef::Log.debug("[#{node_name}] Received ZMQ message (#{header}, #{message.length}")
                       messages << [header, message]
 		      if socket == @command_socket
 		        received_command = true
@@ -247,7 +255,7 @@ class PushyClient
 	    if !received_command
 	      seconds_since_connection += 1
 	      if (seconds_since_connection > 3 )
-		Chef::Log.error "[#{node_name}] No messages being received on command port.  Possible encryption problem?"
+		Chef::Log.error "[#{node_name}] No messages being received on command port in #{seconds_since_connection}s.  Possible encryption problem?"
 		client.trigger_reconfigure
 	      end
 	    end
@@ -338,6 +346,22 @@ class PushyClient
       end
     end
 
+    def check_server_address(name, server_address)
+      if server_address =~ Resolv::IPv4::Regex || server_address =~ Resolv::IPv6::Regex
+        return true
+      else 
+        begin
+          addrs = Resolv::DNS.new.getaddresses(server_address) + Resolv::Hosts.new.getaddresses(server_address)
+          Chef::Log.info "[#{node_name}] Resolved #{server_address} to '#{addrs.first}' and #{addrs.length-1} others"
+          return true
+        rescue =>_
+          Chef::Log.error "[#{node_name}] Could not resolve #{server_address}"
+          return false
+        end
+        
+      end
+    end
+    
     # Message authentication (on receive)
     def self.valid?(header, message, server_public_key, session_key)
       headers = header.split(';')
@@ -419,5 +443,6 @@ class PushyClient
       b64_sig = Base64.encode64(sig).chomp
       "Version:2.0;SigningMethod:hmac_sha256;Signature:#{b64_sig}"
     end
+
   end
 end
