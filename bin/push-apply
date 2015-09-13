@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+
+$:.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
+
+require "rubygems"
+require 'json'
+require 'tmpdir'
+require 'pp'
+
+node = ENV['PUSHY_NODE_NAME']
+job_file = ENV['PUSHY_JOB_FILE']
+
+job_file_dir = File.dirname(job_file)
+
+jobdata = IO.read(job_file)
+
+filejson = JSON.parse(jobdata)
+
+pp :keys=>filejson.keys, :format=>filejson['format']
+
+recipe = ""
+
+case filejson['format']
+when 1
+  recipe = filejson['file']
+else
+  puts "Unsupported datatype #{filejson['format']}"
+  exit(1)
+end
+
+prefix = File.join('chef-apply-recipe-')
+recipe_path = Dir::Tmpname.create(prefix) {|p|} + ".rb"
+pp :recipe_path=>recipe_path
+
+File.open(recipe_path, 'w') do |f|
+  f.write(recipe)
+end
+
+
+puts "="*60
+puts "Running chef-apply with file #{recipe_path}"
+puts "="*60
+
+$stdout.flush
+#puts recipe
+
+exec "chef-apply #{recipe_path}"
