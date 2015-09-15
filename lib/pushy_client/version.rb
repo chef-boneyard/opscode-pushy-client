@@ -16,5 +16,5 @@
 #
 
 class PushyClient
-  VERSION = '1.3.2-rc.0'
+  VERSION = '1.3.3'
 end
