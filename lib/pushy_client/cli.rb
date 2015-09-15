@@ -85,9 +85,9 @@ class PushyClient
     option :version,
       :short        => "-v",
       :long         => "--version",
-      :description  => "Show pushy version",
+      :description  => "Show push client version",
       :boolean      => true,
-      :proc         => lambda {|v| puts "Pushy: #{::PushyClient::VERSION}"},
+      :proc         => lambda {|v| puts "Push Client: #{::PushyClient::VERSION}"},
       :exit         => 0
 
     def reconfigure
@@ -106,7 +106,7 @@ class PushyClient
 
     def run_application
       if Chef::Config[:version]
-        puts "Pushy version: #{::PushyClient::VERSION}"
+        puts "Push Client version: #{::PushyClient::VERSION}"
       end
 
       ohai = Ohai::System.new
@@ -125,7 +125,7 @@ class PushyClient
 
       # install signal handlers
       # Windows does not support QUIT and USR1 signals
-      exit_signals = if Chef::Platform.windows? 
+      exit_signals = if Chef::Platform.windows?
                        ["TERM", "KILL"]
                      else
                        ["TERM", "QUIT", "KILL"]
