@@ -205,6 +205,8 @@ class PushyClient
       parse_options # Operates on ARGV by default
       parse_options startup_parameters
 
+      Chef::Log.info("Push Client using default config file path: '#{config[:config_file]}'")
+
       begin
         case config[:config_file]
         when /^(http|https):\/\//
