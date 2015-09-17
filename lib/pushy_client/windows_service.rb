@@ -23,6 +23,7 @@ require 'chef/rest'
 require 'mixlib/cli'
 require 'win32/daemon'
 require_relative '../pushy_client'
+require_relative '../pushy_client/cli'
 require_relative '../pushy_client/version'
 
 class PushyClient
@@ -32,14 +33,14 @@ class PushyClient
     option :config_file,
       :short => "-c CONFIG",
       :long => "--config CONFIG",
-      :default => "#{ENV['SYSTEMDRIVE']}/chef/client.rb",
-      :description => ""
+      :default => PushyClient::CLI.find_default_config,
+      :description => "The configuration file to use"
 
     option :log_location,
       :short        => "-L LOGLOCATION",
       :long         => "--logfile LOGLOCATION",
       :description  => "Set the log file location",
-      :default => "#{ENV['SYSTEMDRIVE']}/chef/pushy-client.log"
+      :default => "#{ENV['SYSTEMDRIVE']}/chef/push-client.log"
 
     def service_init
       @service_action_mutex = Mutex.new
@@ -54,7 +55,7 @@ class PushyClient
         @service_action_mutex.synchronize do
           Chef::Log.info("Push Client version: #{::PushyClient::VERSION}")
           Chef::Log.info("Push Client started as service with parameters: #{startup_parameters}")
-          Chef::Log.info("Push Client passed: #{ARGV.join(', ')}"
+          Chef::Log.info("Push Client passed: #{ARGV.join(', ')}")
           reconfigure(startup_parameters)
 
           # Lifted from PushyClient::CLI
@@ -204,6 +205,8 @@ class PushyClient
 
       parse_options # Operates on ARGV by default
       parse_options startup_parameters
+
+      Chef::Log.info("Push Client using default config file path: '#{config[:config_file]}'")
 
       begin
         case config[:config_file]
