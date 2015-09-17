@@ -7,8 +7,8 @@ require 'json'
 require 'tmpdir'
 require 'pp'
 
-node = ENV['PUSHY_NODE_NAME']
-job_file = ENV['PUSHY_JOB_FILE']
+node = ENV['CHEF_PUSH_NODE_NAME']
+job_file = ENV['CHEF_PUSH_JOB_FILE']
 
 job_file_dir = File.dirname(job_file)
 

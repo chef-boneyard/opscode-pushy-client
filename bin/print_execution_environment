@@ -6,12 +6,13 @@ require "rubygems"
 
 require 'pp'
 
-puts "# Node name '#{ENV['PUSHY_NODE_NAME']}'"
+puts "# Node name '#{ENV['CHEF_PUSH_NODE_NAME']}'"
 puts "# Running command with args: "
 pp ARGV
 puts "# As user '#{ENV['USERNAME']}'"
 puts "# In directory '#{Dir.pwd}'"
-puts "# Job file '#{ENV['PUSHY_JOB_FILE']}'"
+puts "# Job file '#{ENV['CHEF_PUSH_JOB_FILE']}'"
+puts "# Job Id '#{ENV['CHEF_PUSH_JOB_ID']}'"
 puts "# Full environment"
 pp ENV
 
