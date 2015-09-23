@@ -26,7 +26,7 @@ require 'mixlib/authentication/digester'
 class PushyClient
   class ProtocolHandler
     ##
-    ## Allow send and receive times to be independently stubbed in testing. 
+    ## Allow send and receive times to be independently stubbed in testing.
     ##
     class TimeSendWrapper
       def self.now
@@ -81,26 +81,39 @@ class PushyClient
     def start
       server_address = URI(client.config['push_jobs']['heartbeat']['out_addr']).host
       check_server_address(node_name, server_address)
-      
+
       @server_heartbeat_address = client.config['push_jobs']['heartbeat']['out_addr']
       @command_address = client.config['push_jobs']['heartbeat']['command_addr']
       @server_public_key = OpenSSL::PKey::RSA.new(client.config['public_key'])
       @client_private_key = ProtocolHandler::load_key(client.client_key)
       @max_message_skew = client.config['max_message_skew']
-      server_curve_pub_key = client.config['curve_public_key']
 
-      # decode and extract session key
-      begin 
-        @session_method = client.config['encoded_session_key']['method']
-        enc_session_key = Base64::decode64(client.config['encoded_session_key']['key'])
+      if client.using_curve
+        server_curve_pub_key = client.config['curve_public_key']
+
+        # decode and extract session key
+        begin
+          @session_method = client.config['encoded_session_key']['method']
+          enc_session_key = Base64::decode64(client.config['encoded_session_key']['key'])
         @session_key = @client_private_key.private_decrypt(enc_session_key)
-      rescue =>_
-        Chef::Log.error "[#{node_name}] No session key found in config"
-        exit(-1)
+        rescue =>_
+          Chef::Log.error "[#{node_name}] No session key found in config"
+          exit(-1)
+        end
+      else
+        # decode and extract session key
+        begin
+          @session_method = client.config['encoded_session_key']['method']
+          enc_session_key = Base64::decode64(client.config['encoded_session_key']['key'])
+          @session_key = @client_private_key.private_decrypt(enc_session_key)
+        rescue =>e
+          Chef::Log.error "[#{node_name}] No session key found in config"
+          exit(-1)
+        end
       end
 
       Chef::Log.info "[#{node_name}] Starting ZMQ version #{LibZMQ.version}"
- 
+
       # Server heartbeat socket
       Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
       @server_heartbeat_socket = ZMQ_CONTEXT.socket(ZMQ::SUB)
@@ -118,14 +131,18 @@ class PushyClient
       # Note setting this to '1' causes the client to crash on send, but perhaps that
       # beats storming the server when the server restarts
       @command_socket.setsockopt(ZMQ::RCVHWM, 0)
-      @command_socket.setsockopt(ZMQ::CURVE_SERVERKEY, server_curve_pub_key)
-      @command_socket.setsockopt(ZMQ::CURVE_PUBLICKEY, client.client_curve_pub_key)
-      @command_socket.setsockopt(ZMQ::CURVE_SECRETKEY, client.client_curve_sec_key)
+
+      if client.using_curve
+        @command_socket.setsockopt(ZMQ::CURVE_SERVERKEY, server_curve_pub_key)
+        @command_socket.setsockopt(ZMQ::CURVE_PUBLICKEY, client.client_curve_pub_key)
+        @command_socket.setsockopt(ZMQ::CURVE_SECRETKEY, client.client_curve_sec_key)
+      end
+
       @command_socket.connect(@command_address)
       @command_socket_server_seq_no = -1
 
       @command_socket_outgoing_seq = 0
-      
+
       @receive_thread = start_receive_thread
     end
 
@@ -154,7 +171,7 @@ class PushyClient
         :client => client.hostname,
         :org => client.org_name,
         :type => message_type,
-        :sequence => -1, 
+        :sequence => -1,
         :timestamp => TimeSendWrapper.now.httpdate,
         :incarnation_id => client.incarnation_id,
         :job_id => job_id
@@ -197,38 +214,38 @@ class PushyClient
     def start_receive_thread
       Thread.new do
         Chef::Log.info "[#{node_name}] Starting command / server heartbeat receive thread ..."
-	received_command = false
-	seconds_since_connection = 0
-	poller = ZMQ::Poller.new
-	poller.register_readable(@command_socket)
-	poller.register_readable(@server_heartbeat_socket)
+        received_command = false
+        seconds_since_connection = 0
+        poller = ZMQ::Poller.new
+        poller.register_readable(@command_socket)
+        poller.register_readable(@server_heartbeat_socket)
         while true
           begin
             messages = []
             @receive_socket_lock.synchronize do
               # Time out after 1 second to relinquish the lock and give
               # reconfigure a chance.
-	      poller.poll(1000)
-	      ready_sockets = poller.readables
+              poller.poll(1000)
+              ready_sockets = poller.readables
               # Grab messages from the socket, but don't process them yet (we
               # want to relinquish the socket_lock as soon as we can)
               if ready_sockets
                 ready_sockets.each do |socket|
-		  header = ''
+                  header = ''
                   socket.recv_string(header)
                   if socket.more_parts?
-		    message = ''
+                    message = ''
                     socket.recv_string(message)
                     if !socket.more_parts?
                       Chef::Log.debug("[#{node_name}] Received ZMQ message (#{header}, #{message.length}")
                       messages << [header, message]
-		      if socket == @command_socket
-		        received_command = true
-		      end
+                      if socket == @command_socket
+                        received_command = true
+                      end
                     else
                       # Eat up the useless packets
                       begin
-			s = ''
+                        s = ''
                         socket.recv(s)
                       end while socket.more_parts?
                       Chef::Log.error "[#{node_name}] Received ZMQ message with more than two packets!  Should only have header and data packets."
@@ -252,13 +269,13 @@ class PushyClient
               end
             end
 
-	    if !received_command
-	      seconds_since_connection += 1
-	      if (seconds_since_connection > 3 )
-		Chef::Log.error "[#{node_name}] No messages being received on command port in #{seconds_since_connection}s.  Possible encryption problem?"
-		client.trigger_reconfigure
-	      end
-	    end
+            if !received_command
+              seconds_since_connection += 1
+              if (seconds_since_connection > 3 )
+                Chef::Log.error "[#{node_name}] No messages being received on command port in #{seconds_since_connection}s.  Possible encryption problem?"
+                client.trigger_reconfigure
+              end
+            end
 
           rescue
             client.log_exception "Error in command / server heartbeat receive thread", $!
@@ -281,7 +298,7 @@ class PushyClient
           delta = ts - TimeRecvWrapper.now
           if delta > @max_message_skew
             Chef::Log.error "[#{node_name}] Received message with timestamp too far from current time (Msg: #{json['timestamp']}, delta #{delta}, max allowed #{@max_message_skew} )"
-            return 
+            return
           end
         rescue
           Chef::Log.error "[#{node_name}] Received message unparseable timestamp (Msg: #{json['timestamp']})"
@@ -333,10 +350,10 @@ class PushyClient
         when "abort"
           client.abort
 
-	when "ack"
-	  # Do nothing.  If this _didn't_ come through, it might mean there was
-	  # an encryption problem in the command port.
-	  nil
+        when "ack"
+          # Do nothing.  If this _didn't_ come through, it might mean there was
+          # an encryption problem in the command port.
+          nil
 
         else
           Chef::Log.error "[#{node_name}] Missing type in ZMQ message: #{message}"
@@ -349,7 +366,7 @@ class PushyClient
     def check_server_address(name, server_address)
       if server_address =~ Resolv::IPv4::Regex || server_address =~ Resolv::IPv6::Regex
         return true
-      else 
+      else
         begin
           addrs = Resolv::DNS.new.getaddresses(server_address) + Resolv::Hosts.new.getaddresses(server_address)
           Chef::Log.info "[#{node_name}] Resolved #{server_address} to '#{addrs.first}' and #{addrs.length-1} others"
@@ -358,10 +375,10 @@ class PushyClient
           Chef::Log.error "[#{node_name}] Could not resolve #{server_address}"
           return false
         end
-        
+
       end
     end
-    
+
     # Message authentication (on receive)
     def self.valid?(header, message, server_public_key, session_key)
       headers = header.split(';')
