@@ -126,6 +126,7 @@ class PushyClient
 
       Chef::Log.info "[#{node_name}] Reconfigured client."
     end
+    trigger_gc
   end
 
   def trigger_reconfigure
@@ -138,6 +139,17 @@ class PushyClient
         log_exception("Error reconfiguring", $!)
       end
     end
+  end
+
+  def trigger_gc
+    # We have a tendency to bloat up because GCs aren't forced; this tries to keep things a little bit saner.
+    before_stat = GC.stat()
+    GC.start()
+    after_stat = GC.stat()
+    stat = :count
+    delta = after_stat[stat] - before_stat[stat]
+    pp after_stat: after_stat, stat: stat, delta: delta 
+    Chef::Log.info("[#{node_name}] Forced GC; Stat #{stat} changed #{delta}")
   end
 
   def job_state
