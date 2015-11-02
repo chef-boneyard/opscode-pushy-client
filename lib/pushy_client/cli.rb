@@ -94,8 +94,13 @@ class PushyClient
       :short        => "-d DIR",
       :long         => "--file_dir DIR",
       :description  => "Set the directory for temporary files",
-      :default      => "/tmp/pushy/",
+      :default      => "/tmp/chef-push",
       :proc         => nil
+
+    option :allow_unencrypted,
+      :long        => "--allow_unencrypted",
+      :boolean     => true,
+      :description => "Allow unencrypted connections to 1.x servers"
 
     def reconfigure
       # We do not use Chef's formatters.
@@ -126,7 +131,8 @@ class PushyClient
         :node_name       => Chef::Config[:node_name] || ohai[:fqdn] || ohai[:hostname],
         :whitelist       => Chef::Config[:whitelist] || { 'chef-client' => 'chef-client' },
         :hostname        => ohai[:hostname],
-        :filedir         => Chef::Config[:file_dir]
+        :filedir         => Chef::Config[:file_dir],
+        :allow_unencrypted => Chef::Config[:allow_unencrypted]
       )
 
       @client.start

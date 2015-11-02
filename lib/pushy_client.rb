@@ -35,6 +35,8 @@ class PushyClient
     @hostname        = options[:hostname]
     @file_dir        = options[:file_dir] || '/tmp/pushy'
     @file_dir_expiry = options[:file_dir_expiry] || 86400
+
+    @allow_unencrypted = options[:allow_unencrypted] || false
     @client_curve_pub_key, @client_curve_sec_key = ZMQ::Util.curve_keypair
 
     Chef::Log.info("[#{@node_name}] using config file path: '#{Chef::Config[:config_file]}'")
@@ -61,6 +63,7 @@ class PushyClient
     Chef::Log.info "[#{node_name}] Using Chef server: #{chef_server_url}"
     Chef::Log.info "[#{node_name}] Using private key: #{client_key}"
     Chef::Log.info "[#{node_name}] Incarnation ID: #{incarnation_id}"
+    Chef::Log.info "[#{node_name}] Allowing fallback to unencrypted connection: #{allow_unencrypted}"
   end
 
   attr_accessor :chef_server_url
@@ -71,8 +74,14 @@ class PushyClient
   attr_accessor :hostname
   attr_accessor :whitelist
   attr_reader :incarnation_id
+
+  # crypto
   attr_reader :client_curve_pub_key
   attr_reader :client_curve_sec_key
+  attr_reader :allow_unencrypted
+  attr_reader :using_curve
+
+  #
   attr_reader :file_dir
   attr_reader :file_dir_expiry
 
@@ -117,6 +126,7 @@ class PushyClient
 
       Chef::Log.info "[#{node_name}] Reconfigured client."
     end
+    trigger_gc
   end
 
   def trigger_reconfigure
@@ -129,6 +139,17 @@ class PushyClient
         log_exception("Error reconfiguring", $!)
       end
     end
+  end
+
+  def trigger_gc
+    # We have a tendency to bloat up because GCs aren't forced; this tries to keep things a little bit saner.
+    before_stat = GC.stat()
+    GC.start()
+    after_stat = GC.stat()
+    stat = :count
+    delta = after_stat[stat] - before_stat[stat]
+    pp after_stat: after_stat, stat: stat, delta: delta 
+    Chef::Log.info("[#{node_name}] Forced GC; Stat #{stat} changed #{delta}")
   end
 
   def job_state
@@ -182,9 +203,27 @@ class PushyClient
   end
 
   def get_config
-    Chef::Log.info "[#{node_name}] Retrieving configuration from #{chef_server_url}/pushy/config/#{node_name} ..."
+    resource = "/pushy/config/#{node_name}"
+
+    Chef::Log.info "[#{node_name}] Retrieving configuration from #{chef_server_url}/#{resource}: ..."
     esc_key = CGI::escape(@client_curve_pub_key)
-    rest.get_rest("pushy/config/#{node_name}?ccpk=#{esc_key}", false)
+
+
+    config = rest.get_rest("pushy/config/#{node_name}?ccpk=#{esc_key}", false)
+
+    if config.has_key?("curve_public_key")
+    # Version 2.0  or greater, we should use encryption
+      @using_curve = true
+    elsif allow_unencrypted then
+      @using_curve = false
+      Chef::Log.info "[#{node_name}] No key returned from server; falling back to 1.x protocol (no encryption)"
+    else
+      msg = "[#{node_name}] Exiting: No key returned from server; server may be using 1.x protocol. The config flag 'allow_unencrypted' disables encryption and allows use of 1.x server. Use with caution!"
+      Chef::Log.error msg
+      Kernel.abort msg
+      config = nil
+    end
+    return config
   end
 
   # XXX Should go in a separate file

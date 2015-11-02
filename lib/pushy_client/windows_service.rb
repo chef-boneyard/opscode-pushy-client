@@ -42,6 +42,11 @@ class PushyClient
       :description  => "Set the log file location",
       :default => "#{ENV['SYSTEMDRIVE']}/chef/push-client.log"
 
+    option :allow_unencrypted,
+      :long        => "--allow_unencrypted",
+      :boolean     => true,
+      :description => "Allow unencrypted connections to 1.x servers"
+
     def service_init
       @service_action_mutex = Mutex.new
       @service_signal = ConditionVariable.new
@@ -68,7 +73,8 @@ class PushyClient
                                     :client_key      => Chef::Config[:client_key],
                                     :node_name       => Chef::Config[:node_name] || ohai[:fqdn] || ohai[:hostname],
                                     :whitelist       => Chef::Config[:whitelist] || { 'chef-client' => 'chef-client' },
-                                    :hostname        => ohai[:hostname]
+                                    :hostname        => ohai[:hostname],
+                                    :allow_unencrypted => Chef::Config[:allow_unencrypted]
                                     )
 
           @client.start
