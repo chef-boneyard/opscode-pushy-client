@@ -43,6 +43,12 @@ class PushyClient
     attr_reader :command
     attr_reader :lockfile
 
+    def safe_to_reconfigure?
+      @state_lock.synchronize do
+        @state == :idle
+      end
+    end
+
     def node_name
       client.node_name
     end

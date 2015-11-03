@@ -1,6 +1,7 @@
 #
-# Author:: John Keiser (<jkeiser@opscode.com>)
-# Copyright:: Copyright (c) 2012 Opscode, Inc.
+# Author:: John Keiser (<jkeiser@chef.io>)
+# Author:: John Keiser (<mark@chef.io>)
+# Copyright:: Copyright (c) 2012-5 Opscode, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -93,6 +94,13 @@ class PushyClient
   end
 
   def reconfigure
+    first = true
+    while !@job_runner.safe_to_reconfigure? do
+      Chef::Log.info "[#{node_name}] Job in flight, delaying reconfigure" if first
+      first = false
+      sleep 5
+    end
+
     @reconfigure_lock.synchronize do
       Chef::Log.info "[#{node_name}] Reconfiguring client / reloading keys ..."
 

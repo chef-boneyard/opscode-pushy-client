@@ -1,5 +1,14 @@
 # Chef Push Client Changes
 
+## 1.3.4
+* Add wait so that periodic reconfiguration doesn't kill running jobs
+
+## 1.3.3
+* Fixes to windows service to include multiple config files
+* Search for config files in multiple places
+* Check if DNS resolution works and log if not
+* Logging enhancements
+
 ## 1.3.1
 
 * Bump version to avoid semver issues with non-compliant 1.3.0.rc.0 tag
