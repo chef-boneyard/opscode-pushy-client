@@ -17,6 +17,7 @@
 
 class PushyClient
   class PeriodicReconfigurer
+    SPLAY = 0.10
     def initialize(client)
       @client = client
     end
@@ -30,12 +31,14 @@ class PushyClient
 
     def start
       @lifetime = client.config['lifetime']
+      prng = Random.new
       @reconfigure_thread = Thread.new do
-        Chef::Log.info "[#{node_name}] Starting reconfigure thread.  Will reconfigure / reload keys after #{@lifetime} seconds."
+        Chef::Log.info "[#{node_name}] Starting reconfigure thread.  Will reconfigure / reload keys after #{@lifetime} seconds, less up to splay #{SPLAY}."
         while true
           begin
-            sleep(@lifetime)
-            Chef::Log.info "[#{node_name}] Config is now #{@lifetime} seconds old.  Reconfiguring / reloading keys ..."
+            @delay = @lifetime * (1 - prng.rand(SPLAY))
+            sleep(@delay)
+            Chef::Log.info "[#{node_name}] Config is now #{@delay} seconds old.  Reconfiguring / reloading keys ..."
             client.trigger_reconfigure
           rescue
             client.log_exception("Error in reconfigure thread", $!)

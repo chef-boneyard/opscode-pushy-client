@@ -44,6 +44,12 @@ class PushyClient
     attr_reader :command
     attr_reader :lockfile
 
+    def safe_to_reconfigure?
+      @state_lock.synchronize do
+        @state == :idle
+      end
+    end
+
     def node_name
       client.node_name
     end
@@ -299,7 +305,7 @@ class PushyClient
         when "base64"
           f.write(Base64.decode64(filedata))
         else
-          Chef::Log.error("[#{node_name}] Received commit #{job_id}, but file starting with '#{file.slice(0,80)}' has a bad format!") 
+          Chef::Log.error("[#{node_name}] Received commit #{job_id}, but file starting with '#{file.slice(0,80)}' has a bad format!")
         end
       end
       path

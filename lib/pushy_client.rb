@@ -114,6 +114,13 @@ class PushyClient
   end
 
   def reconfigure
+    first = true
+    while !@job_runner.safe_to_reconfigure? do
+      Chef::Log.info "[#{node_name}] Job in flight, delaying reconfigure" if first
+      first = false
+      sleep 5
+    end
+
     @reconfigure_lock.synchronize do
       Chef::Log.info "[#{node_name}] Reconfiguring client / reloading keys ..."
 
@@ -148,7 +155,6 @@ class PushyClient
     after_stat = GC.stat()
     stat = :count
     delta = after_stat[stat] - before_stat[stat]
-    pp after_stat: after_stat, stat: stat, delta: delta 
     Chef::Log.info("[#{node_name}] Forced GC; Stat #{stat} changed #{delta}")
   end
 
