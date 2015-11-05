@@ -169,6 +169,7 @@ class PushyClient
       message = {
         :node => node_name,
         :client => client.hostname,
+        :protocol_version => PushyClient::PROTOCOL_VERSION,
         :org => client.org_name,
         :type => message_type,
         :sequence => -1,
@@ -186,6 +187,7 @@ class PushyClient
       message = {
         :node => node_name,
         :client => client.hostname,
+        :protocol_version => PushyClient::PROTOCOL_VERSION,
         :org => client.org_name,
         :type => :heartbeat,
         :sequence => -1,
