@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require_relative 'pushy_client/version'
 require_relative 'pushy_client/heartbeater'
 require_relative 'pushy_client/job_runner'
 require_relative 'pushy_client/protocol_handler'
@@ -213,9 +214,10 @@ class PushyClient
 
     Chef::Log.info "[#{node_name}] Retrieving configuration from #{chef_server_url}/#{resource}: ..."
     esc_key = CGI::escape(@client_curve_pub_key)
+    version = PushyClient::PROTOCOL_VERSION
+    resource = "pushy/config/#{node_name}?ccpk=#{esc_key}&version=#{version}"
 
-
-    config = rest.get_rest("pushy/config/#{node_name}?ccpk=#{esc_key}", false)
+    config = rest.get_rest(resource, false)
 
     if config.has_key?("curve_public_key")
     # Version 2.0  or greater, we should use encryption

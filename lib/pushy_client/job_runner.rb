@@ -182,6 +182,8 @@ class PushyClient
       @pid = pid
       @process_thread = process_thread
 
+      Chef::Log.debug("[] Job #{job_id}: command '#{command}' state '#{state}'")
+
       # Notify people of the change
       @on_job_state_change.each { |block| block.call(get_job_state) }
     end

@@ -24,6 +24,22 @@ require 'openssl'
 require 'mixlib/authentication/digester'
 
 class PushyClient
+
+  # Wrap the context with a lock.
+  # ZMQ gets grouchy if multiple threads access the context. Wrap it with a lock
+  # to block this. This mostly applies to the test system, where we run multiple clients in the same
+  # process
+  class ZmqContext
+    ZMQ_CONTEXT = ZMQ::Context.new(1)
+    @@lock = Mutex.new
+
+    def self.socket(arg)
+      @@lock.synchronize do
+        ZMQ_CONTEXT.socket(arg)
+      end
+    end
+  end
+
   class ProtocolHandler
     ##
     ## Allow send and receive times to be independently stubbed in testing.
@@ -38,8 +54,6 @@ class PushyClient
         Time.now()
       end
     end
-
-    ZMQ_CONTEXT = ZMQ::Context.new(1)
 
     def initialize(client)
       @client = client
@@ -116,7 +130,7 @@ class PushyClient
 
       # Server heartbeat socket
       Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
-      @server_heartbeat_socket = ZMQ_CONTEXT.socket(ZMQ::SUB)
+      @server_heartbeat_socket = PushyClient::ZmqContext.socket(ZMQ::SUB)
       @server_heartbeat_socket.connect(@server_heartbeat_address)
       @server_heartbeat_socket.setsockopt(ZMQ::SUBSCRIBE, "")
       @server_heartbeat_seq_no = -1
@@ -126,7 +140,7 @@ class PushyClient
       # TODO
       # This needs to be set up to be able to handle bidirectional messages; right now this is Tx only
       # Probably need to set it up with a handler, like the subscriber socket above.
-      @command_socket = ZMQ_CONTEXT.socket(ZMQ::DEALER)
+      @command_socket = PushyClient::ZmqContext.socket(ZMQ::DEALER)
       @command_socket.setsockopt(ZMQ::LINGER, 0)
       # Note setting this to '1' causes the client to crash on send, but perhaps that
       # beats storming the server when the server restarts
@@ -169,6 +183,7 @@ class PushyClient
       message = {
         :node => node_name,
         :client => client.hostname,
+        :protocol_version => PushyClient::PROTOCOL_VERSION,
         :org => client.org_name,
         :type => message_type,
         :sequence => -1,
@@ -186,6 +201,7 @@ class PushyClient
       message = {
         :node => node_name,
         :client => client.hostname,
+        :protocol_version => PushyClient::PROTOCOL_VERSION,
         :org => client.org_name,
         :type => :heartbeat,
         :sequence => -1,
