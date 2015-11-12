@@ -16,6 +16,6 @@
 #
 
 class PushyClient
-  VERSION = "1.9.0"
+  VERSION = "2.0.0"
   PROTOCOL_VERSION = "2.0"
 end
