@@ -1,5 +1,22 @@
 # Chef Push Client Changes
 
+## 2.0.0
+
+* Added curve based encryption for all ZeroMQ communication
+* Added parameter/environment variable/file transfer support
+* Added output capture
+* Improve log output
+* Added back compatibility to allow fall back to 1.0 server.
+* Delay reconfiguration when a job is running.
+* Added splay to reconfigure to protect against reconfigure stampedes.
+* Added protocol version information
+** Added support to detect some common failure cases
+** Log windows service startup
+* Config file path now searches ['chef-push-client.rb', 'push-jobs-client.rb', 'client.rb']
+* Added print\_execution\_environment helper command
+* Added push\_apply helper
+* Updated to Chef 12.5.0
+
 ## 1.3.1
 
 * Bump version to avoid semver issues with non-compliant 1.3.0.rc.0 tag
