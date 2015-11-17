@@ -1,5 +1,8 @@
 # Chef Push Client Changes
 
+## 2.0.1
+* Fix Gemfile to use win32-process version compatible with chef 12.5
+
 ## 2.0.0
 
 * Added curve based encryption for all ZeroMQ communication
