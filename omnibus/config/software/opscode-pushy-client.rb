@@ -17,9 +17,19 @@
 
 name "opscode-pushy-client"
 
-default_version "master"
+default_version "local_source"
 
-source git: "git://github.com/opscode/opscode-pushy-client"
+# For the specific super-special version "local_source", build the source from
+# the local git checkout. This is what you'd want to occur by default if you
+# just ran omnibus build locally.
+version("local_source") { source path: "#{project.files_path}/../.." }
+#TODO: Check if I need to exclude any current omnibus generated files.
+# options: {:exclude => [some paths]}
+
+# For any version other than "local_source", fetch from github.
+if version != "local_source"
+  source git: "git://github.com/chef/opscode-pushy-client"
+end
 
 relative_path "opscode-pushy-client"
 
