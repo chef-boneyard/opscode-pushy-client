@@ -1,11 +1,6 @@
 Client Tools Omnibus project
 ============================
-This project creates full-stack platform-specific packages for the following projects:
-
-* AngryChef
-* Chef
-* ChefDK
-* Push Jobs Client
+This project creates full-stack platform-specific packages for Push Jobs Client.
 
 Installation
 ------------
@@ -23,7 +18,7 @@ Usage
 You create a platform-specific package using the `build project` command:
 
 ```shell
-$ bundle exec omnibus build <PROJECT>
+$ bundle exec omnibus build push-jobs-client
 ```
 
 The platform/architecture type of the package created will match the platform
@@ -37,7 +32,7 @@ You can clean up all temporary files generated during the build process with
 the `clean` command:
 
 ```shell
-$ bundle exec omnibus clean <PROJECT>
+$ bundle exec omnibus clean push-jobs-client
 ```
 
 Adding the `--purge` purge option removes __ALL__ files generated during the
@@ -45,7 +40,7 @@ build including the project install directory (`/opt/chef`) and
 the package cache directory (`/var/cache/omnibus/pkg`):
 
 ```shell
-$ bundle exec omnibus clean <PROJECT> --purge
+$ bundle exec omnibus clean push-jobs-client --purge
 ```
 
 ### Publish
@@ -89,38 +84,38 @@ liking, you can bring up an individual build environment using the `kitchen`
 command.
 
 ```shell
-$ bundle exec kitchen converge <PROJECT>-ubuntu-1204
+$ bundle exec kitchen converge push-jobs-client-ubuntu-1204
 ```
 
 Then login to the instance and build the project as described in the Usage
 section:
 
 ```shell
-$ bundle exec kitchen login <PROJECT>-ubuntu-1204
-[vagrant@ubuntu...] $ cd omnibus-chef
+$ bundle exec kitchen login push-jobs-client-ubuntu-1204
+[vagrant@ubuntu...] $ cd opscode-pushy-client/omnibus
 [vagrant@ubuntu...] $ bundle install --without development # Don't install dev tools!
 [vagrant@ubuntu...] $ ...
-[vagrant@ubuntu...] $ bundle exec omnibus build <PROJECT> -l internal
+[vagrant@ubuntu...] $ bundle exec omnibus build push-jobs-client -l internal
 ```
 
 You can also login to Windows instances but will have to manually call the
 `load-omnibus-toolchain.bat` script which initializes the build environment.
-Please note the mounted code directory is also at `C:\home\vagrant\omnibus-chef`
-as opposed to `C:\Users\vagrant\omnibus-chef`.
+Please note the mounted code directory is also at `C:\home\vagrant\opscode-pushy-client\omnibus`
+as opposed to `C:\Users\vagrant\opscode-pushy-client\omnibus`.
 
 ```shell
-$ bundle exec kitchen login <PROJECT>-windows-81-professional
+$ bundle exec kitchen login push-jobs-client-windows-81-professional
 Last login: Sat Sep 13 10:19:04 2014 from 172.16.27.1
 Microsoft Windows [Version 6.3.9600]
 (c) 2013 Microsoft Corporation. All rights reserved.
 
 C:\Users\vagrant>load-omnibus-toolchain.bat
 
-C:\Users\vagrant>cd C:\home\vagrant\omnibus-chef
+C:\Users\vagrant>cd C:\home\vagrant\opscode-pushy-client\omnibus
 
-C:\home\vagrant\omnibus-chef>bundle install --without development
+C:\home\vagrant\opscode-pushy-client\omnibus>bundle install --without development
 
-C:\home\vagrant\omnibus-chef>bundle exec omnibus build <PROJECT> -l internal
+C:\home\vagrant\opscode-pushy-client\omnibus>bundle exec omnibus build push-jobs-client -l internal
 ```
 
 For a complete list of all commands and platforms, run `kitchen list` or
