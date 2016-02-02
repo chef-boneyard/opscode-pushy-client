@@ -1,12 +1,12 @@
 GIT
   remote: git://github.com/chef/omnibus-software.git
-  revision: 45fc26cf6b4692860bd44dc154c690e1e9265870
+  revision: 12f02300ca9b72567671908c47479fb1812d9871
   specs:
     omnibus-software (4.0.0)
 
 GIT
   remote: git://github.com/chef/omnibus.git
-  revision: 884a22a0d25edb9193947e411a0a9a4047e662d4
+  revision: 87fa277d69da0847dd21f4fb0e24b4d45c1acb5e
   specs:
     omnibus (5.0.0)
       aws-sdk (~> 2)
@@ -22,12 +22,12 @@ GEM
   remote: https://rubygems.org/
   specs:
     addressable (2.3.8)
-    aws-sdk (2.2.13)
-      aws-sdk-resources (= 2.2.13)
-    aws-sdk-core (2.2.13)
+    aws-sdk (2.2.14)
+      aws-sdk-resources (= 2.2.14)
+    aws-sdk-core (2.2.14)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.2.13)
-      aws-sdk-core (= 2.2.13)
+    aws-sdk-resources (2.2.14)
+      aws-sdk-core (= 2.2.14)
     berkshelf (3.3.0)
       addressable (~> 2.3.4)
       berkshelf-api-client (~> 1.2)
@@ -71,6 +71,7 @@ GEM
     dep_selector (1.0.3)
       dep-selector-libgecode (~> 1.0)
       ffi (~> 1.9)
+    diff-lcs (1.2.5)
     erubis (2.7.0)
     faraday (0.9.2)
       multipart-post (>= 1.2, < 3)
@@ -97,8 +98,11 @@ GEM
       little-plugger (~> 1.1)
       multi_json (~> 1.10)
     minitar (0.5.4)
-    mixlib-authentication (1.3.0)
+    mixlib-authentication (1.4.0)
       mixlib-log
+      rspec-core (~> 3.2)
+      rspec-expectations (~> 3.2)
+      rspec-mocks (~> 3.2)
     mixlib-cli (1.5.0)
     mixlib-config (2.2.1)
     mixlib-log (1.6.0)
@@ -111,12 +115,12 @@ GEM
     multipart-post (2.0.0)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
-    net-ssh (2.9.2)
-    nio4r (1.2.0)
+    net-ssh (2.9.4)
+    nio4r (1.2.1)
     nori (2.6.0)
     octokit (3.8.0)
       sawyer (~> 0.6.0, >= 0.5.3)
-    ohai (8.8.1)
+    ohai (8.9.0)
       chef-config (>= 12.5.0.alpha.1, < 13)
       ffi (~> 1.9)
       ffi-yajl (~> 2.2)
@@ -148,8 +152,17 @@ GEM
       retryable (~> 2.0)
       semverse (~> 1.1)
       varia_model (~> 0.4.0)
+    rspec-core (3.4.2)
+      rspec-support (~> 3.4.0)
+    rspec-expectations (3.4.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.4.0)
+    rspec-mocks (3.4.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.4.0)
+    rspec-support (3.4.1)
     ruby-progressbar (1.7.5)
-    rubyntlm (0.4.0)
+    rubyntlm (0.5.3)
     rubyzip (1.1.7)
     safe_yaml (1.0.4)
     sawyer (0.6.0)
@@ -169,21 +182,19 @@ GEM
     thor (0.19.1)
     timers (4.0.4)
       hitimes
-    uuidtools (2.1.5)
     varia_model (0.4.1)
       buff-extensions (~> 1.0)
       hashie (>= 2.0.2, < 4.0.0)
     win32-process (0.8.3)
       ffi (>= 1.0.0)
-    winrm (1.5.0)
+    winrm (1.6.0)
       builder (>= 2.1.2)
       gssapi (~> 1.2)
       gyoku (~> 1.0)
       httpclient (~> 2.2, >= 2.2.0.2)
       logging (>= 1.6.1, < 3.0)
       nori (~> 2.0)
-      rubyntlm (~> 0.4.0)
-      uuidtools (~> 2.1.2)
+      rubyntlm (~> 0.5.0, >= 0.5.3)
     winrm-transport (1.0.3)
       rubyzip (~> 1.1, >= 1.1.7)
       winrm (~> 1.3)
