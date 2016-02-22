@@ -35,25 +35,17 @@ else
   install_dir "#{default_root}/#{name}"
 end
 
-override :bundler,        version: "1.7.12"
+override :bundler,        version: "1.11.2"
+override :'ruby-compiled', version: "2.1.6"
+override :'ruby-rubyinstaller', version: "2.1.6"
+override :rubygems,       version: "2.5.2"
+
 # Uncomment to pin the chef version
 #override :chef,           version: "12.2.1"
-if windows?
-  override :'ruby-windows', version: "2.1.5"
-  override :'ruby-windows-devkit', version: "4.7.2-20130224-1151"
-else
-  override :ruby,           version: "2.1.6"
-end
 
 # Short term fix to keep from breaking old client build process
 override :libzmq, version: "4.0.5"
 
-######
-# rubygems 2.4.5 is not working on windows.
-# See https://github.com/rubygems/rubygems/issues/1120
-# Once this is fixed, we can bump the version
-override :rubygems,       version: "2.4.4"
-######
 
 dependency "preparation"
 dependency "opscode-pushy-client"
