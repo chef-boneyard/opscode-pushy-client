@@ -73,9 +73,10 @@ package :msi do
   signing_identity "F74E1A68005E8A9C465C3D2FF7B41F3988F0EA09", machine_store: true
 
   parameters(
+    ProjectLocationDir: 'push-jobs-client',
     # We are going to use this path in the startup command of chef
     # service. So we need to change file seperators to make windows
     # happy.
-    'PushJobsGemPath' => windows_safe_path(gem_path("opscode-pushy-client-[0-9]*")),
+    PushJobsGemPath: windows_safe_path(gem_path("opscode-pushy-client-[0-9]*")),
   )
 end
