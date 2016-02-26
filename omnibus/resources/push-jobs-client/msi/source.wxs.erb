@@ -30,6 +30,43 @@
       <RemoveExistingProducts After="InstallValidate" />
     </InstallExecuteSequence>
 
+    <!--
+      If fastmsi is set, custom actions will be invoked during install to unzip
+      project files, and during uninstall to remove the project folder
+    -->
+    <% if fastmsi %>
+    <SetProperty Id="FastUnzip"
+                 Value="FASTZIPDIR=[INSTALLLOCATION];FASTZIPAPPNAME=$(var.ProjectLocationDir)"
+                 Sequence="execute"
+                 Before="FastUnzip" />
+
+    <CustomAction Id="FastUnzip"
+                  BinaryKey="CustomActionFastMsiDLL"
+                  DllEntry="FastUnzip"
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="check" />
+
+    <Binary Id="CustomActionFastMsiDLL"
+            SourceFile="CustomActionFastMsi.CA.dll" />
+
+    <CustomAction Id="Cleanup"
+                  Directory="INSTALLLOCATION"
+                  ExeCommand="cmd /C &quot;rd /S /Q $(var.ProjectLocationDir)&quot;"
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="ignore" />
+
+    <InstallExecuteSequence>
+      <Custom Action="FastUnzip" After="InstallFiles">NOT Installed</Custom>
+      <Custom Action="Cleanup" After="RemoveFiles">REMOVE~="ALL"</Custom>
+    </InstallExecuteSequence>
+
+    <UI>
+      <ProgressText Action="FastUnzip">!(loc.FileExtractionProgress)</ProgressText>
+    </UI>
+    <% end %>
+
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="WindowsVolume">
         <!-- Service needs chef directory to be present. -->
@@ -39,7 +76,7 @@
           </Component>
         </Directory>
         <Directory Id="INSTALLLOCATION" Name="opscode">
-          <Directory Id="PROJECTLOCATION" Name="push-jobs-client" >
+          <Directory Id="PROJECTLOCATION" Name="$(var.ProjectLocationDir)" >
             <Directory Id="EMBEDDED" Name="embedded" >
               <Directory Id="EMBEDDEDBIN" Name="bin" >
                 <Component Id="PushJobsClientPath" Guid="{0F9F9EE6-CC96-463E-BE6C-1AA33266FD9F}" >

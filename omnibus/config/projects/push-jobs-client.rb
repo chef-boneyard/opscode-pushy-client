@@ -24,7 +24,7 @@ replace  "opscode-push-jobs-client"
 conflict "opscode-push-jobs-client"
 
 build_iteration 1
-build_version "2.0.0-alpha.1"
+build_version "2.0.2"
 
 if windows?
   # NOTE: Ruby DevKit fundamentally CANNOT be installed into "Program Files"
@@ -35,12 +35,14 @@ else
   install_dir "#{default_root}/#{name}"
 end
 
-override :bundler,        version: "1.7.12"
 # Uncomment to pin the chef version
 #override :chef,           version: "12.2.1"
+
+override :bundler,        version: "1.11.2"
+override :rubygems,       version: "2.5.2"
 if windows?
-  override :'ruby-windows', version: "2.1.5"
-  override :'ruby-windows-devkit', version: "4.7.2-20130224-1151"
+  override :'ruby-windows', version: "2.1.6"
+  override :'ruby-windows-devkit', version: "4.7.2-20130224"
 else
   override :ruby,           version: "2.1.6"
 end
@@ -48,11 +50,6 @@ end
 # Short term fix to keep from breaking old client build process
 override :libzmq, version: "4.0.5"
 
-######
-# rubygems 2.4.5 is not working on windows.
-# See https://github.com/rubygems/rubygems/issues/1120
-# Once this is fixed, we can bump the version
-override :rubygems,       version: "2.4.4"
 ######
 
 dependency "preparation"
@@ -70,14 +67,16 @@ end
 compress :dmg
 
 package :msi do
+  fast_msi true
   # Upgrade code for Chef MSI
   upgrade_code "D607A85C-BDFA-4F08-83ED-2ECB4DCD6BC5"
   signing_identity "F74E1A68005E8A9C465C3D2FF7B41F3988F0EA09", machine_store: true
 
   parameters(
+    ProjectLocationDir: 'push-jobs-client',
     # We are going to use this path in the startup command of chef
     # service. So we need to change file seperators to make windows
     # happy.
-    'PushJobsGemPath' => windows_safe_path(gem_path("opscode-pushy-client-[0-9]*")),
+    PushJobsGemPath: windows_safe_path(gem_path("opscode-pushy-client-[0-9]*")),
   )
 end

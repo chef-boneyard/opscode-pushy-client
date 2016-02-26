@@ -3,7 +3,7 @@
   <!-- http://wix.codeplex.com/SourceControl/changeset/view/792e101c5cf7#src%2fext%2fUIExtension%2fwixlib%2fWixUI_en-us.wxl -->
   <String Id="LANG">1033</String>
   <String Id="ProductName"><%= friendly_name %></String>
-  <String Id="ManufacturerName"><%= maintainer.encode(:xml => :attr) %></String>
+  <String Id="ManufacturerName">Chef Software, Inc.</String>
   <String Id="WelcomeDlgTitle">{\WixUI_Font_Bigger}Welcome to the [ProductName] Setup Wizard</String>
 
   <String Id="LicenseAgreementDlgTitle">{\WixUI_Font_Title_White}End-User License Agreement</String>
@@ -22,4 +22,5 @@
   <String Id="ServiceDescription">Runs <%= friendly_name %> on regular, configurable intervals.</String>
   <String Id="FeatureMainName"><%= friendly_name %></String>
   <String Id="FeatureServiceName"><%= friendly_name %> Service</String>
+  <String Id="FileExtractionProgress">Extracting files, please wait...</String>
 </WixLocalization>
