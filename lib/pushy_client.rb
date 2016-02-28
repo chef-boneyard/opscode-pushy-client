@@ -206,7 +206,10 @@ class PushyClient
   private
 
   def rest
-    @rest ||= Chef::REST.new(chef_server_url, client_name, client_key)
+    @rest ||= begin
+      require 'chef/rest'
+      Chef::REST.new(chef_server_url, client_name, client_key)
+    end
   end
 
   def get_config
