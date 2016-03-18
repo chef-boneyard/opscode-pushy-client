@@ -56,12 +56,6 @@ end
 build do
   env = with_standard_compiler_flags(with_embedded_path)
 
-  zmq_lib_dir = if windows?
-                  "#{install_dir}/embedded/bin"
-                else
-                  "#{install_dir}/embedded/lib"
-                end
-
   bundle "install", env: env
   gem "build opscode-pushy-client.gemspec", env: env
   gem "install opscode-pushy-client*.gem" \

@@ -36,25 +36,23 @@ else
 end
 
 # Uncomment to pin the chef version
-#override :chef,           version: "12.2.1"
+#override :chef,           version: "master"
+#override :ohai,           version: "master"
 
 override :bundler,        version: "1.11.2"
 override :rubygems,       version: "2.5.2"
-if windows?
-  override :'ruby-windows', version: "2.1.6"
-  override :'ruby-windows-devkit', version: "4.7.2-20130224"
-else
-  override :ruby,           version: "2.1.6"
-end
+override :ruby,           version: "2.1.8"
 
 # Short term fix to keep from breaking old client build process
-override :libzmq, version: "4.0.5"
+override :libzmq,         version: "4.0.5"
 
 ######
 
 dependency "preparation"
+dependency "rb-readline"
 dependency "opscode-pushy-client"
 dependency "version-manifest"
+dependency "clean-static-libs"
 
 package :rpm do
   signing_passphrase ENV['OMNIBUS_RPM_SIGNING_PASSPHRASE']
