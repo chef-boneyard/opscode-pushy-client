@@ -109,6 +109,11 @@ class PushyClient
       # Note setting this to '1' causes the client to crash on send, but perhaps that
       # beats storming the server when the server restarts
       @command_socket.setsockopt(ZMQ::RCVHWM, 0)
+      # Buffering heartbeats can cause trauma on the server after restart
+      # Reasoning: if we buffer more than a few heartbeats, they are likely to
+      # flood the server once it restarts
+      @command_socket.setsockopt(ZMQ::HWM, 3)
+
       @command_socket.connect(@command_address)
       @command_socket_server_seq_no = -1
 
@@ -120,7 +125,7 @@ class PushyClient
       @server_heartbeat_socket.connect(@server_heartbeat_address)
       @server_heartbeat_socket.setsockopt(ZMQ::SUBSCRIBE, "")
       @server_heartbeat_seq_no = -1
-      
+
       @receive_thread = start_receive_thread
     end
 
