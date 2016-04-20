@@ -1,0 +1,6 @@
+node_name             "delivery"
+chef_server_url       "https://${chef-server-fqdn}/organizations/${organization}"
+client_key            "./delivery.pem"
+cookbook_path         "./cookbooks"
+trusted_certs_dir     ".chef/trusted_certs"
+knife[:secret_file] = ".chef/encrypted_data_bag_secret"

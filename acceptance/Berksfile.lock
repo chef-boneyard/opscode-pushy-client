@@ -1,0 +1,5 @@
+DEPENDENCIES
+  chef-ingredient
+
+GRAPH
+  chef-ingredient (0.18.2)
