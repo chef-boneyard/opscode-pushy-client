@@ -145,6 +145,8 @@ class PushyClient
       # Note setting this to '1' causes the client to crash on send, but perhaps that
       # beats storming the server when the server restarts
       @command_socket.setsockopt(ZMQ::RCVHWM, 0)
+      # Buffering more than a few heartbeats can cause trauma on the server after restart
+      @command_socket.setsockopt(ZMQ::SNDHWM, 3)
 
       if client.using_curve
         @command_socket.setsockopt(ZMQ::CURVE_SERVERKEY, server_curve_pub_key)
