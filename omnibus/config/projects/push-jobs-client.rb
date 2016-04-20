@@ -24,7 +24,7 @@ replace  "opscode-push-jobs-client"
 conflict "opscode-push-jobs-client"
 
 build_iteration 1
-build_version "2.0.2"
+build_version "2.1.0"
 
 if windows?
   # NOTE: Ruby DevKit fundamentally CANNOT be installed into "Program Files"
@@ -35,9 +35,8 @@ else
   install_dir "#{default_root}/#{name}"
 end
 
-# Uncomment to pin the chef version
-#override :chef,           version: "master"
-#override :ohai,           version: "master"
+override :chef,           version: "12.8.1"
+override :ohai,           version: "v8.13.0"
 
 override :bundler,        version: "1.11.2"
 override :rubygems,       version: "2.5.2"
