@@ -206,7 +206,7 @@ class PushyClient
   private
 
   def rest
-    @rest ||= Chef::REST.new(chef_server_url, client_name, client_key)
+    @rest ||= Chef::ServerAPI.new(chef_server_url, client_name: client_name, signing_key_filename: client_key)
   end
 
   def get_config
@@ -217,7 +217,7 @@ class PushyClient
     version = PushyClient::PROTOCOL_VERSION
     resource = "pushy/config/#{node_name}?ccpk=#{esc_key}&version=#{version}"
 
-    config = rest.get_rest(resource, false)
+    config = rest.get(resource)
 
     if config.has_key?("curve_public_key")
     # Version 2.0  or greater, we should use encryption

@@ -217,7 +217,14 @@ class PushyClient
       begin
         case config[:config_file]
         when /^(http|https):\/\//
-          Chef::REST.new("", nil, nil).fetch(config[:config_file]) { |f| apply_config(f.path) }
+          begin
+            # First we will try Chef::HTTP::SimpleJSON as preference to Chef::REST
+            require 'chef/http/simple_json'
+            Chef::HTTP::SimpleJSON.new("").streaming_request(config[:config_file]) { |f| apply_config(f.path) }
+          rescue LoadError
+            require 'chef/rest'
+            Chef::REST.new("", nil, nil).fetch(config[:config_file]) { |f| apply_config(f.path) }
+          end
         else
           ::File::open(config[:config_file]) { |f| apply_config(f.path) }
         end
