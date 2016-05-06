@@ -19,6 +19,9 @@ friendly_name "Push Jobs Client"
 maintainer    "Chef Software, Inc. <maintainers@chef.io>"
 homepage      "https://www.chef.io"
 
+license "Apache-2.0"
+license_file "LICENSE"
+
 # Ensure we install over the top of the previous package name
 replace  "opscode-push-jobs-client"
 conflict "opscode-push-jobs-client"
