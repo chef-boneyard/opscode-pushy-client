@@ -21,4 +21,4 @@ Gem::Specification.new do |gem|
   gem.add_dependency "uuidtools"
 
   %w(rdoc rspec_junit_formatter).each { |dep| gem.add_development_dependency dep }
-  end
+end
