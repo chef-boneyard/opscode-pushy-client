@@ -1,5 +1,9 @@
 # Chef Push Client Changes
 
+## 2.1.0
+
+* Limited the zeromq high water mark to prevent buffering of heartbeats, which cause packet floods when the push-jobs-server restarts
+
 ## 2.0.1
 * Fix Gemfile to use win32-process version compatible with chef 12.5
 
@@ -58,4 +62,3 @@
 * Add Apache 2 license and headers in preparation for open sourcing.
 
 * Unify gem and repo tag versioning scheme.
-
