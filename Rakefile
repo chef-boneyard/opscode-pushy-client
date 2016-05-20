@@ -4,22 +4,8 @@
 # All rights reserved
 #
 
-require 'rake'
-require 'bundler/gem_tasks'
-
-require 'rubygems/package_task'
-require 'rubygems/specification'
-
-require 'date'
-
-gemspec = eval(File.read('opscode-pushy-client.gemspec'))
-
-Gem::PackageTask.new(gemspec) do |pkg|
-  pkg.need_zip = true
-  pkg.need_tar = true
-end
-
-Bundler::GemHelper.install_tasks
+require "bundler/gem_tasks"
+require_relative "tasks/bundle"
 
 begin
   require 'rspec/core/rake_task'
@@ -38,5 +24,3 @@ rescue LoadError
     abort "RSpec is not available. (sudo) gem install rspec to run unit tests"
   end
 end
-
-

@@ -1,11 +1,9 @@
-bin
+/bin
 .DS_STORE
 *.gem
 *.rbc
-.bundle
 .config
 .yardoc
-/Gemfile.lock
 InstalledFiles
 _yardoc
 coverage
@@ -17,3 +15,4 @@ test/version_tmp
 tmp
 test.xml
 vendor
+omnibus/Gemfile.lock

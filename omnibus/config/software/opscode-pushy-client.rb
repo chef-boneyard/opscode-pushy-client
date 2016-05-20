@@ -44,10 +44,10 @@ end
 
 relative_path "opscode-pushy-client"
 
+dependency "ruby"
 dependency "rubygems"
 dependency "bundler"
 dependency "appbundler"
-dependency "chef"
 dependency "openssl-customization"
 
 if windows?
@@ -60,7 +60,9 @@ build do
   env = with_standard_compiler_flags(with_embedded_path)
 
   bundle "install", env: env
-  gem "build opscode-pushy-client.gemspec", env: env
+  gemspec = "opscode-pushy-client.gemspec"
+
+  gem "build #{gemspec}", env: env
   gem "install opscode-pushy-client*.gem" \
       " --no-ri --no-rdoc" \
       " --verbose", env: env
