@@ -1,5 +1,9 @@
 # Chef Push Client Changes
 
+## 2.1.1
+
+* Do not enforce 2.x reconfigure protocol on clients that have fallen back to 1.x protocols
+
 ## 2.1.0
 
 * Limited the zeromq high water mark to prevent buffering of heartbeats, which cause packet floods when the push-jobs-server restarts
@@ -28,7 +32,7 @@
 
 * Bump version to avoid semver issues with non-compliant 1.3.0.rc.0 tag
 
-## 1.3.0 
+## 1.3.0
 
 * Move to ZeroMQ 4 and ffi-rzmq.
 * Update Chef to 12.0
