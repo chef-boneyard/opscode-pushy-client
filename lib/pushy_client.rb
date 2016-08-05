@@ -75,6 +75,7 @@ class PushyClient
   attr_accessor :hostname
   attr_accessor :whitelist
   attr_reader :incarnation_id
+  attr_reader :legacy_mode # indicate we've fallen back to 1.x
 
   # crypto
   attr_reader :client_curve_pub_key
@@ -222,8 +223,10 @@ class PushyClient
     if config.has_key?("curve_public_key")
     # Version 2.0  or greater, we should use encryption
       @using_curve = true
+      @legacy_mode = false
     elsif allow_unencrypted then
       @using_curve = false
+      @legacy_mode = true
       Chef::Log.info "[#{node_name}] No key returned from server; falling back to 1.x protocol (no encryption)"
     else
       msg = "[#{node_name}] Exiting: No key returned from server; server may be using 1.x protocol. The config flag 'allow_unencrypted' disables encryption and allows use of 1.x server. Use with caution!"
