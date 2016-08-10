@@ -3,6 +3,8 @@
 ## 2.1.1
 
 * Do not enforce 2.x reconfigure protocol on clients that have fallen back to 1.x protocols
+* Don't fail installation if client doesn't start the first time (windows)
+* De-restrict the win32-process gem
 
 ## 2.1.0
 
