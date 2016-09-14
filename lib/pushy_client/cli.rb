@@ -140,9 +140,9 @@ class PushyClient
       # install signal handlers
       # Windows does not support QUIT and USR1 signals
       exit_signals = if Chef::Platform.windows?
-                       ["TERM", "KILL"]
+                       ["TERM", "INT"]
                      else
-                       ["TERM", "QUIT", "KILL"]
+                       ["TERM", "QUIT", "INT"]
                      end
 
       exit_signals.each do |sig|
