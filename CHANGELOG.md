@@ -1,5 +1,9 @@
 # Chef Push Client Changes
 
+## 2.1.2
+
+* Change sigkill handler to sigint
+
 ## 2.1.1
 
 * Do not enforce 2.x reconfigure protocol on clients that have fallen back to 1.x protocols
