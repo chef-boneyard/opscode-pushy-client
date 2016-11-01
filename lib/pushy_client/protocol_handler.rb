@@ -292,6 +292,7 @@ class PushyClient
               if (seconds_since_connection > 3 )
                 Chef::Log.error "[#{node_name}] No messages being received on command port in #{seconds_since_connection}s.  Possible encryption problem?"
                 client.trigger_reconfigure
+                break
               end
             end
 
