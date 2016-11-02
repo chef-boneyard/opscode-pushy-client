@@ -1,5 +1,9 @@
 # Chef Push Client Changes
 
+## 2.1.3
+
+* Address exponential increase of client reconfigure threads when TCP ports 10000 and 443 become unavailable on the Push Jobs Server.
+
 ## 2.1.2
 
 * Change sigkill handler to sigint
