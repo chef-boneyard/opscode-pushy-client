@@ -39,11 +39,12 @@ else
 end
 
 override :chef,           version: "12.8.1"
-override :ohai,           version: "v8.13.0"
+override :ohai,           version: "v8.19.0"
 
 override :bundler,        version: "1.11.2"
 override :rubygems,       version: "2.5.2"
 override :ruby,           version: "2.1.8"
+override :appbundler,     version: "379a06cc58e0d150fb966b49a16df4c70bb9d4d4"
 
 # Short term fix to keep from breaking old client build process
 override :libzmq,         version: "4.0.5"
