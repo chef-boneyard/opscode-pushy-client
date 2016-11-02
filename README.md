@@ -1,35 +1,41 @@
+# Push Jobs Client
 
-# Setup
+Want to find out more about Push Jobs? Check out [docs.chef.io](https://docs.chef.io/push_jobs.html)!
+
+## Development
+### Setup Local Machine
 
     bundle install
     brew install zeromq
 
-# To run: bin/pushy-client -v -n DERPY -s http://33.33.33.10:10003
+### Setup Chef Server w/ Push Jobs Server
+1. Check out chef/chef-server and start DVM w/ Manage and Push Jobs.
+```yaml
+# config.yml
+vm:
+  plugins:
+    chef-manage: true
+    push-jobs-server: true
+```
+Run `vagrant up` to bring up the Push Jobs Server.
 
+2. Register you local machine as a node on the chef-server. From `chef-server/dev`, run:
+```shell
+vagrant ssh
+sudo chef-server-ctl user-create local-dev Local Dev local@chef.io 'password' -f /installers/local-dev.pem
+sudo chef-server-ctl org-create push-client-local "Local Push Client Development" -a local-dev -f /installers/push-client-local-validator.pem
+```
 
-# License
+3. Add your local machine as a node on the Chef Server.
+```shell
+chef-client -c .chef/client.rb
+```
 
-Pushy - The push jobs component for chef
+### Start Push Jobs Client
+```shell
+./bin/pushy-client -c .chef/push-jobs-client.rb
+```
 
-|                      |                                          |
-|:---------------------|:-----------------------------------------|
-| **Copyright:**       | Copyright (c) 2008-2014 Chef Software, Inc.
-| **License:**         | Apache License, Version 2.0
+## Contributing
 
-All files in the repository are licensed under the Apache 2.0 license. If any
-file is missing the License header it should assume the following is attached;
-
-Copyright 2014 Chef Software Inc
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
+For information on contributing to this project see <https://github.com/chef/chef/blob/master/CONTRIBUTING.md>
