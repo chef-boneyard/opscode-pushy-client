@@ -1,0 +1,35 @@
+DEPENDENCIES
+  apt
+  chef-server-ctl
+    git: https://github.com/stephenlauck/chef-server-ctl.git
+    revision: 55bfa054f9d5cda86f1a96b28b5ccaddbec7a69d
+  push_jobs_acceptance
+    path: .
+    metadata: true
+
+GRAPH
+  apt (5.0.0)
+    compat_resource (>= 12.14.7)
+  chef-ingredient (0.21.2)
+    compat_resource (>= 12.10)
+  chef-server (5.1.0)
+    chef-ingredient (>= 0.18.0)
+  chef-server-ctl (0.1.0)
+    chef-server (>= 0.0.0)
+  compat_resource (12.16.2)
+  hostsfile (2.4.5)
+  packagecloud (0.2.5)
+  push-jobs (3.2.2)
+    chef-ingredient (>= 0.19.0)
+    compat_resource (>= 12.14.6)
+    runit (>= 1.2.0)
+  push_jobs_acceptance (0.1.0)
+    chef-server (>= 0.0.0)
+    chef-server-ctl (>= 0.0.0)
+    hostsfile (>= 0.0.0)
+    push-jobs (>= 0.0.0)
+  runit (3.0.0)
+    packagecloud (>= 0.0.0)
+    yum-epel (>= 0.0.0)
+  yum-epel (2.0.0)
+    compat_resource (>= 12.14.6)

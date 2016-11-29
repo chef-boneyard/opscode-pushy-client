@@ -1,0 +1,64 @@
+---
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_zero
+  chef_zero_port: 9010
+  chef_client:
+    config:
+      log_level: ":debug"
+
+platforms:
+  - name: ubuntu-14.04
+    run_list:
+      - recipe[apt::default]
+  - name: windows-2012r2
+    driver:
+      box: chef/windows-server-2012r2-standard # private
+    attributes:
+      push_jobs:
+        package_version: "2.1.3"
+        package_url: "https://packages.chef.io/stable/windows/2008r2/push-jobs-client-2.1.3-1-x86.msi"
+        package_checksum: "68f3c656ae8d4c8e36c5556069176753c7d143b4d410efc9deccbebc8a494976"
+
+suites:
+  - name: chef-server
+    excludes:
+      - windows-2012r2
+    run_list:
+      - recipe[chef-server]
+      - recipe[push_jobs_acceptance::chef-server-user-org]
+    attributes:
+      chef-server:
+        api_fqdn: 192.168.33.30
+        addons:
+          - push-jobs-server
+        accept_license: true
+    driver:
+      network:
+        - ['private_network', {ip: '192.168.33.30'}]
+      customize:
+        memory: 2048
+        cpus: 2
+      synced_folders:
+        - [".", "/tmp/acceptance"]
+
+  - name: push-jobs-client
+    run_list:
+      - recipe[push-jobs]
+    attributes:
+      push_jobs:
+        chef:
+          chef_server_url: https://192.168.33.30/organizations/example
+          node_name: 'push-client'
+          client_key_path: "c:\\tmp\\acceptance\\.chef\\push-client.pem"
+          ssl_verify_mode: 'verify_none'
+    driver:
+      network:
+        - ['private_network', {ip: '192.168.33.31'}]
+      customize:
+        memory: 2048
+        cpus: 2
+      synced_folders:
+        - [".", "/tmp/acceptance"]
