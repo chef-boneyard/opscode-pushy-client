@@ -1,5 +1,10 @@
 # Chef Push Client Changes
 
+## 2.1.4
+
+* Fix bug where a Job with STDOUT/STDERR too large for the server would cause Job to hang. 
+* Fix Ohai gem constraint causing fresh installations to break due to gem conflicts.
+
 ## 2.1.3
 
 * Address exponential increase of client reconfigure threads when TCP ports 10000 and 443 become unavailable on the Push Jobs Server.
