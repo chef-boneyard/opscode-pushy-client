@@ -1,0 +1,7 @@
+sudo: false
+language: ruby
+rvm:
+- 2.2
+cache: bundler
+# Ensure we're running a recent version of bundler
+before_install: gem install bundler

@@ -39,4 +39,4 @@ rescue LoadError
   end
 end
 
-
+task :default => [:spec]
