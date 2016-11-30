@@ -1,5 +1,7 @@
 # Push Jobs Client
 
+[![Build Status](https://travis-ci.org/chef/opscode-pushy-client.svg?branch=master)](https://travis-ci.org/chef/opscode-pushy-client)
+
 Want to find out more about Push Jobs? Check out [docs.chef.io](https://docs.chef.io/push_jobs.html)!
 
 ## Development
