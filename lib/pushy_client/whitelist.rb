@@ -15,6 +15,8 @@
 # under the License.
 #
 
+require "chef/log"
+
 class PushyClient
   class Whitelist
 
