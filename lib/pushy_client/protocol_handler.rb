@@ -22,6 +22,7 @@ require 'time'
 require 'resolv'
 require 'openssl'
 require 'mixlib/authentication/digester'
+require_relative "version"
 
 class PushyClient
 
@@ -54,6 +55,14 @@ class PushyClient
         Time.now()
       end
     end
+
+    # The maximum size, in bytes, allowed for a message body. This is not
+    # configurable because it is configurable (though not documented) on the
+    # server, and we don't want to make users have to sync the two values.
+    # The max on the server is actually 65536, but we leave a little room since
+    # the server is measuring the signed message and we're just counting
+    # the size of the stderr and stdout.
+    MAX_BODY_SIZE = 63000
 
     def initialize(client)
       @client = client
@@ -192,7 +201,7 @@ class PushyClient
         :timestamp => TimeSendWrapper.now.httpdate,
         :incarnation_id => client.incarnation_id,
         :job_id => job_id
-      }.merge(params)
+      }.merge(validate_params(params))
 
       send_signed_json_command(:hmac_sha256, message)
     end
@@ -395,6 +404,21 @@ class PushyClient
           return false
         end
 
+      end
+    end
+
+    # Take the params and check to see if the stdout and stderr keys exceed the
+    # MAX_BODY_SIZE. If they do, log a warning and return the params without the
+    # stdout and stderr keys. If they do not, return the params hash unmodified.
+    def validate_params(params = {})
+      stdout_bytes = params[:stdout].to_s.bytesize
+      stderr_bytes = params[:stderr].to_s.bytesize
+
+      if (stdout_bytes + stderr_bytes) > MAX_BODY_SIZE
+        Chef::Log.warn("Command output too long. Will not be sent to server.")
+        params.delete_if { |k| [:stdout, :stderr].include? k }
+      else
+        params
       end
     end
 

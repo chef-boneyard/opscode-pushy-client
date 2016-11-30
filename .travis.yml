@@ -2,6 +2,12 @@ sudo: false
 language: ruby
 rvm:
 - 2.2
-cache: bundler
+addons:
+  apt:
+    packages:
+    - libzmq3-dev
+cache:
+- apt
+- bundler
 # Ensure we're running a recent version of bundler
-before_install: gem install bundler
+before_install: gem install bundler --no-rdoc --no-ri
