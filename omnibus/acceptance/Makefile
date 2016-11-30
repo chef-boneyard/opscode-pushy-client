@@ -9,5 +9,5 @@ ubuntu-client:
 	kitchen converge push-jobs-client-ubuntu-1404
 
 clean:
-  kitchen destroy
 	find .chef/$* ! -name 'knife.rb' -type f -exec rm -f {} +
+	kitchen destroy
