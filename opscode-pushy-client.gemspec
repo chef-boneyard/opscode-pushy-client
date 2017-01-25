@@ -15,8 +15,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = PushyClient::VERSION
 
-  gem.add_dependency "chef", "12.8.1"
-  gem.add_dependency "ohai", ">= 8.6.0.alpha.1", "< 9" # This constraint matches the one in chef@12.8.1
+  gem.add_dependency "chef", "~> 12.8"
+  gem.add_dependency "ohai", "~> 8.6"
   gem.add_dependency "ffi-rzmq"
   gem.add_dependency "uuidtools"
 
