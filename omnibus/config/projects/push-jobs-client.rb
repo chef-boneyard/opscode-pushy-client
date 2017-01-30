@@ -38,15 +38,14 @@ else
   install_dir "#{default_root}/#{name}"
 end
 
-# Chef has a loose constraint on Ohai (< 9 for the gem, master for Omnibus),
-# so we can't pin to a specific version otherwise both versions will get
-# installed. Once Ohai hits 9.0, we need to update to a more modern Chef.
-override :chef,           version: "12.8.1"
-override :ohai,           version: "v8.23.0" # pin to tag as master is now Ohai 13
+# TODO: Support chef/ohai master (13)
+override :chef,           version: "v12.19.36" # pin to latest pre-13
+override :ohai,           version: "v8.23.0" # pin to latest pre-13
 
-override :bundler,        version: "1.11.2"
-override :rubygems,       version: "2.5.2"
-override :ruby,           version: "2.1.8"
+override :bundler,        version: "1.12.5"
+override :rubygems,       version: "2.6.10"
+# TODO: Once the omnibus-toolchain is finalized for windows, update this to 2.3
+override :ruby,           version: "2.2.6"
 override :appbundler,     version: "379a06cc58e0d150fb966b49a16df4c70bb9d4d4"
 
 # Short term fix to keep from breaking old client build process
