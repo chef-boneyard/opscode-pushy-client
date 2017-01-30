@@ -42,6 +42,7 @@ end
 # so we can't pin to a specific version otherwise both versions will get
 # installed. Once Ohai hits 9.0, we need to update to a more modern Chef.
 override :chef,           version: "12.8.1"
+override :ohai,           version: "v8.23.0" # pin to tag as master is now Ohai 13
 
 override :bundler,        version: "1.11.2"
 override :rubygems,       version: "2.5.2"
