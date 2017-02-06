@@ -1,8 +1,11 @@
 # Chef Push Client Changes
 
+## 2.1.5
+* Update gem constraints for Chef and Ohai (to chef ~> 12.8 and ohai ~>8.6)
+
 ## 2.1.4
 
-* Fix bug where a Job with STDOUT/STDERR too large for the server would cause Job to hang. 
+* Fix bug where a Job with STDOUT/STDERR too large for the server would cause Job to hang.
 * Fix Ohai gem constraint causing fresh installations to break due to gem conflicts.
 
 ## 2.1.3

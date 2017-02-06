@@ -60,32 +60,6 @@ Currently, push-client must be manually tested to verify that it behaves correct
   courtesy, drop a message in the #cft-announce slack channel that the release
   is coming. Provide the release number and any highlights of the release.
 
-- [ ] In your local checkout of the [chef-web-downloads](https://github.com/chef/chef-web-downloads) repository,
-generate an update to the download page using rake:
-
-```
-git checkout -b YOUR_INITIALS/release-push-jobs-client-VERSION
-export ARTIFACTORY_USERNAME="Your LDAP username"
-export ARTIFACTORY_PASSWORD="Your LDAP password"
-rake fetch[push-jobs-client]
-git add data/
-# make sure all the changes are what you expect
-# write a simple commit message
-git commit -v
-git push origin YOUR_INITIALS/release-push-jobs-client-VERSION
-```
-
-- [ ] Open a GitHub pull request for the chef-web-downloads repository
-based on the branch you just created.
-
-- [ ] Have someone review and approve the change by adding a comment to the PR: `@delivery approve`.
-  - Once approved and committed to master, Delivery will deploy the change to [the acceptance Downloads page](https://downloads-acceptance.chef.io/push-jobs-client/).
-
-- [ ] Once the change successfully completes the acceptance stage, verify the new release is visible on the acceptance Downloads page.
-
-- [ ] Deliver the change by adding a comment to the PR: `@delivery deliver`.
-  - Once Delivery is complete, the new release will be live on [the production Downloads page](http://downloads.chef.io/push-jobs-client/).
-
 - [ ] Write and then publish a Discourse post on https://discourse.chef.io
   once the release is live. This post should contain a link to the downloads
   page ([https://downloads.chef.io](https://downloads.chef.io)) and its contents
