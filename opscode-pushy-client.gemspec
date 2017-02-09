@@ -15,9 +15,10 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = PushyClient::VERSION
 
-  gem.add_dependency "chef", "~> 12.8"
-  gem.add_dependency "ohai", "~> 8.6"
-  gem.add_dependency "ffi-rzmq"
+  gem.add_dependency "chef" #, "~> 12.8"
+  gem.add_dependency "ohai" #, "~> 8.6"
+#  gem.add_dependency "rbczmq"
+  # gem.add_dependency "ffi-rzmq"
   gem.add_dependency "uuidtools"
 
   %w(rake rdoc rspec rspec_junit_formatter).each do |dep|

@@ -23,7 +23,7 @@ require_relative 'pushy_client/periodic_reconfigurer'
 require_relative 'pushy_client/whitelist'
 require 'ohai'
 require 'uuidtools'
-require 'ffi-rzmq'
+require 'rbczmq'
 require 'cgi'
 
 class PushyClient

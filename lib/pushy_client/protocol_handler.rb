@@ -15,8 +15,8 @@
 # under the License.
 #
 
-require 'ffi-rzmq'
-require 'ffi-rzmq-core'
+require 'rbczmq'
+#require 'ffi-rzmq-core'
 require 'json'
 require 'time'
 require 'resolv'

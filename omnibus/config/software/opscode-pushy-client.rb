@@ -56,6 +56,8 @@ else
   dependency "libzmq"
 end
 
+dependency "rbczmq"
+
 build do
   env = with_standard_compiler_flags(with_embedded_path)
 
@@ -65,5 +67,5 @@ build do
       " --no-ri --no-rdoc" \
       " --verbose", env: env
 
-  appbundle 'opscode-pushy-client'
+  appbundle 'opscode-pushy-client', env: env
 end
