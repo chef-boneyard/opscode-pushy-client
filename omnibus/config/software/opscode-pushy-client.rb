@@ -65,5 +65,5 @@ build do
       " --no-ri --no-rdoc" \
       " --verbose", env: env
 
-  appbundle 'opscode-pushy-client'
+  appbundle 'opscode-pushy-client', env: env
 end
