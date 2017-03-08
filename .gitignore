@@ -1,3 +1,4 @@
+.bundle
 bin
 .DS_STORE
 *.gem

@@ -47,10 +47,9 @@ override :ohai,           version: "v8.23.0" # pin to tag as master is now Ohai 
 override :bundler,        version: "1.11.2"
 override :rubygems,       version: "2.5.2"
 override :ruby,           version: "2.1.8"
-override :appbundler,     version: "379a06cc58e0d150fb966b49a16df4c70bb9d4d4"
+override :appbundler,     version: "v0.9.0"
 
-# Short term fix to keep from breaking old client build process
-override :libzmq,         version: "4.0.5"
+override :libzmq,         version: "master"
 
 ######
 

@@ -44,6 +44,7 @@ end
 
 relative_path "opscode-pushy-client"
 
+dependency "rbzmq"
 dependency "rubygems"
 dependency "bundler"
 dependency "appbundler"

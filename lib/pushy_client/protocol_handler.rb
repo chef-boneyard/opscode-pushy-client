@@ -15,8 +15,7 @@
 # under the License.
 #
 
-require 'ffi-rzmq'
-require 'ffi-rzmq-core'
+require 'zmq'
 require 'json'
 require 'time'
 require 'resolv'
@@ -135,7 +134,7 @@ class PushyClient
         end
       end
 
-      Chef::Log.info "[#{node_name}] Starting ZMQ version #{LibZMQ.version}"
+      Chef::Log.info "[#{node_name}] Starting ZMQ version #{ZMQ.version}"
 
       # Server heartbeat socket
       Chef::Log.info "[#{node_name}] Listening for server heartbeat at #{@server_heartbeat_address}"
@@ -258,11 +257,9 @@ class PushyClient
               # want to relinquish the socket_lock as soon as we can)
               if ready_sockets
                 ready_sockets.each do |socket|
-                  header = ''
-                  socket.recv_string(header)
+                  header = socket.recv_string
                   if socket.more_parts?
-                    message = ''
-                    socket.recv_string(message)
+                    message = socket.recv_string
                     if !socket.more_parts?
                       Chef::Log.debug("[#{node_name}] Received ZMQ message (#{header}, #{message.length}")
                       messages << [header, message]
@@ -272,8 +269,7 @@ class PushyClient
                     else
                       # Eat up the useless packets
                       begin
-                        s = ''
-                        socket.recv(s)
+                        socket.recv_string
                       end while socket.more_parts?
                       Chef::Log.error "[#{node_name}] Received ZMQ message with more than two packets!  Should only have header and data packets."
                     end
@@ -292,7 +288,7 @@ class PushyClient
               if ProtocolHandler::valid?(message[0], message[1], @server_public_key, @session_key)
                 handle_message(message[1])
               else
-                Chef::Log.error "[#{node_name}] Received invalid message: header=#{message[0]}, message=#{message[1]}}"
+                Chef::Log.error "[#{node_name}] Received invalid message: header=#{message[0]}, message=#{message[1]}"
               end
             end
 

@@ -18,10 +18,5 @@
 require 'win32/process'
 
 module Process
-  extend FFI::Library
-  # Override WaitForSingleObject with :blocking => true, so that Process.wait
-  # (from win32-process) will not block the Ruby interpreter while waiting for
-  # the process to complete.
-  ffi_lib :kernel32
-  attach_function :WaitForSingleObject, [:ulong, :ulong], :ulong, :blocking => true
+  # Never used on AIX
 end
