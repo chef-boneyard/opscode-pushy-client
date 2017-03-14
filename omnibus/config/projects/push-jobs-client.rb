@@ -27,7 +27,7 @@ replace  "opscode-push-jobs-client"
 conflict "opscode-push-jobs-client"
 
 build_iteration 1
-build_version "2.1.4"
+build_version "2.2.0"
 
 if windows?
   # NOTE: Ruby DevKit fundamentally CANNOT be installed into "Program Files"
@@ -44,9 +44,7 @@ override :ohai,           version: "v8.23.0" # pin to latest pre-13
 
 override :bundler,        version: "1.12.5"
 override :rubygems,       version: "2.6.10"
-# TODO: Once the omnibus-toolchain is finalized for windows, update this to 2.3
-override :ruby,           version: "2.2.6"
-override :appbundler,     version: "379a06cc58e0d150fb966b49a16df4c70bb9d4d4"
+override :ruby,           version: "2.3.1"
 
 # Short term fix to keep from breaking old client build process
 override :libzmq,         version: "4.0.5"
