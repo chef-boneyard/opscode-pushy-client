@@ -39,11 +39,20 @@ end
 
 # For any version other than "local_source", fetch from github.
 if version != "local_source"
-  source git: "git://github.com/chef/opscode-pushy-client"
+  source git: "https://github.com/chef/opscode-pushy-client.git"
 end
 
 relative_path "opscode-pushy-client"
 
+# For nokogiri (via Chef)
+# TODO: Move these deps into omnibus-software chef definition
+dependency "libxml2"
+dependency "libxslt"
+dependency "libiconv"
+dependency "liblzma"
+dependency "zlib"
+
+# Core Requirements
 dependency "rubygems"
 dependency "bundler"
 dependency "appbundler"

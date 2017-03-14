@@ -46,7 +46,7 @@ override :bundler,        version: "1.12.5"
 override :rubygems,       version: "2.6.10"
 override :ruby,           version: "2.3.1"
 
-# Short term fix to keep from breaking old client build process
+# Share pins with ChefDK
 override :libzmq,         version: "4.0.5"
 
 ######
