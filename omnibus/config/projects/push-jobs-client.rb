@@ -44,7 +44,7 @@ override :ohai,           version: "v8.23.0" # pin to latest pre-13
 
 override :bundler,        version: "1.12.5"
 override :rubygems,       version: "2.6.10"
-override :ruby,           version: "2.3.1"
+override :ruby,           version: "2.3.3"
 
 # Share pins with ChefDK
 override :libzmq,         version: "4.0.5"
