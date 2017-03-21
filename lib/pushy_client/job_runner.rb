@@ -195,8 +195,8 @@ class PushyClient
           set_job_state(:idle)
           status = exit_code == 0 ? :succeeded : :failed
           params = {}
-          params[:stdout] = stdout if stdout
-          params[:stderr] = stderr if stderr
+          params[:stdout] = stdout.force_encoding("utf-8") if stdout
+          params[:stderr] = stderr.force_encoding("utf-8") if stderr
           client.send_command(status, job_id, params)
         end
       end
