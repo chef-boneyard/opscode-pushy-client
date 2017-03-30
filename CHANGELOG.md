@@ -2,7 +2,7 @@
 
 ## 2.2.0
 
-* Update Ruby from 2.1.8 to 2.2.6
+* Update Ruby from 2.1.8 to 2.3.3
 * Update Chef and Ohai dependencies to latest pre-Chef 13 releases
 
 ## 2.1.4
