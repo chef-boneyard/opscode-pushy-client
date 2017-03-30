@@ -1,8 +1,13 @@
 # Chef Push Client Changes
 
+## 2.2.0
+
+* Update Ruby from 2.1.8 to 2.2.6
+* Update Chef and Ohai dependencies to latest pre-Chef 13 releases
+
 ## 2.1.4
 
-* Fix bug where a Job with STDOUT/STDERR too large for the server would cause Job to hang. 
+* Fix bug where a Job with STDOUT/STDERR too large for the server would cause Job to hang.
 * Fix Ohai gem constraint causing fresh installations to break due to gem conflicts.
 
 ## 2.1.3
