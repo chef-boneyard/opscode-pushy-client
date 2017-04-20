@@ -17,8 +17,8 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = '>= 2.2'
 
-  gem.add_dependency "chef", "~> 13.0"
-  gem.add_dependency "ohai", "~> 13.0"
+  gem.add_dependency "chef", ">= 12.19", "< 14.0"
+  gem.add_dependency "ohai", ">= 8.23", "< 14.0"
   gem.add_dependency "ffi-rzmq"
   gem.add_dependency "uuidtools"
 
