@@ -1,4 +1,4 @@
-# @copyright Copyright 2014 Chef Software, Inc. All Rights Reserved.
+# @copyright Copyright 2014-2017, Chef Software Inc. All Rights Reserved.
 #
 # This file is provided to you under the Apache License,
 # Version 2.0 (the "License"); you may not use this file
@@ -18,6 +18,6 @@
 # Note: the version must also be updated in
 # omnibus/config/projects/push-jobs-client.rb
 class PushyClient
-  VERSION = "2.2.0"
+  VERSION = "2.3.0"
   PROTOCOL_VERSION = "2.0"
 end
