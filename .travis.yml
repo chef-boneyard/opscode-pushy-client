@@ -1,8 +1,8 @@
 sudo: false
 language: ruby
 rvm:
-  - 2.2.6
-  - 2.3.1
+  - 2.3.3
+  - 2.4.1
 addons:
   apt:
     packages:
@@ -10,5 +10,11 @@ addons:
 cache:
   - apt
   - bundler
-# Ensure we're running a recent version of bundler
-before_install: gem install bundler --no-rdoc --no-ri
+before_install:
+  - gem install bundler
+  - bundle --version
+  - gem update --system
+  - gem --version
+branches:
+  only:
+    - master
