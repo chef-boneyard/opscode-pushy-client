@@ -25,4 +25,6 @@ Gem::Specification.new do |gem|
   %w(rake rdoc rspec rspec_junit_formatter).each do |dep|
     gem.add_development_dependency dep
   end
+
+  gem.add_development_dependency "rack", "~> 1.6"
 end
