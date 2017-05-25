@@ -18,7 +18,7 @@
 # make changes in here. If our AIX changes are accepted into upstream we
 # could use whatever version releases with those changes (potentially).
 name "libzmq"
-default_version "4.2.2"
+default_version "master"
 
 license "LGPL-3.0"
 license_file "COPYING"
@@ -29,14 +29,8 @@ dependency "automake"
 dependency "libtool"
 dependency "pkg-config-lite"
 
-version "4.2.2" do
-  source md5: "52499909b29604c1e47a86f1cb6a9115",
-    url: "https://github.com/zeromq/libzmq/releases/download/v#{version}/zeromq-#{version}.tar.gz"
-  dependency "libsodium"
-end
-
 version "master" do
-  source git: "git@github.com:tyler-ball/libzmq.git"
+  source git: "git@github.com:chef/libzmq.git"
   dependency "libsodium"
 end
 
@@ -53,20 +47,12 @@ build do
     patch source: "zeromq-4.0.5_configure-pedantic_centos_5.patch", env: env if el?
   end
 
-  # TODO can we get rid of these and have it still work?
-  # if aix?
-  #   env['CXXFLAGS'] += " -g"
-  #   env['CFLAGS'] += " -g"
-  #   env['CPPFLAGS'] = env['CFLAGS']
-  # end
-
   command "./autogen.sh", env: env
   cmd = [
     "./configure",
-    # "--enable-shared", # TODO ????? needed? Should be defaulted
     "--with-libsodium=yes",
     "--disable-perf",
-    "--disable-curve-keygen",
+    # "--disable-curve-keygen",
     "--without-docs",
     "ac_cv_func_mkdtemp=no",
     "--prefix=#{install_dir}/embedded"

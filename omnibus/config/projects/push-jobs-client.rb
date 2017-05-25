@@ -49,8 +49,6 @@ override :rubygems,       version: "2.5.2"
 override :ruby,           version: "2.1.8"
 override :appbundler,     version: "v0.9.0"
 
-override :libzmq,         version: "master"
-
 ######
 
 dependency "preparation"
