@@ -26,8 +26,8 @@ license_file "LICENSE"
 replace  "opscode-push-jobs-client"
 conflict "opscode-push-jobs-client"
 
+build_version IO.read(File.expand_path("../../../../VERSION", __FILE__)).strip
 build_iteration 1
-build_version "2.3.0"
 
 if windows?
   # NOTE: Ruby DevKit fundamentally CANNOT be installed into "Program Files"

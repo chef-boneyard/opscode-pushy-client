@@ -1,5 +1,11 @@
 # Chef Push Client Changes
 
+<!-- latest_release -->
+<!-- latest_release -->
+
+<!-- release_rollup -->
+<!-- release_rollup -->
+
 ## 2.2.0
 
 * Update Ruby from 2.1.8 to 2.3.3
