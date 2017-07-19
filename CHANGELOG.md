@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 
 <!-- latest_release -->
-## [2.3.1](https://github.com/chef/opscode-pushy-client/tree/2.3.1) (2017-07-19)
+## [2.3.2](https://github.com/chef/opscode-pushy-client/tree/2.3.2) (2017-07-19)
 
 #### Merged Pull Requests
-- Perform version bump on correct path [#134](https://github.com/chef/opscode-pushy-client/pull/134) ([schisamo](https://github.com/schisamo))
+- Ensure version bump sed matches the correct line [#135](https://github.com/chef/opscode-pushy-client/pull/135) ([schisamo](https://github.com/schisamo))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.1.4 -->
 ### Changes since 2.1.4 release
 
 #### Merged Pull Requests
+- Ensure version bump sed matches the correct line [#135](https://github.com/chef/opscode-pushy-client/pull/135) ([schisamo](https://github.com/schisamo)) <!-- 2.3.2 -->
 - Perform version bump on correct path [#134](https://github.com/chef/opscode-pushy-client/pull/134) ([schisamo](https://github.com/schisamo)) <!-- 2.3.1 -->
 <!-- release_rollup -->
 
