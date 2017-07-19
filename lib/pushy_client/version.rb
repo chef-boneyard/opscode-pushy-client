@@ -19,5 +19,5 @@
 # omnibus/config/projects/push-jobs-client.rb
 class PushyClient
   VERSION = "2.3.1"
-  PROTOCOL_VERSION = "2.3.1"
+  PROTOCOL_VERSION = "2.0"
 end
