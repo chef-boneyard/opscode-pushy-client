@@ -19,7 +19,6 @@
 require 'chef/application'
 require 'chef/config'
 require 'chef/log'
-require 'chef/rest'
 require 'mixlib/cli'
 require 'win32/daemon'
 require_relative '../pushy_client'
@@ -217,14 +216,7 @@ class PushyClient
       begin
         case config[:config_file]
         when /^(http|https):\/\//
-          begin
-            # First we will try Chef::HTTP::SimpleJSON as preference to Chef::REST
-            require 'chef/http/simple_json'
-            Chef::HTTP::SimpleJSON.new("").streaming_request(config[:config_file]) { |f| apply_config(f.path) }
-          rescue LoadError
-            require 'chef/rest'
-            Chef::REST.new("", nil, nil).fetch(config[:config_file]) { |f| apply_config(f.path) }
-          end
+          load_remote_config(config[:config_file])
         else
           ::File::open(config[:config_file]) { |f| apply_config(f.path) }
         end
@@ -241,6 +233,16 @@ class PushyClient
       rescue Exception => error
         Chef::Application.fatal!("Unknown error processing config file #{Chef::Config[:config_file]} with error #{error.message}", 2)
       end
+    end
+
+    def load_remote_config(url)
+      # Prefer chef/http which works in Chef 13 + Chef 12
+      require 'chef/http/simple_json'
+      Chef::HTTP::SimpleJSON.new("").streaming_request(url) { |f| apply_config(f.path) }
+    rescue LoadError
+      # Try chef/rest which exists on older chef versions
+      require 'chef/rest'
+      Chef::REST.new("", nil, nil).fetch(url) { |f| apply_config(f.path) }
     end
 
   end

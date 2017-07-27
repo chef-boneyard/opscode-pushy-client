@@ -50,7 +50,7 @@ dependency "libxml2"
 dependency "libxslt"
 dependency "libiconv"
 dependency "liblzma"
-dependency "zlib"
+dependency "libzmq"
 
 # Core Requirements
 dependency "rubygems"
@@ -58,12 +58,6 @@ dependency "bundler"
 dependency "appbundler"
 dependency "chef"
 dependency "openssl-customization"
-
-if windows?
-  dependency "libzmq4x-windows"
-else
-  dependency "libzmq"
-end
 
 build do
   env = with_standard_compiler_flags(with_embedded_path)
