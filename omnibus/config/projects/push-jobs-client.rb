@@ -27,7 +27,11 @@ replace  "opscode-push-jobs-client"
 conflict "opscode-push-jobs-client"
 
 build_version IO.read(File.expand_path("../../../../VERSION", __FILE__)).strip
-build_iteration 1
+
+# In order to prevent unecessary cache expiration, version overrides
+# and build_iteration are kept in <project-root>/omnibus_overrides.rb
+overrides_path = File.expand_path("../../../../omnibus_overrides.rb", __FILE__)
+instance_eval(IO.read(overrides_path), overrides_path)
 
 if windows?
   # NOTE: Ruby DevKit fundamentally CANNOT be installed into "Program Files"
@@ -37,26 +41,6 @@ if windows?
 else
   install_dir "#{default_root}/#{name}"
 end
-
-# Using pins that agree with chef 13.0.118.
-override :chef,           version: "v13.0.118"
-override :ohai,           version: "v13.0.1"
-
-# Need modern bundler if we wish to support x-plat Gemfile.lock.
-# Unfortunately, 1.14.x series has issues with BUNDLER_VERSION variables exported by
-# the omnibus cookbook. Bump to it after the builders no longer set that environment
-# variable.
-override :bundler,        version: "1.13.7"
-override :rubygems,       version: "2.6.12"
-override :ruby,           version: "2.4.1"
-
-# Default in omnibus-software was too old.  Feel free to move this ahead as necessary.
-override :libsodium,      version: "1.0.12"
-# Pick last version in 4.0.x that we have tested on windows.
-# Feel free to bump this if you're willing to test out a newer version.
-override :libzmq,         version: "4.0.7"
-
-######
 
 dependency "preparation"
 dependency "rb-readline"
