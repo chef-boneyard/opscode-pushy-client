@@ -36,6 +36,7 @@ class PushyClient
     @hostname        = options[:hostname]
     @file_dir        = options[:file_dir] || '/tmp/pushy'
     @file_dir_expiry = options[:file_dir_expiry] || 86400
+    @allowed_overwritable_env_vars = options[:allowed_overwritable_env_vars] || []
 
     @allow_unencrypted = options[:allow_unencrypted] || false
     @client_curve_pub_key, @client_curve_sec_key = ZMQ::Util.curve_keypair
@@ -76,6 +77,7 @@ class PushyClient
   attr_accessor :whitelist
   attr_reader :incarnation_id
   attr_reader :legacy_mode # indicate we've fallen back to 1.x
+  attr_reader :allowed_overwritable_env_vars
 
   # crypto
   attr_reader :client_curve_pub_key
