@@ -133,7 +133,7 @@ class PushyClient
         :hostname        => ohai[:hostname],
         :filedir         => Chef::Config[:file_dir],
         :allow_unencrypted => Chef::Config[:allow_unencrypted],
-        :allowed_overwritable_env_vars => Chef::Config[:allowed_overwritable_env_vars] || []
+        :allowed_overwritable_env_vars => Chef::Config[:allowed_overwritable_env_vars]
       )
 
       @client.start

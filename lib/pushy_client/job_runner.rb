@@ -214,7 +214,7 @@ class PushyClient
       user = @opts['user']
       dir = @opts['dir']
       env = @opts['env'] || {}
-      unless client.allowed_overwritable_env_vars.empty?
+      unless client.allowed_overwritable_env_vars.nil?
         env = env.map{|k,v| client.allowed_overwritable_env_vars.include?(k) ? [k,v] : ["CHEF_PUSH_ENV_#{k}",v]}.to_h
       end
       capture = @opts['capture'] || false
