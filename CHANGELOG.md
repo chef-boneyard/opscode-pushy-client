@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 
-<!-- latest_release -->
-## [2.3.5](https://github.com/chef/opscode-pushy-client/tree/2.3.5) (2017-07-27)
+<!-- latest_release 2.3.6 -->
+## [2.3.6](https://github.com/chef/opscode-pushy-client/tree/2.3.6) (2017-08-16)
 
 #### Merged Pull Requests
-- Allow push jobs to build libzmq from source on windows [#128](https://github.com/chef/opscode-pushy-client/pull/128) ([ksubrama](https://github.com/ksubrama))
+- Add Option to manage environment variables that could be overwritten  [#140](https://github.com/chef/opscode-pushy-client/pull/140) ([jaym](https://github.com/jaym))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.1.4 -->
 ### Changes since 2.1.4 release
 
 #### Merged Pull Requests
+- Add Option to manage environment variables that could be overwritten  [#140](https://github.com/chef/opscode-pushy-client/pull/140) ([jaym](https://github.com/jaym)) <!-- 2.3.6 -->
 - Allow push jobs to build libzmq from source on windows [#128](https://github.com/chef/opscode-pushy-client/pull/128) ([ksubrama](https://github.com/ksubrama)) <!-- 2.3.5 -->
 - Update the CHANGELOG when push-client is promoted to stable [#137](https://github.com/chef/opscode-pushy-client/pull/137) ([tduffield](https://github.com/tduffield)) <!-- 2.3.4 -->
 - Update SHA1 fingerprint for MSI signing cert [#136](https://github.com/chef/opscode-pushy-client/pull/136) ([schisamo](https://github.com/schisamo)) <!-- 2.3.3 -->

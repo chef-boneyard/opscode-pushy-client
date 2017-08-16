@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    opscode-pushy-client (2.3.5)
+    opscode-pushy-client (2.3.6)
       chef (>= 12.19, < 14.0)
       ffi-rzmq
       ohai (>= 8.23, < 14.0)
@@ -90,7 +90,7 @@ GEM
       net-ssh (>= 2.6.5)
       net-ssh-gateway (>= 1.2.0)
     net-telnet (0.1.1)
-    ohai (13.2.0)
+    ohai (13.3.0)
       chef-config (>= 12.5.0.alpha.1, < 14)
       ffi (~> 1.9)
       ffi-yajl (~> 2.2)
@@ -127,13 +127,13 @@ GEM
     rspec_junit_formatter (0.2.3)
       builder (< 4)
       rspec-core (>= 2, < 4, != 2.12.0)
-    serverspec (2.39.1)
+    serverspec (2.40.0)
       multi_json
       rspec (~> 3.0)
       rspec-its
       specinfra (~> 2.68)
     sfl (2.3)
-    specinfra (2.70.0)
+    specinfra (2.70.1)
       net-scp
       net-ssh (>= 2.7, < 5.0)
       net-telnet
