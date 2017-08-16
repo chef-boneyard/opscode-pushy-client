@@ -132,7 +132,8 @@ class PushyClient
         :whitelist       => Chef::Config[:whitelist] || { 'chef-client' => 'chef-client' },
         :hostname        => ohai[:hostname],
         :filedir         => Chef::Config[:file_dir],
-        :allow_unencrypted => Chef::Config[:allow_unencrypted]
+        :allow_unencrypted => Chef::Config[:allow_unencrypted],
+        :allowed_overwritable_env_vars => Chef::Config[:allowed_overwritable_env_vars]
       )
 
       @client.start
