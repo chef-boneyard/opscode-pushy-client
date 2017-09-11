@@ -483,8 +483,14 @@ class PushyClient
              when :hmac_sha256
                make_header_hmac(message, session_key)
              end
-      socket.send_string(auth, ZMQ::SNDMORE)
-      socket.send_string(message)
+      begin
+        timeout(10) do
+          socket.send_string(auth, ZMQ::SNDMORE)
+          socket.send_string(message)
+        end
+      rescue
+        Chef::Log.info("ZMQ socket timed out")
+      end
     end
 
     def self.load_key(key_path)
