@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    opscode-pushy-client (2.4.1)
+    opscode-pushy-client (2.4.2)
       chef (>= 12.19, < 14.0)
       ffi-rzmq
       ohai (>= 8.23, < 14.0)
@@ -10,13 +10,13 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.5.1)
-      public_suffix (~> 2.0, >= 2.0.2)
+    addressable (2.5.2)
+      public_suffix (>= 2.0.2, < 4.0)
     builder (3.2.3)
-    chef (13.2.20)
+    chef (13.3.42)
       addressable
       bundler (>= 1.10)
-      chef-config (= 13.2.20)
+      chef-config (= 13.3.42)
       chef-zero (>= 13.0)
       diff-lcs (~> 1.2, >= 1.2.4)
       erubis (~> 2.7)
@@ -43,7 +43,7 @@ GEM
       specinfra (~> 2.10)
       syslog-logger (~> 1.6)
       uuidtools (~> 2.1.5)
-    chef-config (13.2.20)
+    chef-config (13.3.42)
       addressable
       fuzzyurl
       mixlib-config (~> 2.0)
@@ -72,25 +72,24 @@ GEM
     libyajl2 (1.2.0)
     mixlib-archive (0.4.1)
       mixlib-log
-    mixlib-authentication (1.4.1)
-      mixlib-log
+    mixlib-authentication (1.4.2)
     mixlib-cli (1.7.0)
     mixlib-config (2.2.4)
     mixlib-log (1.7.1)
     mixlib-shellout (2.3.2)
-    multi_json (1.12.1)
+    multi_json (1.12.2)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
-    net-ssh (4.1.0)
+    net-ssh (4.2.0)
     net-ssh-gateway (2.0.0)
       net-ssh (>= 4.0.0)
     net-ssh-multi (1.2.1)
       net-ssh (>= 2.6.5)
       net-ssh-gateway (>= 1.2.0)
     net-telnet (0.1.1)
-    ohai (13.3.0)
+    ohai (13.4.0)
       chef-config (>= 12.5.0.alpha.1, < 14)
       ffi (~> 1.9)
       ffi-yajl (~> 2.2)
@@ -104,7 +103,7 @@ GEM
       wmi-lite (~> 1.0)
     plist (3.3.0)
     proxifier (1.0.3)
-    public_suffix (2.0.5)
+    public_suffix (3.0.0)
     rack (2.0.3)
     rake (12.0.0)
     rdoc (5.1.0)
@@ -133,7 +132,7 @@ GEM
       rspec-its
       specinfra (~> 2.68)
     sfl (2.3)
-    specinfra (2.70.1)
+    specinfra (2.71.2)
       net-scp
       net-ssh (>= 2.7, < 5.0)
       net-telnet
