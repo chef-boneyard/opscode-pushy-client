@@ -1,5 +1,5 @@
 # Chef Push Client Changes
-
+<!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
 <!-- latest_release 2.3.6 -->
 ## [2.3.6](https://github.com/chef/opscode-pushy-client/tree/2.3.6) (2017-08-16)
 
