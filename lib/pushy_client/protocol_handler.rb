@@ -484,11 +484,11 @@ class PushyClient
                make_header_hmac(message, session_key)
              end
       begin
-        timeout(10) do
+        Timeout.timeout(10) do
           socket.send_string(auth, ZMQ::SNDMORE)
           socket.send_string(message)
         end
-      rescue
+      rescue Timeout::Error
         Chef::Log.info("ZMQ socket timed out")
       end
     end
