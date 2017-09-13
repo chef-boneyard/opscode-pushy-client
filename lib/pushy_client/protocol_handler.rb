@@ -489,7 +489,9 @@ class PushyClient
           socket.send_string(message)
         end
       rescue Timeout::Error
-        Chef::Log.info("ZMQ socket timed out")
+        Chef::Log.info("[#{node_name}] ZMQ socket timed out. Triggering reconfigure")
+        # we don't immediately reconfigure because this is likely to amplify any stampedes. 
+        client.periodicReconfigurer.update_reconfigure_deadline(60)
       end
     end
 

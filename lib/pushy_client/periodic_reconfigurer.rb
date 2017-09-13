@@ -18,8 +18,13 @@
 class PushyClient
   class PeriodicReconfigurer
     SPLAY = 0.10
+    POLL_INTERVAL = 5 # seconds
+    
     def initialize(client)
+      @prng = Random.new
       @client = client
+      @lock = Mutex.new
+      @reconfigure_deadline = nil
     end
 
     attr_reader :client
@@ -29,16 +34,34 @@ class PushyClient
       client.node_name
     end
 
+    def reconfigure_deadline
+      @lock.synchronize do
+        @reconfigure_deadline
+      end
+    end
+    
+    # set the reconfigure deadline to some future number of seconds (with a splay applied)
+    def update_reconfigure_deadline(delay)
+      @lock.synchronize do
+        @reconfigure_deadline = Time.now + delay * (1 - prng.rand(SPLAY))
+        Chef::Log.info "[#{node_name}] Setting reconfigure deadline to #{@reconfigure_deadline}"
+      end
+    end
+    
     def start
       @lifetime = client.config['lifetime']
-      prng = Random.new
+
       @reconfigure_thread = Thread.new do
         Chef::Log.info "[#{node_name}] Starting reconfigure thread.  Will reconfigure / reload keys after #{@lifetime} seconds, less up to splay #{SPLAY}."
         while true
           begin
-            @delay = @lifetime * (1 - prng.rand(SPLAY))
-            sleep(@delay)
-            Chef::Log.info "[#{node_name}] Config is now #{@delay} seconds old.  Reconfiguring / reloading keys ..."
+            update_reconfigure_deadline(@lifetime)
+            while Time.now < reconfigure_deadline do
+              # could also check the config file for updates here and
+              # resolve a long standing wishlist item from customers.
+              sleep(POLL_INTERVAL)
+            end
+            Chef::Log.info "[#{node_name}] Reconfigure deadline of #{reconfigure_deadline} is now past. Reconfiguring / reloading keys ..."
             client.trigger_reconfigure
           rescue
             client.log_exception("Error in reconfigure thread", $!)
