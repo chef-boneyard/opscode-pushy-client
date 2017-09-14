@@ -9,8 +9,8 @@ override :ohai,           version: "v13.0.1"
 # the omnibus cookbook. Bump to it after the builders no longer set that environment
 # variable.
 override :bundler,        version: "1.13.7"
-override :rubygems,       version: "2.6.12"
-override :ruby,           version: "2.4.1"
+override :rubygems,       version: "2.6.13"
+override :ruby,           version: "2.4.2"
 
 # Default in omnibus-software was too old.  Feel free to move this ahead as necessary.
 override :libsodium,      version: "1.0.12"
