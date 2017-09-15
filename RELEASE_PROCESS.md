@@ -39,7 +39,7 @@ Currently, push-client must be manually tested to verify that it behaves correct
 ### Building and Releasing the Release
 
 - [ ] Tag the opscode-pushy-client repository with the release version: `git
-  tag -a VERSION_NUMBER`.
+  tag -a VERSION_NUMBER`. - This is currently done by Chef Expediter.
 
 - [ ] Push the new tag: `git push origin master --tags`.
 

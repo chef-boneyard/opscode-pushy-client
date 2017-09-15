@@ -31,7 +31,7 @@ platforms:
     run_list: yum-epel::default
   - name: centos-6.5
     run_list: yum-epel::default
-  - name: centos-7.0
+  - name: centos-7.3
     run_list: yum-epel::default
   - name: debian-7.2.0
     run_list: apt::default
