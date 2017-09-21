@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 2.4.3 -->
-## [2.4.3](https://github.com/chef/opscode-pushy-client/tree/2.4.3) (2017-09-14)
+<!-- latest_release 2.4.4 -->
+## [2.4.4](https://github.com/chef/opscode-pushy-client/tree/2.4.4) (2017-09-21)
 
 #### Merged Pull Requests
-- Update ruby to 2.4.2 [#145](https://github.com/chef/opscode-pushy-client/pull/145) ([PrajaktaPurohit](https://github.com/PrajaktaPurohit))
+- Updating bundler to 1.15.4. Some README updates. [#146](https://github.com/chef/opscode-pushy-client/pull/146) ([PrajaktaPurohit](https://github.com/PrajaktaPurohit))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.4.1 -->
 ### Changes since 2.4.1 release
 
 #### Merged Pull Requests
+- Updating bundler to 1.15.4. Some README updates. [#146](https://github.com/chef/opscode-pushy-client/pull/146) ([PrajaktaPurohit](https://github.com/PrajaktaPurohit)) <!-- 2.4.4 -->
 - Update ruby to 2.4.2 [#145](https://github.com/chef/opscode-pushy-client/pull/145) ([PrajaktaPurohit](https://github.com/PrajaktaPurohit)) <!-- 2.4.3 -->
 - Update Expeditor config to meet 0.5.0 requirements [#142](https://github.com/chef/opscode-pushy-client/pull/142) ([tduffield](https://github.com/tduffield)) <!-- 2.4.2 -->
 <!-- release_rollup -->
