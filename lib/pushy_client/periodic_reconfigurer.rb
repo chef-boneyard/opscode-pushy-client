@@ -43,7 +43,7 @@ class PushyClient
     # set the reconfigure deadline to some future number of seconds (with a splay applied)
     def update_reconfigure_deadline(delay)
       @lock.synchronize do
-        @reconfigure_deadline = Time.now + delay * (1 - prng.rand(SPLAY))
+        @reconfigure_deadline = Time.now + delay * (1 - @prng.rand(SPLAY))
         Chef::Log.info "[#{node_name}] Setting reconfigure deadline to #{@reconfigure_deadline}"
       end
     end
