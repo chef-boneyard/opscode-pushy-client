@@ -469,22 +469,30 @@ class PushyClient
         json[:sequence] = @command_socket_outgoing_seq
         message = JSON.generate(json)
         if @command_socket
-          ProtocolHandler::send_signed_message(@command_socket, method, @client_private_key, @session_key, message)
+          ProtocolHandler::send_signed_message(@command_socket, method, @client_private_key, @session_key, message, @client)
         else
           Chef::Log.warn("[#{node_name}] Dropping packet because client was stopped: #{message}")
         end
       end
     end
 
-    def self.send_signed_message(socket, method, client_private_key, session_key, message)
+    def self.send_signed_message(socket, method, client_private_key, session_key, message, client)
       auth = case method
              when :rsa2048_sha1
                make_header_rsa(message, client_private_key)
              when :hmac_sha256
                make_header_hmac(message, session_key)
              end
-      socket.send_string(auth, ZMQ::SNDMORE)
-      socket.send_string(message)
+      begin
+        Timeout.timeout(10) do
+          socket.send_string(auth, ZMQ::SNDMORE)
+          socket.send_string(message)
+        end
+      rescue Timeout::Error
+        Chef::Log.info("[#{client.node_name}] ZMQ socket timed out. Triggering reconfigure")
+        # we don't immediately reconfigure because this is likely to amplify any stampedes. 
+        client.update_reconfigure_deadline(60)
+      end
     end
 
     def self.load_key(key_path)

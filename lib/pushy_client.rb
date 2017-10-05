@@ -174,6 +174,10 @@ class PushyClient
     @protocol_handler.send_heartbeat(sequence)
   end
 
+  def update_reconfigure_deadline(delay)
+    @periodic_reconfigurer.update_reconfigure_deadline(delay)
+  end
+
   def commit(job_id, command, opts)
     @job_runner.commit(job_id, command, opts)
   end
@@ -220,7 +224,13 @@ class PushyClient
     version = PushyClient::PROTOCOL_VERSION
     resource = "pushy/config/#{node_name}?ccpk=#{esc_key}&version=#{version}"
 
-    config = rest.get(resource)
+    begin
+      config = rest.get(resource)
+    rescue
+      Chef::Log.info('Could not download push jobs config')
+      update_reconfigure_deadline(120)
+      raise 'Could not download push jobs config'
+    end
 
     if config.has_key?("curve_public_key")
     # Version 2.0  or greater, we should use encryption
