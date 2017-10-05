@@ -1,9 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release -->
+<!-- latest_release 2.4.5 -->
+## [2.4.5](https://github.com/chef/opscode-pushy-client/tree/2.4.5) (2017-10-05)
+
+#### Merged Pull Requests
+- Wrap ZMQ request in timeout [#143](https://github.com/chef/opscode-pushy-client/pull/143) ([nsdavidson](https://github.com/nsdavidson))
 <!-- latest_release -->
 
-<!-- release_rollup -->
+<!-- release_rollup since=2.4.4 -->
+### Changes since 2.4.4 release
+
+#### Merged Pull Requests
+- Wrap ZMQ request in timeout [#143](https://github.com/chef/opscode-pushy-client/pull/143) ([nsdavidson](https://github.com/nsdavidson)) <!-- 2.4.5 -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->

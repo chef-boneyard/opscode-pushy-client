@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    opscode-pushy-client (2.4.4)
+    opscode-pushy-client (2.4.5)
       chef (>= 12.19, < 14.0)
       ffi-rzmq
       ohai (>= 8.23, < 14.0)
@@ -13,10 +13,10 @@ GEM
     addressable (2.5.2)
       public_suffix (>= 2.0.2, < 4.0)
     builder (3.2.3)
-    chef (13.4.24)
+    chef (13.5.3)
       addressable
       bundler (>= 1.10)
-      chef-config (= 13.4.24)
+      chef-config (= 13.5.3)
       chef-zero (>= 13.0)
       diff-lcs (~> 1.2, >= 1.2.4)
       erubis (~> 2.7)
@@ -43,7 +43,7 @@ GEM
       specinfra (~> 2.10)
       syslog-logger (~> 1.6)
       uuidtools (~> 2.1.5)
-    chef-config (13.4.24)
+    chef-config (13.5.3)
       addressable
       fuzzyurl
       mixlib-config (~> 2.0)
@@ -89,7 +89,7 @@ GEM
       net-ssh (>= 2.6.5)
       net-ssh-gateway (>= 1.2.0)
     net-telnet (0.1.1)
-    ohai (13.4.0)
+    ohai (13.5.0)
       chef-config (>= 12.5.0.alpha.1, < 14)
       ffi (~> 1.9)
       ffi-yajl (~> 2.2)
@@ -126,13 +126,13 @@ GEM
     rspec_junit_formatter (0.2.3)
       builder (< 4)
       rspec-core (>= 2, < 4, != 2.12.0)
-    serverspec (2.40.0)
+    serverspec (2.41.0)
       multi_json
       rspec (~> 3.0)
       rspec-its
-      specinfra (~> 2.68)
+      specinfra (~> 2.72)
     sfl (2.3)
-    specinfra (2.71.2)
+    specinfra (2.72.0)
       net-scp
       net-ssh (>= 2.7, < 5.0)
       net-telnet
