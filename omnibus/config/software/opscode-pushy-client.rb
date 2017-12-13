@@ -53,6 +53,13 @@ dependency "liblzma"
 dependency "libzmq"
 
 # Core Requirements
+
+# Instead of trying to get all of FFI working on AIX we decided to build a custom C extension for the parts of
+# ZeroMQ that we need. We forked an old C native extension of LibZMQ, https://github.com/chef/rbzmq, and modified
+# it to fit our needs. This meant ripping out any unused code and updating only the methods we need
+# (like context.socket) to support later versions of Ruby and LibZMQ.
+dependency "rbzmq" if aix?
+
 dependency "rubygems"
 dependency "bundler"
 dependency "appbundler"

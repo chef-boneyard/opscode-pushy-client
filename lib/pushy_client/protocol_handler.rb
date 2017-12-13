@@ -15,8 +15,12 @@
 # under the License.
 #
 
-require 'ffi-rzmq'
-require 'ffi-rzmq-core'
+if RUBY_PLATFORM =~ /aix/
+  require 'rbzmq/zmq'
+else
+  require 'ffi-rzmq'
+  require 'ffi-rzmq-core'
+end
 require 'json'
 require 'time'
 require 'resolv'
