@@ -1,9 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release -->
+<!-- latest_release 2.4.6 -->
+## [2.4.6](https://github.com/chef/opscode-pushy-client/tree/2.4.6) (2017-12-14)
+
+#### Merged Pull Requests
+- Add CODEOWNERS file [#148](https://github.com/chef/opscode-pushy-client/pull/148) ([schisamo](https://github.com/schisamo))
 <!-- latest_release -->
 
-<!-- release_rollup -->
+<!-- release_rollup since=2.4.5 -->
+### Changes since 2.4.5 release
+
+#### Merged Pull Requests
+- Add CODEOWNERS file [#148](https://github.com/chef/opscode-pushy-client/pull/148) ([schisamo](https://github.com/schisamo)) <!-- 2.4.6 -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
