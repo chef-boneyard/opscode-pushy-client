@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 2.4.6 -->
-## [2.4.6](https://github.com/chef/opscode-pushy-client/tree/2.4.6) (2017-12-14)
+<!-- latest_release 2.4.7 -->
+## [2.4.7](https://github.com/chef/opscode-pushy-client/tree/2.4.7) (2017-12-20)
 
 #### Merged Pull Requests
-- Add CODEOWNERS file [#148](https://github.com/chef/opscode-pushy-client/pull/148) ([schisamo](https://github.com/schisamo))
+- Add AIX support [#149](https://github.com/chef/opscode-pushy-client/pull/149) ([jeremiahsnapp](https://github.com/jeremiahsnapp))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.4.5 -->
 ### Changes since 2.4.5 release
 
 #### Merged Pull Requests
+- Add AIX support [#149](https://github.com/chef/opscode-pushy-client/pull/149) ([jeremiahsnapp](https://github.com/jeremiahsnapp)) <!-- 2.4.7 -->
 - Add CODEOWNERS file [#148](https://github.com/chef/opscode-pushy-client/pull/148) ([schisamo](https://github.com/schisamo)) <!-- 2.4.6 -->
 <!-- release_rollup -->
 
