@@ -1,27 +1,24 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 2.4.8 -->
-## [2.4.8](https://github.com/chef/opscode-pushy-client/tree/2.4.8) (2018-01-17)
-
-#### Merged Pull Requests
-- update dependency versions [#150](https://github.com/chef/opscode-pushy-client/pull/150) ([jaymalasinha](https://github.com/jaymalasinha))
+<!-- latest_release -->
 <!-- latest_release -->
 
-<!-- release_rollup since=2.4.5 -->
-### Changes since 2.4.5 release
-
-#### Merged Pull Requests
-- update dependency versions [#150](https://github.com/chef/opscode-pushy-client/pull/150) ([jaymalasinha](https://github.com/jaymalasinha)) <!-- 2.4.8 -->
-- Add AIX support [#149](https://github.com/chef/opscode-pushy-client/pull/149) ([jeremiahsnapp](https://github.com/jeremiahsnapp)) <!-- 2.4.7 -->
-- Add CODEOWNERS file [#148](https://github.com/chef/opscode-pushy-client/pull/148) ([schisamo](https://github.com/schisamo)) <!-- 2.4.6 -->
+<!-- release_rollup -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
+## [2.4.8](https://github.com/chef/opscode-pushy-client/tree/2.4.8) (2018-02-05)
+
+#### Merged Pull Requests
+- Add CODEOWNERS file [#148](https://github.com/chef/opscode-pushy-client/pull/148) ([schisamo](https://github.com/schisamo))
+- Add AIX support [#149](https://github.com/chef/opscode-pushy-client/pull/149) ([jeremiahsnapp](https://github.com/jeremiahsnapp))
+- update dependency versions [#150](https://github.com/chef/opscode-pushy-client/pull/150) ([jaymalasinha](https://github.com/jaymalasinha))
+<!-- latest_stable_release -->
+
 ## [2.4.5](https://github.com/chef/opscode-pushy-client/tree/2.4.5) (2017-11-03)
 
 #### Merged Pull Requests
 - Wrap ZMQ request in timeout [#143](https://github.com/chef/opscode-pushy-client/pull/143) ([nsdavidson](https://github.com/nsdavidson))
-<!-- latest_stable_release -->
 
 ## [2.4.4](https://github.com/chef/opscode-pushy-client/tree/2.4.4) (2017-09-21)
 
