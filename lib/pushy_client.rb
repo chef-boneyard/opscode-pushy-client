@@ -224,9 +224,30 @@ class PushyClient
     resource = "/pushy/config/#{node_name}"
 
     Chef::Log.info "[#{node_name}] Retrieving configuration from #{chef_server_url}/#{resource}: ..."
-    esc_key = CGI::escape(@client_curve_pub_key)
+    esc_key = CGI.escape(@client_curve_pub_key)
     version = PushyClient::PROTOCOL_VERSION
     resource = "pushy/config/#{node_name}?ccpk=#{esc_key}&version=#{version}"
+
+    Chef::Config[:rest_timeout] = 5
+
+    if @config.nil?
+      # We are being called from the `start` method not `trigger_reconfigure`
+      # so we know this is the first time fetching the config after a clean service start/restart.
+      # We therefore want to give ample opportunity to fetch the config, otherwise
+      # we raise and exception and the service stops - hopefully to be started again
+      # on the next chef-client run by push-jobs cookbook.
+
+      Chef::Config[:http_retry_delay] = 30
+      Chef::Config[:http_retry_count] = 5
+    else
+      # We have already fetched the config once, therefore we're being called from `trigger_reconfigure`
+      # Here we do not want the typical retry behavior from Chef::HTTP since `reconfigure` already
+      # implements an effective retry mechanism. Otherwise, `reconfigure` threads have the potential to
+      # start to pile up.
+
+      Chef::Config[:http_retry_delay] = 0
+      Chef::Config[:http_retry_count] = 0
+    end
 
     begin
       config = rest.get(resource)
@@ -236,21 +257,22 @@ class PushyClient
       raise 'Could not download push jobs config'
     end
 
-    if config.has_key?("curve_public_key")
-    # Version 2.0  or greater, we should use encryption
+    if config && config.key?('curve_public_key')
+      # Version 2.0  or greater, we should use encryption
       @using_curve = true
       @legacy_mode = false
-    elsif allow_unencrypted then
+    elsif allow_unencrypted
       @using_curve = false
       @legacy_mode = true
       Chef::Log.info "[#{node_name}] No key returned from server; falling back to 1.x protocol (no encryption)"
     else
-      msg = "[#{node_name}] Exiting: No key returned from server; server may be using 1.x protocol. The config flag 'allow_unencrypted' disables encryption and allows use of 1.x server. Use with caution!"
+      msg = "[#{node_name}] Exiting: No key returned from server; server may be using 1.x protocol. \
+        The config flag 'allow_unencrypted' disables encryption and allows use of 1.x server. Use with caution!"
       Chef::Log.error msg
       Kernel.abort msg
       config = nil
     end
-    return config
+    config
   end
 
   # XXX Should go in a separate file
