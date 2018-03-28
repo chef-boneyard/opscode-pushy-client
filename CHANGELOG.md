@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 2.4.9 -->
-## [2.4.9](https://github.com/chef/opscode-pushy-client/tree/2.4.9) (2018-03-08)
+<!-- latest_release 2.4.10 -->
+## [2.4.10](https://github.com/chef/opscode-pushy-client/tree/2.4.10) (2018-03-28)
 
 #### Merged Pull Requests
-- Optimize `get_config` by eliminating extensive retry behavior [#151](https://github.com/chef/opscode-pushy-client/pull/151) ([jeremymv2](https://github.com/jeremymv2))
+- refactor timeout on message send [#152](https://github.com/chef/opscode-pushy-client/pull/152) ([jeremymv2](https://github.com/jeremymv2))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.4.8 -->
 ### Changes since 2.4.8 release
 
 #### Merged Pull Requests
+- refactor timeout on message send [#152](https://github.com/chef/opscode-pushy-client/pull/152) ([jeremymv2](https://github.com/jeremymv2)) <!-- 2.4.10 -->
 - Optimize `get_config` by eliminating extensive retry behavior [#151](https://github.com/chef/opscode-pushy-client/pull/151) ([jeremymv2](https://github.com/jeremymv2)) <!-- 2.4.9 -->
 <!-- release_rollup -->
 

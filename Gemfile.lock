@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    opscode-pushy-client (2.4.9)
+    opscode-pushy-client (2.4.10)
       chef (>= 12.19, < 14.0)
       ffi-rzmq
       ohai (>= 8.23, < 14.0)
@@ -75,7 +75,8 @@ GEM
       mixlib-log
     mixlib-authentication (1.4.2)
     mixlib-cli (1.7.0)
-    mixlib-config (2.2.5)
+    mixlib-config (2.2.6)
+      tomlrb
     mixlib-log (1.7.1)
     mixlib-shellout (2.3.2)
     multi_json (1.13.1)
