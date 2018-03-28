@@ -487,14 +487,24 @@ class PushyClient
              when :hmac_sha256
                make_header_hmac(message, session_key)
              end
-      begin
-        Timeout.timeout(10) do
-          socket.send_string(auth, ZMQ::SNDMORE)
-          socket.send_string(message)
-        end
-      rescue Timeout::Error
-        Chef::Log.info("[#{client.node_name}] ZMQ socket timed out. Triggering reconfigure")
-        # we don't immediately reconfigure because this is likely to amplify any stampedes. 
+      # https://github.com/chuckremes/ffi-rzmq/blob/master/lib/ffi-rzmq/socket.rb
+      # send_string
+      #
+      # +flags+ may be ZMQ::DONTWAIT and ZMQ::SNDMORE.
+      #
+      # Returns 0 when the message was successfully enqueued.
+      # Returns -1 under two conditions.
+      # 1. The message could not be enqueued
+      # 2. When +flags+ is set with ZMQ::DONTWAIT and the socket returned EAGAIN.
+      #
+      # With a -1 return code, the user must check ZMQ::Util.errno to determine the
+      # cause.
+
+      socket.send_string(auth, ZMQ::SNDMORE | ZMQ::DONTWAIT)
+      rc = socket.send_string(message, ZMQ::DONTWAIT)
+      if rc == -1
+        Chef::Log.info("[#{client.node_name}] ZMQ socket enqueue error #{ZMQ::Util.errno}. Triggering reconfigure")
+        # we don't immediately reconfigure because this is likely to amplify any stampedes.
         client.update_reconfigure_deadline(60)
       end
     end
