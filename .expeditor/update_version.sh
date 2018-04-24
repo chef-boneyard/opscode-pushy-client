@@ -9,4 +9,6 @@ set -evx
 sed -i -r "s/^(\s*)VERSION = \".+\"/\1VERSION = \"$(cat VERSION)\"/" lib/pushy_client/version.rb
 
 # Ensure our Gemfile.lock reflects the new version
-bundle update opscode-pushy-client
+#bundle update opscode-pushy-client
+# XXX: for now we update everything continuously because bundler is buggy
+bundle update
