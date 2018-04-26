@@ -7,24 +7,26 @@
 - Bump minor to 2.5 [#156](https://github.com/chef/opscode-pushy-client/pull/156) ([btm](https://github.com/btm))
 <!-- latest_release -->
 
-<!-- release_rollup since=2.4.8 -->
-### Changes since 2.4.8 release
-
-#### Merged Pull Requests
-- Bump minor to 2.5 [#156](https://github.com/chef/opscode-pushy-client/pull/156) ([btm](https://github.com/btm)) <!-- 2.5.0 -->
-- expeditor config: bundle update every time [#155](https://github.com/chef/opscode-pushy-client/pull/155) ([lamont-granquist](https://github.com/lamont-granquist)) <!-- 2.4.11 -->
-- refactor timeout on message send [#152](https://github.com/chef/opscode-pushy-client/pull/152) ([jeremymv2](https://github.com/jeremymv2)) <!-- 2.4.10 -->
-- Optimize `get_config` by eliminating extensive retry behavior [#151](https://github.com/chef/opscode-pushy-client/pull/151) ([jeremymv2](https://github.com/jeremymv2)) <!-- 2.4.9 -->
+<!-- release_rollup since=2.5.0 -->
+### Changes since 2.5.0 release
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
+## [2.5.0](https://github.com/chef/opscode-pushy-client/tree/2.5.0) (2018-04-26)
+
+#### Merged Pull Requests
+- Optimize `get_config` by eliminating extensive retry behavior [#151](https://github.com/chef/opscode-pushy-client/pull/151) ([jeremymv2](https://github.com/jeremymv2))
+- refactor timeout on message send [#152](https://github.com/chef/opscode-pushy-client/pull/152) ([jeremymv2](https://github.com/jeremymv2))
+- expeditor config: bundle update every time [#155](https://github.com/chef/opscode-pushy-client/pull/155) ([lamont-granquist](https://github.com/lamont-granquist))
+- Bump minor to 2.5 [#156](https://github.com/chef/opscode-pushy-client/pull/156) ([btm](https://github.com/btm))
+<!-- latest_stable_release -->
+
 ## [2.4.8](https://github.com/chef/opscode-pushy-client/tree/2.4.8) (2018-02-05)
 
 #### Merged Pull Requests
 - Add CODEOWNERS file [#148](https://github.com/chef/opscode-pushy-client/pull/148) ([schisamo](https://github.com/schisamo))
 - Add AIX support [#149](https://github.com/chef/opscode-pushy-client/pull/149) ([jeremiahsnapp](https://github.com/jeremiahsnapp))
 - update dependency versions [#150](https://github.com/chef/opscode-pushy-client/pull/150) ([jaymalasinha](https://github.com/jaymalasinha))
-<!-- latest_stable_release -->
 
 ## [2.4.5](https://github.com/chef/opscode-pushy-client/tree/2.4.5) (2017-11-03)
 
