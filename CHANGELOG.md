@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 2.4.11 -->
-## [2.4.11](https://github.com/chef/opscode-pushy-client/tree/2.4.11) (2018-04-24)
+<!-- latest_release unreleased -->
+## Unreleased
 
 #### Merged Pull Requests
-- expeditor config: bundle update every time [#155](https://github.com/chef/opscode-pushy-client/pull/155) ([lamont-granquist](https://github.com/lamont-granquist))
+- Bump minor to 2.5 [#156](https://github.com/chef/opscode-pushy-client/pull/156) ([btm](https://github.com/btm))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.4.8 -->
 ### Changes since 2.4.8 release
 
 #### Merged Pull Requests
+- Bump minor to 2.5 [#156](https://github.com/chef/opscode-pushy-client/pull/156) ([btm](https://github.com/btm)) <!-- 2.5.0 -->
 - expeditor config: bundle update every time [#155](https://github.com/chef/opscode-pushy-client/pull/155) ([lamont-granquist](https://github.com/lamont-granquist)) <!-- 2.4.11 -->
 - refactor timeout on message send [#152](https://github.com/chef/opscode-pushy-client/pull/152) ([jeremymv2](https://github.com/jeremymv2)) <!-- 2.4.10 -->
 - Optimize `get_config` by eliminating extensive retry behavior [#151](https://github.com/chef/opscode-pushy-client/pull/151) ([jeremymv2](https://github.com/jeremymv2)) <!-- 2.4.9 -->
