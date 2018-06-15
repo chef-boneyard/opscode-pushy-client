@@ -18,6 +18,7 @@ describe PushyClient::ProtocolHandler do
       allow(client).to receive(:hostname)
       allow(client).to receive(:org_name)
       allow(client).to receive(:incarnation_id)
+      allow(client).to receive(:max_body_size)
       allow_any_instance_of(described_class).to receive(:send_signed_json_command)
       allow(Chef::Log).to receive(:warn)
     end

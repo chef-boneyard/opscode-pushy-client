@@ -70,6 +70,12 @@ class PushyClient
       :description => "The node name for this client",
       :proc => nil
 
+    option :max_body_size,
+      :short => "-M MAX_BODY_SIZE",
+      :long => "--max-body-size MAX_BODY_SIZE",
+      :description => "MAX_BODY_SIZE of STDER/SDTOUT for this client",
+      :proc => nil
+
     option :chef_server_url,
       :short => "-S CHEFSERVERURL",
       :long => "--server CHEFSERVERURL",
@@ -133,7 +139,8 @@ class PushyClient
         :hostname        => ohai[:hostname],
         :filedir         => Chef::Config[:file_dir],
         :allow_unencrypted => Chef::Config[:allow_unencrypted],
-        :allowed_overwritable_env_vars => Chef::Config[:allowed_overwritable_env_vars]
+        :allowed_overwritable_env_vars => Chef::Config[:allowed_overwritable_env_vars],
+        :max_body_size   => Chef::Config[:max_body_size]
       )
 
       @client.start

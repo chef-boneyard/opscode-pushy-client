@@ -56,14 +56,6 @@ class PushyClient
       end
     end
 
-    # The maximum size, in bytes, allowed for a message body. This is not
-    # configurable because it is configurable (though not documented) on the
-    # server, and we don't want to make users have to sync the two values.
-    # The max on the server is actually 65536, but we leave a little room since
-    # the server is measuring the signed message and we're just counting
-    # the size of the stderr and stdout.
-    MAX_BODY_SIZE = 63000
-
     def initialize(client)
       @client = client
       # We synchronize on this when we change the socket (so if you want a
@@ -110,6 +102,7 @@ class PushyClient
       @server_public_key = OpenSSL::PKey::RSA.new(client.config['public_key'])
       @client_private_key = ProtocolHandler::load_key(client.client_key)
       @max_message_skew = client.config['max_message_skew']
+      @max_body_size = client.config['max_body_size']
 
       if client.using_curve
         server_curve_pub_key = client.config['curve_public_key']
@@ -413,9 +406,15 @@ class PushyClient
     def validate_params(params = {})
       stdout_bytes = params[:stdout].to_s.bytesize
       stderr_bytes = params[:stderr].to_s.bytesize
-
-      if (stdout_bytes + stderr_bytes) > MAX_BODY_SIZE
+      if (stdout_bytes + stderr_bytes) > client.max_body_size.to_i
+        Chef::Log.warn("****************************************************")
         Chef::Log.warn("Command output too long. Will not be sent to server.")
+        Chef::Log.warn("****************************************************")
+        params.delete_if { |k| [:stdout, :stderr].include? k }
+      elsif (client.max_body_size.to_i + 2535) > @max_body_size
+        Chef::Log.warn("****************************************************")
+        Chef::Log.warn("Client MAX_BODY_SIZE of #{client.max_body_size} is larger than the server MAX_BODY_SIZE of #{@max_body_size}")
+        Chef::Log.warn("****************************************************")
         params.delete_if { |k| [:stdout, :stderr].include? k }
       else
         params
