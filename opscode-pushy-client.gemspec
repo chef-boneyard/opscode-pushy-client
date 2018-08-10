@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "ffi-rzmq"
   gem.add_dependency "uuidtools"
 
-  %w(rake rdoc rspec rspec_junit_formatter).each do |dep|
+  %w(rake rspec rspec_junit_formatter).each do |dep|
     gem.add_development_dependency dep
   end
 end

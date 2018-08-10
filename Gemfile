@@ -2,6 +2,10 @@ source 'https://rubygems.org'
 
 gemspec
 
+group :docs do
+  gem "yard"
+end
+
 platforms :mswin, :mingw do
   gem "ffi"
   gem "rdp-ruby-wmi"
