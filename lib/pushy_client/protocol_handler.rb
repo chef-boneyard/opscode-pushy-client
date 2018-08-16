@@ -411,11 +411,6 @@ class PushyClient
         Chef::Log.warn("Command output too long. Will not be sent to server.")
         Chef::Log.warn("****************************************************")
         params.delete_if { |k| [:stdout, :stderr].include? k }
-      elsif (client.max_body_size.to_i + 2535) > @max_body_size
-        Chef::Log.warn("****************************************************")
-        Chef::Log.warn("Client MAX_BODY_SIZE of #{client.max_body_size} is larger than the server MAX_BODY_SIZE of #{@max_body_size}")
-        Chef::Log.warn("****************************************************")
-        params.delete_if { |k| [:stdout, :stderr].include? k }
       else
         params
       end
@@ -467,7 +462,11 @@ class PushyClient
         @command_socket_outgoing_seq += 1
         json[:sequence] = @command_socket_outgoing_seq
         message = JSON.generate(json)
-        if @command_socket
+        if message.to_s.bytesize > client.max_body_size.to_i
+          Chef::Log.warn("****************************************************")
+          Chef::Log.warn("Client packet size #{message.to_s.bytesize} is larger than the Client MAX_BODY_SIZE of #{client.max_body_size.to_i}")
+          Chef::Log.warn("****************************************************")
+        elsif @command_socket
           ProtocolHandler::send_signed_message(@command_socket, method, @client_private_key, @session_key, message, @client)
         else
           Chef::Log.warn("[#{node_name}] Dropping packet because client was stopped: #{message}")
