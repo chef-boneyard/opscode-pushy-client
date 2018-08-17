@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    opscode-pushy-client (2.5.1)
+    opscode-pushy-client (2.5.2)
       chef (>= 12.19, < 15.0)
       ffi-rzmq
       ohai (>= 8.23, < 15.0)
@@ -112,7 +112,7 @@ GEM
     ffi-yajl (2.3.1)
       libyajl2 (~> 1.2)
     fuzzyurl (0.9.0)
-    hashie (3.5.7)
+    hashie (3.6.0)
     highline (1.7.10)
     iniparse (1.4.4)
     ipaddress (0.8.3)
@@ -155,7 +155,7 @@ GEM
       wmi-lite (~> 1.0)
     plist (3.4.0)
     proxifier (1.0.3)
-    public_suffix (3.0.2)
+    public_suffix (3.0.3)
     rack (2.0.5)
     rake (12.3.1)
     rdp-ruby-wmi (0.3.1)
@@ -184,7 +184,7 @@ GEM
       rspec-its
       specinfra (~> 2.72)
     sfl (2.3)
-    specinfra (2.75.1)
+    specinfra (2.76.0)
       net-scp
       net-ssh (>= 2.7)
       net-telnet
@@ -222,7 +222,7 @@ GEM
       win32-api (>= 1.4.5)
       windows-api (>= 0.4.0)
     wmi-lite (1.0.0)
-    yard (0.9.15)
+    yard (0.9.16)
 
 PLATFORMS
   ruby
