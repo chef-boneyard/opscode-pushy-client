@@ -32,9 +32,7 @@ merge_actions:
         - "Expeditor: Skip All"
       only_if: built_in:bump_version
 
-# These actions are taken, in the order specified, when an Omnibus artifact is promoted
-# within Chef's internal artifact storage system.
-artifact_actions:
-  promoted_to_stable:
+promote:
+  actions:
     - built_in:rollover_changelog
     - built_in:notify_chefio_slack_channels
