@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 2.5.2 -->
-## [2.5.2](https://github.com/chef/opscode-pushy-client/tree/2.5.2) (2018-08-17)
+<!-- latest_release 2.5.3 -->
+## [2.5.3](https://github.com/chef/opscode-pushy-client/tree/2.5.3) (2018-10-25)
 
 #### Merged Pull Requests
-- Add the github lock bot and fix the PR template [#161](https://github.com/chef/opscode-pushy-client/pull/161) ([tas50](https://github.com/tas50))
+- Update Ruby from 2.4.4 to 2.4.5 [#163](https://github.com/chef/opscode-pushy-client/pull/163) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.5.0 -->
 ### Changes since 2.5.0 release
 
 #### Merged Pull Requests
+- Update Ruby from 2.4.4 to 2.4.5 [#163](https://github.com/chef/opscode-pushy-client/pull/163) ([tas50](https://github.com/tas50)) <!-- 2.5.3 -->
 - Add the github lock bot and fix the PR template [#161](https://github.com/chef/opscode-pushy-client/pull/161) ([tas50](https://github.com/tas50)) <!-- 2.5.2 -->
 - Remove rdoc gem and add docs group with yard [#159](https://github.com/chef/opscode-pushy-client/pull/159) ([tas50](https://github.com/tas50)) <!-- 2.5.1 -->
 <!-- release_rollup -->
