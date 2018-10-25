@@ -24,3 +24,4 @@ else
   # Feel free to bump this if you're willing to test out a newer version.
   override :libzmq,         version: "4.0.7"
 end
+override "libtool", version: "2.4.2"
