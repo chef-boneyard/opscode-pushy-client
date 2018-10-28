@@ -73,6 +73,7 @@ class PushyClient
                                     :node_name       => Chef::Config[:node_name] || ohai[:fqdn] || ohai[:hostname],
                                     :whitelist       => Chef::Config[:whitelist] || { 'chef-client' => 'chef-client' },
                                     :hostname        => ohai[:hostname],
+                                    :file_dir        => Chef::Config[:file_dir],
                                     :allow_unencrypted => Chef::Config[:allow_unencrypted]
                                     )
 
