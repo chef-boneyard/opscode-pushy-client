@@ -1,8 +1,8 @@
 build_iteration 1
 
 # Using pins that agree with chef 13.0.118.
-override :chef,           version: "v13.4.24"
-override :ohai,           version: "v13.0.1"
+override :chef,           version: "v13.11.3"
+override :ohai,           version: "v13.10.0"
 
 # Need modern bundler if we wish to support x-plat Gemfile.lock.
 # Unfortunately, 1.14.x series has issues with BUNDLER_VERSION variables exported by
