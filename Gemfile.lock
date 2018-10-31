@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    opscode-pushy-client (2.5.4)
+    opscode-pushy-client (2.5.5)
       chef (>= 12.19, < 15.0)
       ffi-rzmq
       ohai (>= 8.23, < 15.0)
@@ -13,10 +13,10 @@ GEM
     addressable (2.5.2)
       public_suffix (>= 2.0.2, < 4.0)
     builder (3.2.3)
-    chef (14.3.37)
+    chef (14.6.47)
       addressable
       bundler (>= 1.10)
-      chef-config (= 14.3.37)
+      chef-config (= 14.6.47)
       chef-zero (>= 13.0)
       diff-lcs (~> 1.2, >= 1.2.4)
       erubis (~> 2.7)
@@ -24,12 +24,11 @@ GEM
       ffi-yajl (~> 2.2)
       highline (~> 1.6, >= 1.6.9)
       iniparse (~> 1.4)
-      iso8601 (~> 0.9.1)
       mixlib-archive (~> 0.4)
       mixlib-authentication (~> 2.1)
       mixlib-cli (~> 1.7)
       mixlib-log (~> 2.0, >= 2.0.3)
-      mixlib-shellout (~> 2.0)
+      mixlib-shellout (~> 2.4)
       net-sftp (~> 2.1, >= 2.1.2)
       net-ssh (~> 4.2)
       net-ssh-multi (~> 1.2, >= 1.2.1)
@@ -44,10 +43,10 @@ GEM
       specinfra (~> 2.10)
       syslog-logger (~> 1.6)
       uuidtools (~> 2.1.5)
-    chef (14.3.37-universal-mingw32)
+    chef (14.6.47-universal-mingw32)
       addressable
       bundler (>= 1.10)
-      chef-config (= 14.3.37)
+      chef-config (= 14.6.47)
       chef-zero (>= 13.0)
       diff-lcs (~> 1.2, >= 1.2.4)
       erubis (~> 2.7)
@@ -55,12 +54,12 @@ GEM
       ffi-yajl (~> 2.2)
       highline (~> 1.6, >= 1.6.9)
       iniparse (~> 1.4)
-      iso8601 (~> 0.9.1)
+      iso8601 (~> 0.12.1)
       mixlib-archive (~> 0.4)
       mixlib-authentication (~> 2.1)
       mixlib-cli (~> 1.7)
       mixlib-log (~> 2.0, >= 2.0.3)
-      mixlib-shellout (~> 2.0)
+      mixlib-shellout (~> 2.4)
       net-sftp (~> 2.1, >= 2.1.2)
       net-ssh (~> 4.2)
       net-ssh-multi (~> 1.2, >= 1.2.1)
@@ -83,10 +82,10 @@ GEM
       win32-mutex (~> 0.4.2)
       win32-process (~> 0.8.2)
       win32-service (~> 1.0)
-      win32-taskscheduler (~> 1.0.0)
+      win32-taskscheduler (~> 2.0)
       windows-api (~> 0.4.4)
       wmi-lite (~> 1.0)
-    chef-config (14.3.37)
+    chef-config (14.6.47)
       addressable
       fuzzyurl
       mixlib-config (>= 2.2.12, < 3.0)
@@ -116,7 +115,7 @@ GEM
     highline (1.7.10)
     iniparse (1.4.4)
     ipaddress (0.8.3)
-    iso8601 (0.9.1)
+    iso8601 (0.12.1)
     libyajl2 (1.2.0)
     mixlib-archive (0.4.18)
       mixlib-log
@@ -215,7 +214,7 @@ GEM
     win32-service (1.0.1)
       ffi
       ffi-win32-extensions
-    win32-taskscheduler (1.0.12)
+    win32-taskscheduler (2.0.0)
       ffi
       structured_warnings
     windows-api (0.4.4)
@@ -250,4 +249,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.16.6
+   1.17.1

@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 2.5.4 -->
-## [2.5.4](https://github.com/chef/opscode-pushy-client/tree/2.5.4) (2018-10-25)
+<!-- latest_release 2.5.5 -->
+## [2.5.5](https://github.com/chef/opscode-pushy-client/tree/2.5.5) (2018-10-31)
 
 #### Merged Pull Requests
-- Bump omnibus-software for latest ruby [#167](https://github.com/chef/opscode-pushy-client/pull/167) ([btm](https://github.com/btm))
+- Update Chef from v13.4.24 to v13.11.3 [#164](https://github.com/chef/opscode-pushy-client/pull/164) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.5.0 -->
 ### Changes since 2.5.0 release
 
 #### Merged Pull Requests
+- Update Chef from v13.4.24 to v13.11.3 [#164](https://github.com/chef/opscode-pushy-client/pull/164) ([tas50](https://github.com/tas50)) <!-- 2.5.5 -->
 - Bump omnibus-software for latest ruby [#167](https://github.com/chef/opscode-pushy-client/pull/167) ([btm](https://github.com/btm)) <!-- 2.5.4 -->
 - Update Ruby from 2.4.4 to 2.4.5 [#163](https://github.com/chef/opscode-pushy-client/pull/163) ([tas50](https://github.com/tas50)) <!-- 2.5.3 -->
 - Add the github lock bot and fix the PR template [#161](https://github.com/chef/opscode-pushy-client/pull/161) ([tas50](https://github.com/tas50)) <!-- 2.5.2 -->
