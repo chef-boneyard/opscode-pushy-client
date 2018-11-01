@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    opscode-pushy-client (2.5.5)
+    opscode-pushy-client (2.5.6)
       chef (>= 12.19, < 15.0)
       ffi-rzmq
       ohai (>= 8.23, < 15.0)
@@ -214,7 +214,7 @@ GEM
     win32-service (1.0.1)
       ffi
       ffi-win32-extensions
-    win32-taskscheduler (2.0.0)
+    win32-taskscheduler (2.0.1)
       ffi
       structured_warnings
     windows-api (0.4.4)
