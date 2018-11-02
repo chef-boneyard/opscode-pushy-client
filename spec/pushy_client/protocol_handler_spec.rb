@@ -18,6 +18,7 @@ describe PushyClient::ProtocolHandler do
       allow(client).to receive(:hostname)
       allow(client).to receive(:org_name)
       allow(client).to receive(:incarnation_id)
+      allow(client).to receive(:max_body_size).and_return(63000)
       allow_any_instance_of(described_class).to receive(:send_signed_json_command)
       allow(Chef::Log).to receive(:warn)
     end
@@ -32,7 +33,7 @@ describe PushyClient::ProtocolHandler do
 
       it "logs a warning" do
         expect(Chef::Log).to receive(:warn).with(
-          "Command output too long. Will not be sent to server."
+          "Command output #{params[:stdout].to_s.bytesize + params[:stderr].to_s.bytesize} is larger than the Client MAX_BODY_SIZE of #{client.max_body_size.to_i}"
         )
         send_command
       end

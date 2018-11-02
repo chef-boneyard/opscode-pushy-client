@@ -60,14 +60,6 @@ class PushyClient
       end
     end
 
-    # The maximum size, in bytes, allowed for a message body. This is not
-    # configurable because it is configurable (though not documented) on the
-    # server, and we don't want to make users have to sync the two values.
-    # The max on the server is actually 65536, but we leave a little room since
-    # the server is measuring the signed message and we're just counting
-    # the size of the stderr and stdout.
-    MAX_BODY_SIZE = 63000
-
     def initialize(client)
       @client = client
       # We synchronize on this when we change the socket (so if you want a
@@ -114,6 +106,7 @@ class PushyClient
       @server_public_key = OpenSSL::PKey::RSA.new(client.config['public_key'])
       @client_private_key = ProtocolHandler::load_key(client.client_key)
       @max_message_skew = client.config['max_message_skew']
+      @max_body_size = client.config['max_body_size']
 
       if client.using_curve
         server_curve_pub_key = client.config['curve_public_key']
@@ -417,9 +410,8 @@ class PushyClient
     def validate_params(params = {})
       stdout_bytes = params[:stdout].to_s.bytesize
       stderr_bytes = params[:stderr].to_s.bytesize
-
-      if (stdout_bytes + stderr_bytes) > MAX_BODY_SIZE
-        Chef::Log.warn("Command output too long. Will not be sent to server.")
+      if (stdout_bytes + stderr_bytes) > client.max_body_size.to_i
+        Chef::Log.warn("Command output #{stdout_bytes + stderr_bytes} is larger than the Client MAX_BODY_SIZE of #{client.max_body_size.to_i}")
         params.delete_if { |k| [:stdout, :stderr].include? k }
       else
         params
@@ -471,12 +463,31 @@ class PushyClient
       @socket_lock.synchronize do
         @command_socket_outgoing_seq += 1
         json[:sequence] = @command_socket_outgoing_seq
-        message = JSON.generate(json)
+        message = validate_and_generate_json(json)
         if @command_socket
           ProtocolHandler::send_signed_message(@command_socket, method, @client_private_key, @session_key, message, @client)
         else
           Chef::Log.warn("[#{node_name}] Dropping packet because client was stopped: #{message}")
         end
+      end
+    end
+
+    # This method validates and generates the JSON message
+    # params user packet
+    # Returns Waring or JSON message
+    def validate_and_generate_json(json)
+      message = JSON.generate(json)
+      if message.to_s.bytesize > client.max_body_size.to_i
+        deleted_packet = json.select { |k| [:stdout, :stderr].include? k }
+        json.delete_if { |k| [:stdout, :stderr].include? k }
+        Chef::Log.warn("Deleted packet #{deleted_packet} from Client packet") if deleted_packet.to_s.size > 1
+        # Re-generate json message
+        message = JSON.generate(json)
+      end
+      if message.to_s.bytesize > client.max_body_size.to_i
+        Chef::Log.warn("Client message size #{message.to_s.bytesize} is larger than the Client MAX_BODY_SIZE of #{client.max_body_size.to_i}")
+      else
+        message
       end
     end
 
