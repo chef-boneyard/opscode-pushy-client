@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 2.5.6 -->
-## [2.5.6](https://github.com/chef/opscode-pushy-client/tree/2.5.6) (2018-11-01)
+<!-- latest_release 2.5.7 -->
+## [2.5.7](https://github.com/chef/opscode-pushy-client/tree/2.5.7) (2018-11-02)
 
 #### Merged Pull Requests
-- Slim the install size and compress the rpm/deb packages [#165](https://github.com/chef/opscode-pushy-client/pull/165) ([tas50](https://github.com/tas50))
+- MSYS-832 - Added feature that end user can configure STDER/STDOUT size [#158](https://github.com/chef/opscode-pushy-client/pull/158) ([piyushawasthi](https://github.com/piyushawasthi))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.5.0 -->
 ### Changes since 2.5.0 release
 
 #### Merged Pull Requests
+- MSYS-832 - Added feature that end user can configure STDER/STDOUT size [#158](https://github.com/chef/opscode-pushy-client/pull/158) ([piyushawasthi](https://github.com/piyushawasthi)) <!-- 2.5.7 -->
 - Slim the install size and compress the rpm/deb packages [#165](https://github.com/chef/opscode-pushy-client/pull/165) ([tas50](https://github.com/tas50)) <!-- 2.5.6 -->
 - Update Chef from v13.4.24 to v13.11.3 [#164](https://github.com/chef/opscode-pushy-client/pull/164) ([tas50](https://github.com/tas50)) <!-- 2.5.5 -->
 - Bump omnibus-software for latest ruby [#167](https://github.com/chef/opscode-pushy-client/pull/167) ([btm](https://github.com/btm)) <!-- 2.5.4 -->
