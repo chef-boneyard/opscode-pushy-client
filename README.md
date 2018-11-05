@@ -4,6 +4,13 @@
 
 Want to find out more about Push Jobs? Check out [docs.chef.io](https://docs.chef.io/push_jobs.html)!
 
+## Getting Help
+
+We use GitHub issues to track bugs and feature requests. If you need help please post to our Mailing List or join the Chef Community Slack.
+
+ * Chef Community Slack at http://community-slack.chef.io/.
+ * Chef Mailing List https://discourse.chef.io/
+
 ## Development
 ### Setup Local Machine
 
