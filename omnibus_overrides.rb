@@ -1,13 +1,9 @@
 build_iteration 1
 
-# Using pins that agree with chef 13.0.118.
+# Using pins that agree with chef 13.11.3.
 override :chef,           version: "v13.11.3"
 override :ohai,           version: "v13.10.0"
 
-# Need modern bundler if we wish to support x-plat Gemfile.lock.
-# Unfortunately, 1.14.x series has issues with BUNDLER_VERSION variables exported by
-# the omnibus cookbook. Bump to it after the builders no longer set that environment
-# variable.
 override :bundler,        version: "1.15.4"
 override :rubygems,       version: "2.7.6"
 override :ruby,           version: "2.4.5"
