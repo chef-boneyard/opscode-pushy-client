@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 2.5.8 -->
-## [2.5.8](https://github.com/chef/opscode-pushy-client/tree/2.5.8) (2018-11-05)
+<!-- latest_release 2.5.9 -->
+## [2.5.9](https://github.com/chef/opscode-pushy-client/tree/2.5.9) (2018-12-18)
 
 #### Merged Pull Requests
-- Update issue templates [#170](https://github.com/chef/opscode-pushy-client/pull/170) ([markan](https://github.com/markan))
+- Require Chef 13 or later and allow Chef 15 [#171](https://github.com/chef/opscode-pushy-client/pull/171) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.5.0 -->
 ### Changes since 2.5.0 release
 
 #### Merged Pull Requests
+- Require Chef 13 or later and allow Chef 15 [#171](https://github.com/chef/opscode-pushy-client/pull/171) ([tas50](https://github.com/tas50)) <!-- 2.5.9 -->
 - Update issue templates [#170](https://github.com/chef/opscode-pushy-client/pull/170) ([markan](https://github.com/markan)) <!-- 2.5.8 -->
 - MSYS-832 - Added feature that end user can configure STDER/STDOUT size [#158](https://github.com/chef/opscode-pushy-client/pull/158) ([piyushawasthi](https://github.com/piyushawasthi)) <!-- 2.5.7 -->
 - Slim the install size and compress the rpm/deb packages [#165](https://github.com/chef/opscode-pushy-client/pull/165) ([tas50](https://github.com/tas50)) <!-- 2.5.6 -->
