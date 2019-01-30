@@ -1,12 +1,12 @@
 build_iteration 1
 
-# Using pins that agree with chef 13.11.3.
-override :chef,           version: "v13.11.3"
-override :ohai,           version: "v13.10.0"
+# Using pins that agree with chef 14.10.9.
+override :chef,           version: "v14.10.9"
+override :ohai,           version: "v14.8.10"
 
-override :bundler,        version: "1.15.4"
-override :rubygems,       version: "2.7.6"
-override :ruby,           version: "2.4.5"
+override :bundler,        version: "1.17.3"
+override :rubygems,       version: "2.7.8"
+override :ruby,           version: "2.5.3"
 
 override "libxml2", version: "2.9.7"
 # Default in omnibus-software was too old.  Feel free to move this ahead as necessary.
