@@ -7,22 +7,27 @@
 - Require Chef 13 or later and allow Chef 15 [#171](https://github.com/chef/opscode-pushy-client/pull/171) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
-<!-- release_rollup since=2.5.0 -->
-### Changes since 2.5.0 release
+<!-- release_rollup since=2.5.6 -->
+### Changes since 2.5.6 release
 
 #### Merged Pull Requests
-- Require Chef 13 or later and allow Chef 15 [#171](https://github.com/chef/opscode-pushy-client/pull/171) ([tas50](https://github.com/tas50)) <!-- 2.5.9 -->
-- Update issue templates [#170](https://github.com/chef/opscode-pushy-client/pull/170) ([markan](https://github.com/markan)) <!-- 2.5.8 -->
 - MSYS-832 - Added feature that end user can configure STDER/STDOUT size [#158](https://github.com/chef/opscode-pushy-client/pull/158) ([piyushawasthi](https://github.com/piyushawasthi)) <!-- 2.5.7 -->
-- Slim the install size and compress the rpm/deb packages [#165](https://github.com/chef/opscode-pushy-client/pull/165) ([tas50](https://github.com/tas50)) <!-- 2.5.6 -->
-- Update Chef from v13.4.24 to v13.11.3 [#164](https://github.com/chef/opscode-pushy-client/pull/164) ([tas50](https://github.com/tas50)) <!-- 2.5.5 -->
-- Bump omnibus-software for latest ruby [#167](https://github.com/chef/opscode-pushy-client/pull/167) ([btm](https://github.com/btm)) <!-- 2.5.4 -->
-- Update Ruby from 2.4.4 to 2.4.5 [#163](https://github.com/chef/opscode-pushy-client/pull/163) ([tas50](https://github.com/tas50)) <!-- 2.5.3 -->
-- Add the github lock bot and fix the PR template [#161](https://github.com/chef/opscode-pushy-client/pull/161) ([tas50](https://github.com/tas50)) <!-- 2.5.2 -->
-- Remove rdoc gem and add docs group with yard [#159](https://github.com/chef/opscode-pushy-client/pull/159) ([tas50](https://github.com/tas50)) <!-- 2.5.1 -->
+- Update issue templates [#170](https://github.com/chef/opscode-pushy-client/pull/170) ([markan](https://github.com/markan)) <!-- 2.5.8 -->
+- Require Chef 13 or later and allow Chef 15 [#171](https://github.com/chef/opscode-pushy-client/pull/171) ([tas50](https://github.com/tas50)) <!-- 2.5.9 -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
+## [2.5.6](https://github.com/chef/opscode-pushy-client/tree/2.5.6) (2019-02-27)
+
+#### Merged Pull Requests
+- Remove rdoc gem and add docs group with yard [#159](https://github.com/chef/opscode-pushy-client/pull/159) ([tas50](https://github.com/tas50))
+- Add the github lock bot and fix the PR template [#161](https://github.com/chef/opscode-pushy-client/pull/161) ([tas50](https://github.com/tas50))
+- Update Ruby from 2.4.4 to 2.4.5 [#163](https://github.com/chef/opscode-pushy-client/pull/163) ([tas50](https://github.com/tas50))
+- Bump omnibus-software for latest ruby [#167](https://github.com/chef/opscode-pushy-client/pull/167) ([btm](https://github.com/btm))
+- Update Chef from v13.4.24 to v13.11.3 [#164](https://github.com/chef/opscode-pushy-client/pull/164) ([tas50](https://github.com/tas50))
+- Slim the install size and compress the rpm/deb packages [#165](https://github.com/chef/opscode-pushy-client/pull/165) ([tas50](https://github.com/tas50))
+<!-- latest_stable_release -->
+
 ## [2.5.0](https://github.com/chef/opscode-pushy-client/tree/2.5.0) (2018-04-26)
 
 #### Merged Pull Requests
@@ -30,7 +35,6 @@
 - refactor timeout on message send [#152](https://github.com/chef/opscode-pushy-client/pull/152) ([jeremymv2](https://github.com/jeremymv2))
 - expeditor config: bundle update every time [#155](https://github.com/chef/opscode-pushy-client/pull/155) ([lamont-granquist](https://github.com/lamont-granquist))
 - Bump minor to 2.5 [#156](https://github.com/chef/opscode-pushy-client/pull/156) ([btm](https://github.com/btm))
-<!-- latest_stable_release -->
 
 ## [2.4.8](https://github.com/chef/opscode-pushy-client/tree/2.4.8) (2018-02-05)
 
