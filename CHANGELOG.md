@@ -11,14 +11,17 @@
 ### Changes since 2.5.6 release
 
 #### Merged Pull Requests
-- Expeditor should push omnibus packages through artifactory [#173](https://github.com/chef/opscode-pushy-client/pull/173) ([btm](https://github.com/btm)) <!-- 2.5.11 -->
-- Don&#39;t ship omnibus files in the gem artifact [#172](https://github.com/chef/opscode-pushy-client/pull/172) ([tas50](https://github.com/tas50)) <!-- 2.5.10 -->
-- MSYS-832 - Added feature that end user can configure STDER/STDOUT size [#158](https://github.com/chef/opscode-pushy-client/pull/158) ([piyushawasthi](https://github.com/piyushawasthi)) <!-- 2.5.7 -->
-- Update issue templates [#170](https://github.com/chef/opscode-pushy-client/pull/170) ([markan](https://github.com/markan)) <!-- 2.5.8 -->
 - Require Chef 13 or later and allow Chef 15 [#171](https://github.com/chef/opscode-pushy-client/pull/171) ([tas50](https://github.com/tas50)) <!-- 2.5.9 -->
+- Update issue templates [#170](https://github.com/chef/opscode-pushy-client/pull/170) ([markan](https://github.com/markan)) <!-- 2.5.8 -->
+- MSYS-832 - Added feature that end user can configure STDER/STDOUT size [#158](https://github.com/chef/opscode-pushy-client/pull/158) ([piyushawasthi](https://github.com/piyushawasthi)) <!-- 2.5.7 -->
+- Don&#39;t ship omnibus files in the gem artifact [#172](https://github.com/chef/opscode-pushy-client/pull/172) ([tas50](https://github.com/tas50)) <!-- 2.5.10 -->
+- Expeditor should push omnibus packages through artifactory [#173](https://github.com/chef/opscode-pushy-client/pull/173) ([btm](https://github.com/btm)) <!-- 2.5.11 -->
 <!-- release_rollup -->
 
 <!-- latest_stable_release -->
+## [2.5.6](https://github.com/chef/opscode-pushy-client/tree/2.5.6) (2019-02-27)
+<!-- latest_stable_release -->
+
 ## [2.5.6](https://github.com/chef/opscode-pushy-client/tree/2.5.6) (2019-02-27)
 
 #### Merged Pull Requests
@@ -28,7 +31,6 @@
 - Bump omnibus-software for latest ruby [#167](https://github.com/chef/opscode-pushy-client/pull/167) ([btm](https://github.com/btm))
 - Update Chef from v13.4.24 to v13.11.3 [#164](https://github.com/chef/opscode-pushy-client/pull/164) ([tas50](https://github.com/tas50))
 - Slim the install size and compress the rpm/deb packages [#165](https://github.com/chef/opscode-pushy-client/pull/165) ([tas50](https://github.com/tas50))
-<!-- latest_stable_release -->
 
 ## [2.5.0](https://github.com/chef/opscode-pushy-client/tree/2.5.0) (2018-04-26)
 
