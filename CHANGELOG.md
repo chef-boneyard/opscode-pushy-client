@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 2.5.10 -->
-## [2.5.10](https://github.com/chef/opscode-pushy-client/tree/2.5.10) (2019-02-27)
+<!-- latest_release 2.5.11 -->
+## [2.5.11](https://github.com/chef/opscode-pushy-client/tree/2.5.11) (2019-02-27)
 
 #### Merged Pull Requests
-- Don&#39;t ship omnibus files in the gem artifact [#172](https://github.com/chef/opscode-pushy-client/pull/172) ([tas50](https://github.com/tas50))
+- Expeditor should push omnibus packages through artifactory [#173](https://github.com/chef/opscode-pushy-client/pull/173) ([btm](https://github.com/btm))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.5.6 -->
 ### Changes since 2.5.6 release
 
 #### Merged Pull Requests
+- Expeditor should push omnibus packages through artifactory [#173](https://github.com/chef/opscode-pushy-client/pull/173) ([btm](https://github.com/btm)) <!-- 2.5.11 -->
 - Don&#39;t ship omnibus files in the gem artifact [#172](https://github.com/chef/opscode-pushy-client/pull/172) ([tas50](https://github.com/tas50)) <!-- 2.5.10 -->
 - MSYS-832 - Added feature that end user can configure STDER/STDOUT size [#158](https://github.com/chef/opscode-pushy-client/pull/158) ([piyushawasthi](https://github.com/piyushawasthi)) <!-- 2.5.7 -->
 - Update issue templates [#170](https://github.com/chef/opscode-pushy-client/pull/170) ([markan](https://github.com/markan)) <!-- 2.5.8 -->
