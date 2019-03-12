@@ -1,7 +1,7 @@
 build_iteration 1
 
 # Using pins that agree with chef 14.10.9.
-override :chef,           version: "v14.10.9"
+override :chef,           version: "v14.11.21"
 override :ohai,           version: "v14.8.10"
 
 override :bundler,        version: "1.17.3"
