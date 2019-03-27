@@ -12,4 +12,5 @@ group :development do
   gem 'test-kitchen'
   gem 'kitchen-vagrant'
   gem 'winrm-fs'
+  gem "win32-api", "1.4.5"
 end
