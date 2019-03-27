@@ -8,6 +8,9 @@ override :bundler,        version: "1.17.3"
 override :rubygems,       version: "2.7.8"
 override :ruby,           version: "2.5.3"
 
+# Override win32-api due to double pinning in chef-client
+override :"win32-api",  version: "1.4.5"
+
 override "libxml2", version: "2.9.7"
 # Default in omnibus-software was too old.  Feel free to move this ahead as necessary.
 override :libsodium,      version: "1.0.12"
