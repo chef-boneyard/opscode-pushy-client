@@ -20,9 +20,6 @@
 
 <!-- latest_stable_release -->
 ## [2.5.6](https://github.com/chef/opscode-pushy-client/tree/2.5.6) (2019-02-27)
-<!-- latest_stable_release -->
-
-## [2.5.6](https://github.com/chef/opscode-pushy-client/tree/2.5.6) (2019-02-27)
 
 #### Merged Pull Requests
 - Remove rdoc gem and add docs group with yard [#159](https://github.com/chef/opscode-pushy-client/pull/159) ([tas50](https://github.com/tas50))
@@ -31,6 +28,7 @@
 - Bump omnibus-software for latest ruby [#167](https://github.com/chef/opscode-pushy-client/pull/167) ([btm](https://github.com/btm))
 - Update Chef from v13.4.24 to v13.11.3 [#164](https://github.com/chef/opscode-pushy-client/pull/164) ([tas50](https://github.com/tas50))
 - Slim the install size and compress the rpm/deb packages [#165](https://github.com/chef/opscode-pushy-client/pull/165) ([tas50](https://github.com/tas50))
+<!-- latest_stable_release -->
 
 ## [2.5.0](https://github.com/chef/opscode-pushy-client/tree/2.5.0) (2018-04-26)
 
