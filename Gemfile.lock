@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    opscode-pushy-client (2.5.11)
+    opscode-pushy-client (2.5.12)
       chef (>= 13.0, < 16.0)
       ffi-rzmq
       ohai (>= 13.0, < 16.0)
