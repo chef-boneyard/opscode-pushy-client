@@ -20,7 +20,7 @@ maintainer    "Chef Software, Inc. <maintainers@chef.io>"
 homepage      "https://www.chef.io"
 
 license "Chef EULA"
-license_file "https://www.chef.io/end-user-license-agreement/"
+license_file "CHEF-EULA.md"
 
 # Ensure we install over the top of the previous package name
 replace  "opscode-push-jobs-client"
