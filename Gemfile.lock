@@ -2,9 +2,9 @@ PATH
   remote: .
   specs:
     opscode-pushy-client (2.5.13)
-      chef (>= 13.0, < 16.0)
+      chef (>= 14.0, < 16.0)
       ffi-rzmq
-      ohai (>= 13.0, < 16.0)
+      ohai (>= 14.0, < 16.0)
       uuidtools
 
 GEM
