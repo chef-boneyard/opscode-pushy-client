@@ -19,6 +19,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "chef", ">= 14.0", "< 16.0"
   gem.add_dependency "ohai", ">= 14.0", "< 16.0"
+  gem.add_dependency "license-acceptance", "~> 1.0", ">= 1.0.5"
   gem.add_dependency "ffi-rzmq"
   gem.add_dependency "uuidtools"
 
