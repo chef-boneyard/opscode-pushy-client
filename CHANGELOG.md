@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 3.0.0 -->
-## [3.0.0](https://github.com/chef/opscode-pushy-client/tree/3.0.0) (2019-05-14)
+<!-- latest_release 3.0.1 -->
+## [3.0.1](https://github.com/chef/opscode-pushy-client/tree/3.0.1) (2019-05-14)
 
 #### Merged Pull Requests
-- Bump version to v3 for Chef EULA major release [#176](https://github.com/chef/opscode-pushy-client/pull/176) ([btm](https://github.com/btm))
+- Remove the unused windows-api gem [#177](https://github.com/chef/opscode-pushy-client/pull/177) ([tas50](https://github.com/tas50))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.5.6 -->
 ### Changes since 2.5.6 release
 
 #### Merged Pull Requests
+- Remove the unused windows-api gem [#177](https://github.com/chef/opscode-pushy-client/pull/177) ([tas50](https://github.com/tas50)) <!-- 3.0.1 -->
 - Bump version to v3 for Chef EULA major release [#176](https://github.com/chef/opscode-pushy-client/pull/176) ([btm](https://github.com/btm)) <!-- 3.0.0 -->
 - Update the omnibus build license to the Chef EULA [#175](https://github.com/chef/opscode-pushy-client/pull/175) ([btm](https://github.com/btm)) <!-- 2.5.13 -->
 - Update chef, ohai and rubygems [#174](https://github.com/chef/opscode-pushy-client/pull/174) ([jaymalasinha](https://github.com/jaymalasinha)) <!-- 2.5.12 -->
