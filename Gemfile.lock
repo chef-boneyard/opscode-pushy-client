@@ -1,9 +1,10 @@
 PATH
   remote: .
   specs:
-    opscode-pushy-client (3.0.2.pre)
+    opscode-pushy-client (3.0.1)
       chef (>= 14.0, < 16.0)
       ffi-rzmq
+      license-acceptance (~> 1.0, >= 1.0.5)
       ohai (>= 14.0, < 16.0)
       uuidtools
 
