@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 2.5.12 -->
-## [2.5.12](https://github.com/chef/opscode-pushy-client/tree/2.5.12) (2019-04-16)
+<!-- latest_release 2.5.13 -->
+## [2.5.13](https://github.com/chef/opscode-pushy-client/tree/2.5.13) (2019-05-14)
 
 #### Merged Pull Requests
-- Update chef, ohai and rubygems [#174](https://github.com/chef/opscode-pushy-client/pull/174) ([jaymalasinha](https://github.com/jaymalasinha))
+- Update the omnibus build license to the Chef EULA [#175](https://github.com/chef/opscode-pushy-client/pull/175) ([btm](https://github.com/btm))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.5.6 -->
 ### Changes since 2.5.6 release
 
 #### Merged Pull Requests
+- Update the omnibus build license to the Chef EULA [#175](https://github.com/chef/opscode-pushy-client/pull/175) ([btm](https://github.com/btm)) <!-- 2.5.13 -->
 - Update chef, ohai and rubygems [#174](https://github.com/chef/opscode-pushy-client/pull/174) ([jaymalasinha](https://github.com/jaymalasinha)) <!-- 2.5.12 -->
 - Require Chef 13 or later and allow Chef 15 [#171](https://github.com/chef/opscode-pushy-client/pull/171) ([tas50](https://github.com/tas50)) <!-- 2.5.9 -->
 - Update issue templates [#170](https://github.com/chef/opscode-pushy-client/pull/170) ([markan](https://github.com/markan)) <!-- 2.5.8 -->
