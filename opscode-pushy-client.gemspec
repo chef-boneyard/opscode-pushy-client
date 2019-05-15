@@ -9,16 +9,16 @@ Gem::Specification.new do |gem|
   gem.homepage      = "https://github.com/chef/opscode-pushy-client"
 
   gem.executables   = Dir.glob('bin/**/*').map{|f| File.basename(f)}
-  gem.files         = Dir.glob('**/*').reject{|f| File.directory?(f)}
+  gem.files         = %w{opscode-pushy-client.gemspec Gemfile Rakefile LICENSE} + Dir.glob('{bin,lib,spec, keys}/**/*').reject{|f| File.directory?(f)}
   gem.test_files    = Dir.glob('{test,spec,features}/**/*')
   gem.name          = "opscode-pushy-client"
   gem.require_paths = ["lib"]
   gem.version       = PushyClient::VERSION
 
-  gem.required_ruby_version = '>= 2.2'
+  gem.required_ruby_version = '>= 2.5'
 
-  gem.add_dependency "chef", ">= 12.19", "< 15.0"
-  gem.add_dependency "ohai", ">= 8.23", "< 15.0"
+  gem.add_dependency "chef", ">= 14.0", "< 16.0"
+  gem.add_dependency "ohai", ">= 14.0", "< 16.0"
   gem.add_dependency "ffi-rzmq"
   gem.add_dependency "uuidtools"
 

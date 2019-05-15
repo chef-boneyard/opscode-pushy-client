@@ -17,7 +17,8 @@ driver:
 
 provisioner:
   name: chef_zero
-  require_chef_omnibus: true # Always install the latest version of Chef
+  product_name: chef
+  product_version: 14.5.33
   attributes:
     vagrant:
       this_key_exists_so_we_have_a_vagrant_key: true
