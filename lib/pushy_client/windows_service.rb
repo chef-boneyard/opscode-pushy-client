@@ -28,6 +28,7 @@ require_relative '../pushy_client/version'
 class PushyClient
   class WindowsService < ::Win32::Daemon
     include Mixlib::CLI
+    include LicenseAcceptance::CLIFlags::MixlibCLI
 
     option :config_file,
       :short => "-c CONFIG",

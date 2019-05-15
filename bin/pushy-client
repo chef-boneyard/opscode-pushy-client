@@ -5,4 +5,6 @@ $:.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
 require "rubygems"
 require_relative '../lib/pushy_client/cli'
 
+PushyClient::CLI::check_license_acceptance
+
 PushyClient::CLI.new.run

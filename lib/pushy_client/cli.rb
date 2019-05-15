@@ -21,11 +21,13 @@ require 'chef/config'
 # To keep compat with older chef-client, rescue if not found
 require 'chef/config_fetcher' rescue 'assuming chef-client < 11.8.0'
 require 'chef/log'
+require 'license_acceptance/acceptor'
 require_relative '../pushy_client'
 require_relative '../pushy_client/version'
 
 class PushyClient
   class CLI < Chef::Application
+    include LicenseAcceptance::CLIFlags::MixlibCLI
 
     def self.find_default_config
       configs = ['chef-push-client.rb', 'push-jobs-client.rb', 'client.rb']
@@ -171,6 +173,15 @@ class PushyClient
       while true
         sleep 3600
       end
+    end
+
+    def self.check_license_acceptance
+      LicenseAcceptance::Acceptor.check_and_persist!(
+        "infra-client",
+        Chef::VERSION.to_s,
+        logger: logger,
+        provided: Chef::Config[:chef_license]
+      )
     end
   end
 end
