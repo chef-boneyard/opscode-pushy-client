@@ -2,6 +2,22 @@
 
 [![Build Status](https://travis-ci.org/chef/opscode-pushy-client.svg?branch=master)](https://travis-ci.org/chef/opscode-pushy-client)
 
+**Umbrella Project**: [Chef Infra](https://github.com/chef/chef-oss-practices/blob/master/projects/chef-server-infra.md)
+
+**Project State**: [Active](https://github.com/chef/chef-oss-practices/blob/master/repo-management/repo-states.md#maintained)
+
+**Issues [Response Time Maximum](https://github.com/chef/chef-oss-practices/blob/master/repo-management/repo-states.md)**: 28 days
+
+**Pull Request [Response Time Maximum](https://github.com/chef/chef-oss-practices/blob/master/repo-management/repo-states.md)**: 28 days
+
+NOTE: we know we have a backlog, and are working through it, but this applies for new requests.
+
+This repository is the central repository for the Chef Push Jobs Client
+
+If you want to file an issue about Chef Push Jobs Client or contribute a change, you're in the right place.
+
+If you need to file an issue against another Chef project, you can find a list of projects and where to file issues in the [community contributions section](https://docs.chef.io/community_contributions.html#issues-and-bug-reports) of the [Chef docs](https://docs.chef.io).
+
 Want to find out more about Push Jobs? Check out [docs.chef.io](https://docs.chef.io/push_jobs.html)!
 
 ## Getting Help
