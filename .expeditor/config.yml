@@ -14,6 +14,13 @@ github:
   minor_bump_labels:
     - "Expeditor: Bump Minor Version"
 
+pipelines:
+  - omnibus/release
+  - omnibus/adhoc:
+      definition: .expeditor/release.omnibus.yml
+      env:
+        - ADHOC: true
+
 # These actions are taken, in order they are specified, anytime a Pull Request is merged.
 merge_actions:
   - built_in:bump_version:
@@ -26,7 +33,7 @@ merge_actions:
       ignore_labels:
         - "Expeditor: Exclude From Changelog"
         - "Expeditor: Skip All"
-  - built_in:trigger_omnibus_release_build:
+  - trigger_pipeline:omnibus/release:
       ignore_labels:
         - "Expeditor: Skip Build"
         - "Expeditor: Skip All"
