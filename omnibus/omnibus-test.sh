@@ -53,7 +53,7 @@ case "$package_file" in
     fi
     ;;
   *)
-    echo "Skipping signed package verification. '$1' is not a dmg or rpm."
+    echo "Skipping signed package verification. '$package_file' is not a dmg or rpm."
     exit 0
 esac
 
