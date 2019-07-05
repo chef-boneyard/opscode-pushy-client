@@ -84,14 +84,14 @@ liking, you can bring up an individual build environment using the `kitchen`
 command.
 
 ```shell
-$ kitchen converge push-jobs-client-ubuntu-1204
+$ kitchen converge push-jobs-client-ubuntu-1604
 ```
 
 Then login to the instance and build the project as described in the Usage
 section:
 
 ```shell
-$ kitchen login push-jobs-client-ubuntu-1204
+$ kitchen login push-jobs-client-ubuntu-1604
 [vagrant@ubuntu...] $ cd opscode-pushy-client/omnibus
 [vagrant@ubuntu...] $ source ~/load-omnibus-toolchain.sh
 [vagrant@ubuntu...] $ bundle install --without development # Don't install dev tools!
