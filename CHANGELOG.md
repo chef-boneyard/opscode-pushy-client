@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 3.0.2 -->
-## [3.0.2](https://github.com/chef/opscode-pushy-client/tree/3.0.2) (2019-06-14)
+<!-- latest_release 3.0.3 -->
+## [3.0.3](https://github.com/chef/opscode-pushy-client/tree/3.0.3) (2019-07-08)
 
 #### Merged Pull Requests
-- Update the omnibus def to not use the updated ruby-cleanup def [#183](https://github.com/chef/opscode-pushy-client/pull/183) ([tas50](https://github.com/tas50))
+- Deprecate Ubuntu-14 [#185](https://github.com/chef/opscode-pushy-client/pull/185) ([christopher-snapp](https://github.com/christopher-snapp))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.5.6 -->
 ### Changes since 2.5.6 release
 
 #### Merged Pull Requests
+- Deprecate Ubuntu-14 [#185](https://github.com/chef/opscode-pushy-client/pull/185) ([christopher-snapp](https://github.com/christopher-snapp)) <!-- 3.0.3 -->
 - Update the omnibus def to not use the updated ruby-cleanup def [#183](https://github.com/chef/opscode-pushy-client/pull/183) ([tas50](https://github.com/tas50)) <!-- 3.0.2 -->
 - Remove the unused windows-api gem [#177](https://github.com/chef/opscode-pushy-client/pull/177) ([tas50](https://github.com/tas50)) <!-- 3.0.1 -->
 - Bump version to v3 for Chef EULA major release [#176](https://github.com/chef/opscode-pushy-client/pull/176) ([btm](https://github.com/btm)) <!-- 3.0.0 -->
