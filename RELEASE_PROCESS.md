@@ -27,7 +27,7 @@ Our current support platforms are as follows:
 
 - Debian 6, 7
 - Rhel 5, 6, 7
-- Ubuntu 10.04, 12.04, 14.04
+- Ubuntu 16.04, 18.04
 - Windows 7, 8, 8.1, 10, Server 2008 R2, 2012, 2012 R2
 
 Currently, push-client must be manually tested to verify that it behaves correctly on its supported platforms. You can use the [push-setup](https://github.com/chef/oc-pushy-pedant/tree/master/dev/push-setup) script to easily set up a push-jobs-client + push-jobs-server cluster with the desired build versions that you'd like to test.

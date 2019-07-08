@@ -10,7 +10,7 @@ provisioner:
       log_level: ":debug"
 
 platforms:
-  - name: ubuntu-14.04
+  - name: ubuntu-16.04
     run_list:
       - recipe[apt::default]
   - name: windows-2012r2

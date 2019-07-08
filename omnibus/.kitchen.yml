@@ -45,17 +45,9 @@ platforms:
       - freebsd::pkgng
   - name: freebsd-10.0
     run_list: freebsd::portsnap
-  - name: ubuntu-10.04
+  - name: ubuntu-16.04
     run_list: apt::default
-  - name: ubuntu-12.04
-    run_list: apt::default
-  - name: ubuntu-12.10
-    run_list: apt::default
-  - name: ubuntu-13.04
-    run_list: apt::default
-  - name: ubuntu-13.10
-    run_list: apt::default
-  - name: ubuntu-14.04
+  - name: ubuntu-18.04
     run_list: apt::default
   # The following (private) boxes are shared via Atlas and are only
   # available to users working for Chef. Sorry, it's about software licensing.
