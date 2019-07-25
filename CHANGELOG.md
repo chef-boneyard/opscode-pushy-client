@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 3.0.4 -->
-## [3.0.4](https://github.com/chef/opscode-pushy-client/tree/3.0.4) (2019-07-18)
+<!-- latest_release 3.0.5 -->
+## [3.0.5](https://github.com/chef/opscode-pushy-client/tree/3.0.5) (2019-07-25)
 
 #### Merged Pull Requests
-- Enable RHEL8 Windows 2016 and Windows 2019 packages [#187](https://github.com/chef/opscode-pushy-client/pull/187) ([jaymalasinha](https://github.com/jaymalasinha))
+- Update with OSS Practices information [#180](https://github.com/chef/opscode-pushy-client/pull/180) ([markan](https://github.com/markan))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.5.6 -->
 ### Changes since 2.5.6 release
 
 #### Merged Pull Requests
+- Update with OSS Practices information [#180](https://github.com/chef/opscode-pushy-client/pull/180) ([markan](https://github.com/markan)) <!-- 3.0.5 -->
 - Enable RHEL8 Windows 2016 and Windows 2019 packages [#187](https://github.com/chef/opscode-pushy-client/pull/187) ([jaymalasinha](https://github.com/jaymalasinha)) <!-- 3.0.4 -->
 - Deprecate Ubuntu-14 [#185](https://github.com/chef/opscode-pushy-client/pull/185) ([christopher-snapp](https://github.com/christopher-snapp)) <!-- 3.0.3 -->
 - Update the omnibus def to not use the updated ruby-cleanup def [#183](https://github.com/chef/opscode-pushy-client/pull/183) ([tas50](https://github.com/tas50)) <!-- 3.0.2 -->
