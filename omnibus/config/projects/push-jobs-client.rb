@@ -69,7 +69,7 @@ package :msi do
   fast_msi true
   # Upgrade code for Chef MSI
   upgrade_code "D607A85C-BDFA-4F08-83ED-2ECB4DCD6BC5"
-  signing_identity "E05FF095D07F233B78EB322132BFF0F035E11B5B", machine_store: true
+  signing_identity "AF21BA8C9E50AE20DA9907B6E2D4B0CC3306CA03", machine_store: true
 
   parameters(
     ProjectLocationDir: 'push-jobs-client',
