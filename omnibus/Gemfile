@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'omnibus', git: 'https://github.com/chef/omnibus.git'
-gem 'omnibus-software', git: 'https://github.com/chef/omnibus-software.git'
+gem 'omnibus-software', git: 'https://github.com/chef/omnibus-software.git', branch: 'jsinha/bzip2_rm_envpatch'
 gem 'artifactory'
 
 # This development group is installed by default when you run `bundle install`,
