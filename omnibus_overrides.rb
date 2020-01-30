@@ -4,7 +4,7 @@ build_iteration 1
 override :chef,           version: "v14.12.3"
 override :ohai,           version: "v14.8.11"
 
-override :bundler,        version: "1.17.3"
+override :bundler,        version: "1.16.6"
 override :rubygems,       version: "2.7.9"
 override :ruby,           version: "2.5.5"
 
