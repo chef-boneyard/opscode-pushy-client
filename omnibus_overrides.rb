@@ -1,14 +1,14 @@
 build_iteration 1
 
 # Using pins that agree with chef 13.11.3.
-override :chef,           version: "v14.12.3"
+override :chef,           version: "v14.14.37"
 override :ohai,           version: "v14.8.11"
 
 override :bundler,        version: "1.16.6"
 override :rubygems,       version: "2.7.9"
-override :ruby,           version: "2.5.5"
-
-override "libxml2", version: "2.9.7"
+override :ruby,           version: "2.5.7"
+override :libxslt,        version: "1.1.34"
+override :libxml2,        version: "2.9.7"
 # Default in omnibus-software was too old.  Feel free to move this ahead as necessary.
 override :libsodium,      version: "1.0.12"
 if aix?
