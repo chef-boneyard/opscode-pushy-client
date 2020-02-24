@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 3.0.8 -->
-## [3.0.8](https://github.com/chef/opscode-pushy-client/tree/3.0.8) (2019-08-29)
+<!-- latest_release 3.0.9 -->
+## [3.0.9](https://github.com/chef/opscode-pushy-client/tree/3.0.9) (2020-02-24)
 
 #### Merged Pull Requests
-- Deprecate macOS 10.12 and add macOS 10.15 support [#191](https://github.com/chef/opscode-pushy-client/pull/191) ([jaymalasinha](https://github.com/jaymalasinha))
+-  Add Debian 10 (Buster) Tester [#197](https://github.com/chef/opscode-pushy-client/pull/197) ([christopher-snapp](https://github.com/christopher-snapp))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.5.6 -->
 ### Changes since 2.5.6 release
 
 #### Merged Pull Requests
+-  Add Debian 10 (Buster) Tester [#197](https://github.com/chef/opscode-pushy-client/pull/197) ([christopher-snapp](https://github.com/christopher-snapp)) <!-- 3.0.9 -->
 - Deprecate macOS 10.12 and add macOS 10.15 support [#191](https://github.com/chef/opscode-pushy-client/pull/191) ([jaymalasinha](https://github.com/jaymalasinha)) <!-- 3.0.8 -->
 - Add Aix 7.2 platform [#190](https://github.com/chef/opscode-pushy-client/pull/190) ([jaymalasinha](https://github.com/jaymalasinha)) <!-- 3.0.7 -->
 - Begin signing MSI&#39;s with renewed Windows Signing Cert [#189](https://github.com/chef/opscode-pushy-client/pull/189) ([schisamo](https://github.com/schisamo)) <!-- 3.0.6 -->
