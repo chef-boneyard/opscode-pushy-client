@@ -1,16 +1,15 @@
 build_iteration 1
 
-# Using pins that agree with chef 13.11.3.
-override :chef,           version: "v14.12.3"
-override :ohai,           version: "v14.8.11"
+override :chef,           version: "v15.10.12"
+override :ohai,           version: "v15.9.1"
 
-override :bundler,        version: "1.17.3"
-override :rubygems,       version: "2.7.9"
-override :ruby,           version: "2.5.5"
+override :ruby,           version: "2.6.6"
+override :rubygems,       version: "3.0.3"
+override :bundler,        version: "1.17.2"
 
-override "libxml2", version: "2.9.7"
-# Default in omnibus-software was too old.  Feel free to move this ahead as necessary.
+override :libxml2,        version: "2.9.10"
 override :libsodium,      version: "1.0.12"
+
 if aix?
   # To get LibZMQ building on AIX we needed to update to 4.2.2 because it has autotools and
   # build configuration improvements.
