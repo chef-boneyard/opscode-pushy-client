@@ -6,6 +6,10 @@ group :docs do
   gem "yard"
 end
 
+group :omnibus_package do
+  gem "appbundler"
+end
+
 platforms :mswin, :mingw do
   gem "ffi"
   gem "rdp-ruby-wmi"
