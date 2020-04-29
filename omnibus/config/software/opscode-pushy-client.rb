@@ -60,8 +60,6 @@ dependency "libzmq"
 # (like context.socket) to support later versions of Ruby and LibZMQ.
 dependency "rbzmq" if aix?
 
-dependency "rubygems"
-dependency "bundler"
 dependency "chef"
 dependency "openssl-customization"
 

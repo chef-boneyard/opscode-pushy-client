@@ -4,8 +4,6 @@ override :chef,           version: "v15.10.12"
 override :ohai,           version: "v15.9.1"
 
 override :ruby,           version: "2.6.6"
-override :rubygems,       version: "3.0.3"
-override :bundler,        version: "1.17.2"
 
 override :libxml2,        version: "2.9.10"
 override :libsodium,      version: "1.0.12"
