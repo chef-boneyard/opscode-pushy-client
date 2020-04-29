@@ -4,8 +4,8 @@ require "pushy_client/job_runner"
 
 describe PushyClient::JobRunner do
   describe "#start_process" do
-    let(:client) { double("client") }
-    let(:shellout) { double("shellout") }
+    let(:client) { Object.new }
+    let(:shellout) { Object.new }
     let(:job_runner) { described_class.new(client) }
     let(:whitelist) do
       {

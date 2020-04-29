@@ -60,9 +60,6 @@ dependency "libzmq"
 # (like context.socket) to support later versions of Ruby and LibZMQ.
 dependency "rbzmq" if aix?
 
-dependency "rubygems"
-dependency "bundler"
-dependency "appbundler"
 dependency "chef"
 dependency "openssl-customization"
 
@@ -72,8 +69,7 @@ build do
   bundle "install", env: env
   gem "build opscode-pushy-client.gemspec", env: env
   gem "install opscode-pushy-client*.gem" \
-      " --no-ri --no-rdoc" \
-      " --verbose", env: env
+      " --no-doc --verbose", env: env
 
   appbundle 'opscode-pushy-client', env: env
 end
