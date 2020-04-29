@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    opscode-pushy-client (3.0.9)
+    opscode-pushy-client (3.0.10)
       chef (>= 15.0)
       ffi-rzmq
       ohai (>= 15.0)
@@ -326,4 +326,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.17.2
+   1.17.3
