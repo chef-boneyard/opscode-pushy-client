@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 3.0.10 -->
-## [3.0.10](https://github.com/chef/opscode-pushy-client/tree/3.0.10) (2020-04-29)
+<!-- latest_release 3.0.11 -->
+## [3.0.11](https://github.com/chef/opscode-pushy-client/tree/3.0.11) (2020-04-30)
 
 #### Merged Pull Requests
-- Bumps for Chef 16 [#201](https://github.com/chef/opscode-pushy-client/pull/201) ([btm](https://github.com/btm))
+- Update release notes, process, platforms. [#202](https://github.com/chef/opscode-pushy-client/pull/202) ([btm](https://github.com/btm))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.5.6 -->
 ### Changes since 2.5.6 release
 
 #### Merged Pull Requests
+- Update release notes, process, platforms. [#202](https://github.com/chef/opscode-pushy-client/pull/202) ([btm](https://github.com/btm)) <!-- 3.0.11 -->
 - Bumps for Chef 16 [#201](https://github.com/chef/opscode-pushy-client/pull/201) ([btm](https://github.com/btm)) <!-- 3.0.10 -->
 -  Add Debian 10 (Buster) Tester [#197](https://github.com/chef/opscode-pushy-client/pull/197) ([christopher-snapp](https://github.com/christopher-snapp)) <!-- 3.0.9 -->
 - Deprecate macOS 10.12 and add macOS 10.15 support [#191](https://github.com/chef/opscode-pushy-client/pull/191) ([jaymalasinha](https://github.com/jaymalasinha)) <!-- 3.0.8 -->
