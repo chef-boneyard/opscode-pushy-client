@@ -137,7 +137,7 @@ class PushyClient
         :node_name       => Chef::Config[:node_name] || ohai[:fqdn] || ohai[:hostname],
         :whitelist       => Chef::Config[:whitelist] || { 'chef-client' => 'chef-client' },
         :hostname        => ohai[:hostname],
-        :filedir         => Chef::Config[:file_dir],
+        :file_dir        => Chef::Config[:file_dir],
         :allow_unencrypted => Chef::Config[:allow_unencrypted],
         :allowed_overwritable_env_vars => Chef::Config[:allowed_overwritable_env_vars],
         :max_body_size   => Chef::Config[:max_body_size]
