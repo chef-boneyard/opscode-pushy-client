@@ -4,7 +4,7 @@ config: omnibus/omnibus.rb
 test-path: omnibus/omnibus-test.sh
 test-path-windows: omnibus/omnibus-test.ps1
 builder-to-testers-map:
-  windows-2012r2-x86_64:
+  windows-2016-x86_64:
     - windows-2016-x86_64
     - windows-2019-x86_64
     - windows-10-x86_64
