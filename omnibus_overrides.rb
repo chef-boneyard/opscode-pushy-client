@@ -6,7 +6,6 @@ override :ohai,           version: "v15.9.1"
 override :ruby,           version: "2.6.6"
 
 override :libxml2,        version: "2.9.10"
-override :libsodium,      version: "1.0.12"
 
 if aix?
   # To get LibZMQ building on AIX we needed to update to 4.2.2 because it has autotools and
