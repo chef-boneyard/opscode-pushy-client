@@ -1,16 +1,17 @@
 # Chef Push Client Changes
 <!-- usage documentation: http://expeditor-docs.es.chef.io/configuration/changelog/ -->
-<!-- latest_release 3.0.12 -->
-## [3.0.12](https://github.com/chef/opscode-pushy-client/tree/3.0.12) (2020-07-02)
+<!-- latest_release 3.0.13 -->
+## [3.0.13](https://github.com/chef/opscode-pushy-client/tree/3.0.13) (2020-08-21)
 
 #### Merged Pull Requests
-- Fix for file_dir option [#207](https://github.com/chef/opscode-pushy-client/pull/207) ([kapilchouhan99](https://github.com/kapilchouhan99))
+- Update Gemfile.lock again [#210](https://github.com/chef/opscode-pushy-client/pull/210) ([jaymalasinha](https://github.com/jaymalasinha))
 <!-- latest_release -->
 
 <!-- release_rollup since=2.5.6 -->
 ### Changes since 2.5.6 release
 
 #### Merged Pull Requests
+- Update Gemfile.lock again [#210](https://github.com/chef/opscode-pushy-client/pull/210) ([jaymalasinha](https://github.com/jaymalasinha)) <!-- 3.0.13 -->
 - Fix for file_dir option [#207](https://github.com/chef/opscode-pushy-client/pull/207) ([kapilchouhan99](https://github.com/kapilchouhan99)) <!-- 3.0.12 -->
 - Update release notes, process, platforms. [#202](https://github.com/chef/opscode-pushy-client/pull/202) ([btm](https://github.com/btm)) <!-- 3.0.11 -->
 - Bumps for Chef 16 [#201](https://github.com/chef/opscode-pushy-client/pull/201) ([btm](https://github.com/btm)) <!-- 3.0.10 -->
